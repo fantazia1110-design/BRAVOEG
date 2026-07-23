@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRAVO - تحميل المنتج</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/download.css">
+</head>
+<body>
+    <div class="success-container" id="mainContainer" style="display:none;" data-reveal="bounceIn">
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+
+        <h1 id="pageTitle">تم تأكيد الدفع بنجاح! 🎉</h1>
+        <p class="message" id="pageMessage">
+            مبروك! تم تأكيد عملية الدفع وطلبك جاهز الآن. يمكنك تحميل المنتج مباشرة من خلال الزر أدناه.
+        </p>
+
+        <div class="order-details" id="orderDetails">
+        </div>
+
+        <div class="download-section" data-reveal="fadeInUp" id="downloadSection">
+            <h2>📥 منتجك جاهز للتحميل</h2>
+            <p>اضغط على الزر أدناه لبدء التحميل الفوري.</p>
+            <a href="#" id="downloadBtn" class="download-btn" target="_blank">
+                <i class="fas fa-download"></i>
+                تحميل الآن
+            </a>
+        </div>
+
+        <div class="action-buttons" data-reveal="fadeInUp">
+            <a href="index.html" class="btn btn-primary">
+                <i class="fas fa-shopping-bag"></i> تسوق المزيد
+            </a>
+        </div>
+    </div>
+
+    <div class="success-container" id="errorContainer" style="display:none;">
+        <div class="success-icon" style="background:var(--error,#ef4444);">
+            <i class="fas fa-times"></i>
+        </div>
+        <h1 id="errorTitle">عذراً!</h1>
+        <p class="message" id="errorMessage">هذا الطلب غير متاح للتحميل حالياً.</p>
+        <div class="action-buttons">
+            <a href="orders.html" class="btn btn-primary">
+                <i class="fas fa-box"></i> طلباتي
+            </a>
+            <a href="index.html" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:12px;padding:18px 40px;background:var(--card-bg);color:var(--text-primary);border-radius:16px;font-size:1.1em;font-weight:700;text-decoration:none;border:1px solid var(--border-color);margin-top:15px;">
+                <i class="fas fa-home"></i> العودة للرئيسية
+            </a>
+        </div>
+    </div>
+
+    <div class="success-container" id="loadingContainer">
+        <div style="text-align:center;padding:80px 20px;">
+            <i class="fas fa-spinner fa-spin" style="font-size:4em;color:var(--primary,#9333ea);margin-bottom:30px;"></i>
+            <h2 style="color:var(--text-primary);">جاري التحقق من الطلب...</h2>
+        </div>
+    </div>
+
+    <script src="js/include.js?v=20"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyARSfRX09EHrwwMvk7q0Y1VOQuvvtFuADc",
+            authDomain: "date-c74fc.firebaseapp.com",
+            databaseURL: "https://date-c74fc-default-rtdb.firebaseio.com",
+            projectId: "date-c74fc",
+            storageBucket: "date-c74fc.firebasestorage.app",
+            messagingSenderId: "149705983794",
+            appId: "1:149705983794:web:257085b8b55b3f31f1b92b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const loadingEl = document.getElementById('loadingContainer');
+        const mainEl = document.getElementById('mainContainer');
+        const errorEl = document.getElementById('errorContainer');
+
+        function showError(title, msg) {
+            loadingEl.style.display = 'none';
+            errorEl.style.display = 'block';
+            document.getElementById('errorTitle').textContent = title;
+            document.getElementById('errorMessage').textContent = msg;
+        }
+
+        async function loadOrderFromDB(orderId) {
+            try {
+                const snap = await get(ref(database, 'orders/' + orderId));
+                if (snap.exists()) {
+                    const order = snap.val();
+                    order.id = orderId;
+                    return order;
+                }
+            } catch(e) {}
+            try {
+                const allSnap = await get(ref(database, 'orders'));
+                if (allSnap.exists()) {
+                    const all = allSnap.val();
+                    for (const id in all) {
+                        if (id === orderId || (all[id].orderId === orderId)) {
+                            const order = all[id];
+                            order.id = id;
+                            return order;
+                        }
+                    }
+                }
+            } catch(e) {}
+            return null;
+        }
+
+        function createConfetti() {
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#10b981', '#fbbf24'];
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 2 + 's';
+                    confetti.style.width = (Math.random() * 10 + 5) + 'px';
+                    confetti.style.height = confetti.style.width;
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 30);
+            }
+        }
+
+        function displayOrder(order) {
+            loadingEl.style.display = 'none';
+            mainEl.style.display = 'block';
+
+            const dt = new Date(order.createdAt || order.orderDate || Date.now());
+            const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+            const fullDate = `${dayNames[dt.getDay()]} - ${dt.toLocaleDateString('ar-EG')} - الساعة ${dt.toLocaleTimeString('ar-EG', {hour:'2-digit',minute:'2-digit'})}`;
+
+            document.getElementById('orderDetails').innerHTML = `
+                <h2>تفاصيل الطلب</h2>
+                <div class="detail-row">
+                    <span class="detail-label">رقم الطلب:</span>
+                    <span class="detail-value">${order.id || order.orderId || ''}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">المنتج:</span>
+                    <span class="detail-value">${order.productTitle || 'منتج رقمي'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">المبلغ المدفوع:</span>
+                    <span class="detail-value">${order.price || 0} ${order.currency || 'جنيه'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">طريقة الدفع:</span>
+                    <span class="detail-value">${order.paymentMethodName || order.paymentMethod || ''}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">الاسم:</span>
+                    <span class="detail-value">${order.customerName || ''}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">البريد الإلكتروني:</span>
+                    <span class="detail-value">${order.customerEmail || ''}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">تاريخ الطلب:</span>
+                    <span class="detail-value">${fullDate}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">الحالة:</span>
+                    <span class="detail-value" style="color: #10b981;">✅ مؤكد</span>
+                </div>
+            `;
+
+            const downloadLink = order.downloadLink || '';
+            const btn = document.getElementById('downloadBtn');
+            if (downloadLink) {
+                btn.href = downloadLink;
+                btn.style.display = 'inline-flex';
+            } else {
+                btn.style.display = 'none';
+                document.querySelector('.download-section p').textContent = 'رابط التحميل غير متاح حالياً، يرجى التواصل مع الدعم الفني.';
+            }
+
+            createConfetti();
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        let orderId = params.get('order');
+
+        if (!orderId) {
+            const stored = localStorage.getItem('currentOrder');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    orderId = parsed.orderId || parsed.id;
+                } catch(e) {}
+            }
+        }
+
+        if (!orderId) {
+            showError('لا يوجد طلب', 'لم يتم العثور على رقم الطلب. يرجى التحقق من رابط التحميل.');
+        } else {
+            let order = await loadOrderFromDB(orderId);
+            if (!order) {
+                const stored = localStorage.getItem('currentOrder');
+                if (stored) {
+                    try { order = JSON.parse(stored); } catch(e) {}
+                }
+            }
+            if (!order) {
+                showError('لم يتم العثور على الطلب', 'عذراً، لم نتمكن من العثور على هذا الطلب. قد يكون قد تم حذفه أو أن الرابط غير صحيح.');
+            } else if (order.status === 'confirmed' && order.downloadGranted === true) {
+                displayOrder(order);
+            } else if (order.status === 'rejected') {
+                showError('تم رفض الطلب', 'عذراً، لم يتم تأكيد طلبك. يرجى التواصل مع الدعم الفني للمزيد من المعلومات.');
+            } else {
+                showError('الطلب لم يتم تأكيده بعد', 'طلبك لا يزال قيد المراجعة. سيتم إعلامك فور تأكيد الدفع. يمكنك متابعة حالة طلبك من صفحة الطلبات.');
+            }
+        }
+    </script>
+</body>
+</html>

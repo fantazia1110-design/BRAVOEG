@@ -1,0 +1,48 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    
+    "products": {
+      ".read": true,
+      ".write": "auth != null",
+      ".indexOn": ["createdAt", "category", "title"],
+      "$productId": {
+        ".validate": "newData.hasChildren(['id', 'title', 'priceEGP', 'priceUSD', 'category', 'icon', 'description', 'downloadLink', 'createdAt'])"
+      }
+    },
+    
+    "orders": {
+      ".read": true,
+      ".write": "auth != null",
+      ".indexOn": ["status", "orderDate", "createdAt", "customerEmail"],
+      "$orderId": {
+        ".validate": "newData.hasChildren(['orderId', 'productTitle', 'price', 'currency', 'paymentMethod', 'customerName', 'customerEmail', 'customerPhone', 'status', 'orderDate'])"
+      }
+    },
+    
+    "stats": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+
+    "pages_content": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    
+    "settings": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+
+    "profiles": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["phoneNumber", "email", "updatedAt"],
+      "$profileId": {
+        ".validate": "newData.hasChildren(['updatedAt'])"
+      }
+    }
+  }
+}

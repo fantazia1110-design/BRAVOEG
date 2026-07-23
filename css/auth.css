@@ -1,0 +1,1383 @@
+/* ╔══════════════════════════════════════════════════════════════════════════════════╗
+   ║                                                                                ║
+   ║   📄 صفحة: تسجيل الدخول والتسجيل (Auth Page - Login & Register)              ║
+   ║   الوصف: صفحة المصادقة - تسجيل الدخول + إنشاء حساب + السوشيال لوجين          ║
+   ║          + التحقق من الإيميل + نسيت كلمة المرور                                ║
+   ║   ملاحظة: هذا الملف يعتمد على الأساسيات العامة (Global Styles)                 ║
+   ║                                                                                ║
+   ╚══════════════════════════════════════════════════════════════════════════════════╝ */
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   🎨 الهيكل الأساسي للصفحة (Auth Page Body)              ║
+   ║   الوصف: خلفية الصفحة والتنسيق العام                      ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page > .container { padding: 80px 5% 0; max-width: 1200px; margin: 80px auto 0; }
+
+.auth-page .page-hero-wrapper {
+    margin-bottom: 20px;
+}
+
+.auth-page {
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.auth-page header {
+    background: rgba(8, 0, 20, 0.95);
+    border-bottom-color: rgba(147, 51, 234, 0.5) !important;
+}
+
+.auth-page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(147, 51, 234, 0.4) 0%, transparent 45%),
+        radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.3) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(147, 51, 234, 0.1) 0%, transparent 60%);
+    animation: authPulse 8s ease-in-out infinite;
+    z-index: 0;
+    pointer-events: none;
+}
+
+@keyframes authPulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   📦 حاوية الفورم (Auth Section & Container)              ║
+   ║   الوصف: المنطقة الرئيسية اللي فيها الفورم                ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 5% 60px;
+    position: relative;
+    z-index: 1;
+}
+
+.auth-container {
+    width: 90%;
+    max-width: 500px;
+    background: rgba(147, 51, 234, 0.08);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 2px solid rgba(147, 51, 234, 0.2);
+    border-radius: 30px;
+    padding: 30px 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(147, 51, 234, 0.15);
+    animation: authSlideUp 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at 30% 40%, rgba(147, 51, 234, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(245, 158, 11, 0.04) 0%, transparent 50%);
+    animation: authBgShift 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes authBgShift {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(8%, 8%) rotate(2deg); }
+    66% { transform: translate(-8%, -8%) rotate(-2deg); }
+}
+
+@keyframes authSlideUp {
+    from { opacity: 0; transform: translateY(50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   🖼️ لوجو الصفحة (Auth Logo)                              ║
+   ║   الوصف: اللوجو والعنوان أعلى الفورم                      ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .logo-section {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+    padding-top: 15px;
+}
+
+.auth-page .logo-section::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(147, 51, 234, 0.3) 0%, transparent 70%);
+    animation: authLogoPulse 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes authLogoPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.3; }
+    50% { transform: translate(-50%, -50%) scale(1.6); opacity: 1; }
+}
+
+.auth-page .logo-section img {
+    width: 160px;
+    height: 160px;
+    margin-bottom: 5px;
+    filter: drop-shadow(0 0 40px rgba(147, 51, 234, 0.8)) drop-shadow(0 0 80px rgba(147, 51, 234, 0.3));
+    animation: authLogoFloat 4s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes authLogoFloat {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    25% { transform: translateY(-25px) rotate(-5deg); }
+    50% { transform: translateY(-8px) rotate(0deg); }
+    75% { transform: translateY(-25px) rotate(5deg); }
+}
+
+.auth-page .logo-section h1 {
+    font-size: 2.5em;
+    font-weight: 900;
+    background: linear-gradient(90deg, #9333ea 0%, #f59e0b 25%, #9333ea 50%, #f59e0b 75%, #9333ea 100%);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: authTitleShift 4s ease-in-out infinite;
+    margin-bottom: 10px;
+}
+
+@keyframes authTitleShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.auth-page .logo-section p {
+    color: #fff;
+    font-size: 1.15em;
+    font-weight: 700;
+    text-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   📑 تبويبات الفورم (Auth Tabs)                            ║
+   ║   الوصف: أزرار التنقل بين تسجيل الدخول وإنشاء حساب       ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .tabs {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 35px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px;
+    border-radius: 15px;
+    border: none;
+}
+
+.auth-page .tab-btn {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 1.05em;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+
+.auth-page .tab-btn:hover:not(.active) {
+    background: rgba(147, 51, 234, 0.12);
+    border-color: rgba(147, 51, 234, 0.3);
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.15);
+    transform: translateY(-2px);
+}
+
+.auth-page .tab-btn.active {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 5px 20px rgba(147, 51, 234, 0.4), 0 0 15px rgba(147, 51, 234, 0.2);
+}
+
+.auth-page .tab-btn:hover:not(.active) {
+    background: rgba(147, 51, 234, 0.15);
+}
+
+/* --- أقسام الفورم (Form Sections) --- */
+
+.auth-page .form-section {
+    display: none;
+}
+
+.auth-page .form-section.active {
+    display: block;
+    animation: authFadeIn 0.5s;
+}
+
+@keyframes authFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   📝 حقول الإدخال (Input Groups)                           ║
+   ║   الوصف: تنسيق الحقول + الأيقونات + رسائل الخطأ           ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .input-group {
+    margin-bottom: 25px;
+}
+
+.auth-page .input-group label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 700;
+    font-size: 0.95em;
+    color: var(--text-primary);
+}
+
+.auth-page .input-wrapper {
+    position: relative;
+}
+
+.auth-page .input-wrapper > i {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 1.2em;
+    pointer-events: none;
+    z-index: 1;
+}
+
+body[dir="ltr"] .auth-page .input-wrapper > i {
+    right: auto;
+    left: 18px;
+}
+
+.auth-page .input-group input {
+    width: 100%;
+    padding: 15px 50px 15px 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(147, 51, 234, 0.2);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1em;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+body[dir="ltr"] .auth-page .input-group input {
+    padding: 15px 20px 15px 50px;
+}
+
+.auth-page .input-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+    transform: translateY(-2px);
+}
+
+.auth-page .input-group input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.auth-page .input-group input.error {
+    border-color: var(--danger);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+}
+
+/* --- رسالة الخطأ (Input Error) --- */
+
+.auth-page .input-error {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    background: rgba(239, 68, 68, 0.12);
+    border: 2px solid rgba(239, 68, 68, 0.35);
+    border-radius: 14px;
+    color: var(--danger);
+    font-weight: 700;
+    font-size: 0.9em;
+    text-align: center;
+    animation: authShake 0.4s;
+}
+
+.auth-page .input-error i {
+    font-size: 1.3em;
+    flex-shrink: 0;
+}
+
+.auth-page .input-error.show {
+    display: flex;
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   🔐 قوة كلمة المرور (Password Strength)                  ║
+   ║   الوصف: شريط يوضح قوة كلمة المرور (ضعيفة/متوسطة/قوية)  ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .password-strength {
+    margin-top: 12px;
+    display: none;
+}
+
+.auth-page .password-strength.show {
+    display: block;
+    animation: authFadeIn 0.3s;
+}
+
+.auth-page .strength-bar {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.auth-page .strength-fill {
+    height: 100%;
+    width: 0%;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 3px;
+}
+
+.auth-page .strength-fill.weak {
+    width: 33%;
+    background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.auth-page .strength-fill.medium {
+    width: 66%;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.auth-page .strength-fill.strong {
+    width: 100%;
+    background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.auth-page .strength-text {
+    font-size: 0.85em;
+    font-weight: 700;
+}
+
+.auth-page .strength-text.weak { color: var(--danger); }
+.auth-page .strength-text.medium { color: var(--warning); }
+.auth-page .strength-text.strong { color: var(--success); }
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   👁️ زر إظهار/إخفاء كلمة المرور (Password Toggle)        ║
+   ║   الوصف: أيقونة العين لإظهار أو إخفاء الباسوورد           ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .password-toggle {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1.2em;
+    transition: all 0.3s;
+    z-index: 2;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+body[dir="ltr"] .auth-page .password-toggle {
+    left: auto;
+    right: 18px;
+}
+
+.auth-page .password-toggle:hover {
+    color: var(--primary);
+    background: rgba(147, 51, 234, 0.1);
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   ✉️ إشعار التحقق من الإيميل (Verification Notice)        ║
+   ║   الوصف: الرسالة اللي بتظهر بعد التسجيل لتأكيد الإيميل   ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .verification-notice {
+    background: rgba(59, 130, 246, 0.15);
+    border: 2px solid #3b82f6;
+    border-radius: 20px;
+    padding: 35px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.auth-page .verification-notice > i {
+    font-size: 4em;
+    color: #3b82f6;
+    margin-bottom: 20px;
+    display: block;
+    animation: authBounce 2s infinite;
+}
+
+@keyframes authBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.auth-page .verification-notice h3 {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    color: var(--text-primary);
+    font-weight: 800;
+}
+
+.auth-page .verification-notice p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.auth-page .verification-notice strong {
+    color: #3b82f6;
+    font-weight: 900;
+    font-size: 1.1em;
+}
+
+.auth-page .resend-email-btn {
+    margin-top: 20px;
+    padding: 14px 30px;
+    background: rgba(147, 51, 234, 0.1);
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    color: var(--primary);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.auth-page .resend-email-btn:hover:not(:disabled) {
+    background: var(--gradient-primary);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(147, 51, 234, 0.4), 0 0 20px rgba(147, 51, 234, 0.15);
+}
+
+.auth-page .resend-email-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   📬 مودال استعادة كلمة المرور (Forgot Password Modal)    ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .forgot-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    animation: authFadeIn 0.3s;
+}
+
+.auth-page .forgot-modal.show {
+    display: flex;
+}
+
+.auth-page .forgot-modal-content {
+    background: #0f0023;
+    border: 2px solid rgba(147, 51, 234, 0.35);
+    border-radius: 24px;
+    padding: 40px 35px;
+    width: 90%;
+    max-width: 420px;
+    position: relative;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(147, 51, 234, 0.15);
+    animation: authSlideUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.auth-page .forgot-close {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(147, 51, 234, 0.1);
+    border: none;
+    color: var(--text-secondary);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 1.4em;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+body[dir="ltr"] .auth-page .forgot-close {
+    left: auto;
+    right: 16px;
+}
+
+.auth-page .forgot-close:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--danger);
+    transform: rotate(90deg);
+}
+
+.auth-page .forgot-modal-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(245, 158, 11, 0.1));
+    border: 2px solid rgba(147, 51, 234, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 2em;
+    color: var(--primary);
+}
+
+.auth-page .forgot-modal-icon.success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05));
+    border-color: rgba(16, 185, 129, 0.4);
+    color: var(--success);
+}
+
+.auth-page .forgot-spam-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 18px;
+    margin-bottom: 25px;
+    background: rgba(245, 158, 11, 0.12);
+    border: 2px solid rgba(245, 158, 11, 0.3);
+    border-radius: 14px;
+    color: var(--warning);
+    font-weight: 700;
+    font-size: 0.9em;
+    text-align: right;
+    line-height: 1.7;
+}
+
+.auth-page .forgot-spam-note i {
+    font-size: 1.3em;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.auth-page .forgot-spam-note strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 1.05em;
+}
+
+.auth-page .forgot-actions {
+    margin-bottom: 15px;
+}
+
+.auth-page .forgot-actions .submit-btn {
+    width: 100%;
+}
+
+.auth-page .forgot-modal-content h3 {
+    font-size: 1.5em;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+}
+
+.auth-page .forgot-modal-content > p {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.95em;
+    margin-bottom: 25px;
+    line-height: 1.6;
+}
+
+.auth-page #forgotStepSuccess > p {
+    margin-bottom: 30px;
+}
+
+.auth-page .forgot-error {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 12px;
+    color: var(--danger);
+    font-weight: 700;
+    font-size: 0.85em;
+    margin-bottom: 15px;
+    animation: authShake 0.4s;
+}
+
+.auth-page .forgot-error.show {
+    display: flex;
+}
+
+.auth-page .forgot-error i {
+    font-size: 1.2em;
+    flex-shrink: 0;
+}
+
+.auth-page .forgot-cancel {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.95em;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s;
+}
+
+.auth-page .forgot-cancel:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: rgba(147, 51, 234, 0.08);
+}
+
+.auth-page .forgot-modal .submit-btn {
+    margin-top: 5px;
+}
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   🔗 نسيت كلمة المرور (Forgot Password)                   ║
+   ║   الوصف: رابط "نسيت كلمة المرور" تحت حقل الباسوورد       ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .forgot-password {
+    text-align: left;
+    margin-bottom: 25px;
+}
+
+body[dir="ltr"] .auth-page .forgot-password {
+    text-align: right;
+}
+
+.auth-page .forgot-password a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9em;
+    transition: all 0.3s;
+    position: relative;
+}
+
+.auth-page .forgot-password a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+}
+
+.auth-page .forgot-password a:hover::after {
+    transform: scaleX(1);
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   🚀 زر الإرسال (Auth Submit Button)                       ║
+   ║   الوصف: زر تسجيل الدخول / إنشاء حساب                     ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .submit-btn {
+    width: 100%;
+    padding: 18px;
+    background: var(--gradient-primary);
+    border: none;
+    border-radius: 15px;
+    color: white;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.auth-page .submit-btn::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+    transform: rotate(45deg);
+    transition: all 0.5s;
+    opacity: 0;
+}
+
+.auth-page .submit-btn:hover::before {
+    opacity: 1;
+    animation: authShineBtn 1.5s linear infinite;
+}
+
+@keyframes authShineBtn {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+.auth-page .submit-btn:hover:not(:disabled) {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(147, 51, 234, 0.6), 0 0 30px rgba(147, 51, 234, 0.3), 0 0 60px rgba(147, 51, 234, 0.15);
+    border-color: #a855f7;
+}
+
+.auth-page .submit-btn:active:not(:disabled) {
+    transform: translateY(-1px) scale(0.98);
+}
+
+.auth-page .submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* --- سبينر التحميل (Loading Spinner) --- */
+
+.auth-page .submit-btn .spinner {
+    display: none;
+    width: 22px;
+    height: 22px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: authSpin 0.8s linear infinite;
+}
+
+.auth-page .submit-btn.loading .spinner {
+    display: inline-block;
+}
+
+.auth-page .submit-btn.loading span {
+    opacity: 0.7;
+}
+
+@keyframes authSpin {
+    to { transform: rotate(360deg); }
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   ➖ الفاصل (Divider)                                      ║
+   ║   الوصف: الخط الفاصل بين الفورم والسوشيال لوجين           ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .divider {
+    text-align: center;
+    margin: 30px 0;
+    position: relative;
+}
+
+.auth-page .divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(147, 51, 234, 0.3), transparent);
+}
+
+.auth-page .divider span {
+    position: relative;
+    padding: 0 20px;
+    color: var(--text-secondary);
+    font-weight: 700;
+    font-size: 0.95em;
+    background: transparent;
+}
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   🌐 تسجيل الدخول بالسوشيال ميديا (Social Login)          ║
+   ║   الوصف: أزرار Google و Facebook                           ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+/* --- الأزرار الصغيرة (Grid Layout) --- */
+
+.auth-page .social-login {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.auth-page .social-btn {
+    padding: 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(147, 51, 234, 0.2);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 1em;
+}
+
+.auth-page .social-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(147, 51, 234, 0.3), 0 0 15px rgba(147, 51, 234, 0.1);
+    border-color: var(--primary);
+}
+
+.auth-page .social-btn i {
+    font-size: 1.3em;
+}
+
+.auth-page .social-btn.google:hover {
+    background: rgba(147, 51, 234, 0.12);
+}
+
+.auth-page .social-btn.facebook:hover {
+    background: rgba(147, 51, 234, 0.12);
+}
+
+
+/* --- الأزرار الكبيرة الرئيسية (Main Social Buttons) --- */
+
+.social-login-main {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.social-login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex: 1;
+    padding: 14px 18px;
+    border: 2px solid rgba(147, 51, 234, 0.2);
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.25);
+    color: var(--text-primary);
+    font-family: 'Cairo', sans-serif;
+    font-weight: 700;
+    font-size: 0.95em;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    overflow: hidden;
+}
+
+.social-login-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.social-login-btn:hover::before {
+    left: 100%;
+}
+
+.social-login-btn .social-icon {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.social-login-btn .social-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.social-login-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(147, 51, 234, 0.3), 0 0 20px rgba(147, 51, 234, 0.15);
+    border-color: rgba(147, 51, 234, 0.5);
+}
+
+/* Google */
+.social-login-btn.google:hover,
+.social-login-btn.google:active,
+.social-login-btn.facebook:hover,
+.social-login-btn.facebook:active {
+    background: rgba(147, 51, 234, 0.15);
+    border-color: var(--primary);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4), 0 0 25px rgba(147, 51, 234, 0.2);
+}
+
+.social-login-btn.google:active,
+.social-login-btn.facebook:active {
+    transform: translateY(-1px);
+}
+
+/* حالة التحميل */
+.social-login-btn.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.social-login-btn.loading span {
+    opacity: 0.5;
+}
+
+.social-login-btn.loading::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: authSpinBtn 0.8s linear infinite;
+    margin-right: 10px;
+}
+
+@keyframes authSpinBtn {
+    to { transform: rotate(360deg); }
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   🔙 روابط الرجوع (Back Links)                             ║
+   ║   الوصف: رابط الرجوع للصفحة الرئيسية                      ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .back-home,
+.auth-page .back-link {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.auth-page .back-home a,
+.auth-page .back-link a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 30px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.95em;
+}
+
+.auth-page .back-home a:hover,
+.auth-page .back-link a:hover {
+    color: var(--primary);
+    background: rgba(147, 51, 234, 0.1);
+    border-color: rgba(147, 51, 234, 0.3);
+    box-shadow: 0 0 25px rgba(147, 51, 234, 0.15);
+    transform: translateY(-2px);
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   ⚠️ رسائل التنبيه (Auth Alerts)                           ║
+   ║   الوصف: رسائل النجاح والخطأ والتحذير في الفورم           ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .alert {
+    padding: 15px 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    animation: authAlertSlide 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    font-size: 0.95em;
+}
+
+@keyframes authAlertSlide {
+    from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.auth-page .alert.show {
+    display: flex;
+}
+
+.auth-page .alert-success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 2px solid var(--success);
+    color: var(--success);
+}
+
+.auth-page .alert-error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 2px solid var(--danger);
+    color: var(--danger);
+}
+
+.auth-page .alert-info {
+    background: rgba(59, 130, 246, 0.15);
+    border: 2px solid #3b82f6;
+    color: #3b82f6;
+}
+
+.auth-page .alert-warning {
+    background: rgba(245, 158, 11, 0.15);
+    border: 2px solid var(--warning);
+    color: var(--warning);
+}
+
+.auth-page .alert i {
+    font-size: 1.5em;
+    flex-shrink: 0;
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   ☑️ الشيك بوكس (Auth Checkbox)                            ║
+   ║   الوصف: خانة الموافقة على الشروط والأحكام                ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.auth-page .checkbox-group input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    accent-color: var(--primary);
+    border-radius: 5px;
+}
+
+.auth-page .checkbox-group label {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.auth-page .checkbox-group a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.auth-page .checkbox-group a:hover {
+    text-decoration: underline;
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   💫 أنيميشن الاهتزاز (Shake Animation)                   ║
+   ║   الوصف: اهتزاز الفورم عند إدخال بيانات خاطئة             ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+.auth-page .shake {
+    animation: authShake 0.5s;
+}
+
+@keyframes authShake {
+    0%, 100% { transform: translateX(0); }
+    10%, 50%, 90% { transform: translateX(-8px); }
+    30%, 70% { transform: translateX(8px); }
+}
+
+
+/* ╔══════════════════════════════════════════════════════════════╗
+   ║   📱 ريسبونسف صفحة المصادقة (Auth Page Responsive)       ║
+   ║   الوصف: تنسيق صفحة تسجيل الدخول على الشاشات الصغيرة    ║
+   ╚══════════════════════════════════════════════════════════════╝ */
+
+@media (max-width: 768px) {
+    .auth-page > .container { margin-top: 0 !important; padding-top: 100px; }
+
+    .auth-section {
+        padding: 15px 4% 40px;
+    }
+
+    .auth-container {
+        padding: 35px 25px;
+        border-radius: 22px;
+        background: rgba(147, 51, 234, 0.12);
+        border-color: rgba(147, 51, 234, 0.35);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(147, 51, 234, 0.15);
+    }
+
+.auth-page .logo-section {
+        padding-top: 10px;
+    }
+
+    .auth-page .logo-section h1 {
+        font-size: 2em;
+    }
+
+    .auth-page .logo-section img {
+        width: 120px;
+        height: 120px;
+    }
+
+    .auth-page .logo-section p {
+        font-size: 1.05em;
+    }
+
+    .auth-page .tab-btn {
+        font-size: 1em;
+        padding: 10px;
+    }
+
+    .auth-page .submit-btn {
+        font-size: 1.05em;
+        padding: 15px;
+    }
+
+    .auth-page .forgot-modal-content {
+        padding: 30px 25px;
+        border-radius: 20px;
+    }
+
+    .auth-page .forgot-actions .submit-btn {
+        padding: 13px 10px;
+        font-size: 0.9em;
+    }
+
+    .forgot-actions {
+        margin-bottom: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .auth-page > .container { margin-top: 0 !important; padding-top: 90px; }
+}
+
+@media (max-width: 480px) {
+    .auth-page > .container { margin-top: 0 !important; padding-top: 88px; }
+
+    .auth-section {
+        padding: 10px 3% 30px;
+    }
+
+    .auth-container {
+        width: 95%;
+        padding: 28px 18px;
+        border-radius: 18px;
+        background: rgba(147, 51, 234, 0.12);
+        border-color: rgba(147, 51, 234, 0.35);
+        border-width: 1.5px;
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(147, 51, 234, 0.12);
+    }
+
+    .auth-page .logo-section {
+        padding-top: 0;
+        margin-bottom: 25px;
+    }
+
+    .auth-page .logo-section h1 {
+        font-size: 1.6em;
+    }
+
+    .auth-page .logo-section img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .auth-page .logo-section p {
+        font-size: 0.95em;
+    }
+
+    .auth-page .tab-btn {
+        font-size: 0.9em;
+        padding: 9px;
+    }
+
+    .auth-page .input-group input {
+        padding: 13px 45px 13px 18px;
+        font-size: 0.95em;
+    }
+
+    body[dir="ltr"] .auth-page .input-group input {
+        padding: 13px 18px 13px 45px;
+    }
+
+    .auth-page .submit-btn {
+        font-size: 1em;
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .auth-page .social-login {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-page .social-btn {
+        padding: 12px;
+    }
+
+    .auth-page .forgot-modal-content {
+        padding: 25px 18px;
+    }
+
+    .auth-page .forgot-modal-icon {
+        width: 55px;
+        height: 55px;
+        font-size: 1.6em;
+        margin-bottom: 15px;
+    }
+
+    .auth-page .forgot-modal-content h3 {
+        font-size: 1.3em;
+    }
+
+    .auth-page .forgot-spam-note {
+        padding: 14px 14px;
+        font-size: 0.85em;
+        margin-bottom: 20px;
+    }
+
+    .auth-page .verification-notice {
+        padding: 25px 20px;
+    }
+
+    .auth-page .verification-notice > i {
+        font-size: 3em;
+    }
+
+    .auth-page .verification-notice h3 {
+        font-size: 1.3em;
+    }
+
+    .auth-page .alert {
+        padding: 12px 15px;
+        font-size: 0.9em;
+    }
+
+    .social-login-btn {
+        padding: 12px 14px;
+        font-size: 0.88em;
+    }
+}
+
+@media (max-width: 400px) {
+    .auth-page > .container { margin-top: 0 !important; padding-top: 85px; }
+
+    .auth-container {
+        padding: 22px 14px;
+        background: rgba(147, 51, 234, 0.12);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(147, 51, 234, 0.1);
+    }
+
+    .auth-page .logo-section img {
+        width: 85px;
+        height: 85px;
+    }
+
+    .auth-page .logo-section h1 {
+        font-size: 1.4em;
+    }
+
+    .auth-page .submit-btn {
+        font-size: 0.95em;
+        padding: 12px;
+    }
+
+    .social-login-main {
+        flex-direction: column;
+    }
+
+    .social-login-btn {
+        padding: 12px 14px;
+        font-size: 0.85em;
+    }
+}
+
+@media (max-width: 360px) {
+    .auth-page > .container { margin-top: 0 !important; padding-top: 80px; }
+
+    .auth-container {
+        padding: 18px 12px;
+        border-radius: 16px;
+        background: rgba(147, 51, 234, 0.12);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(147, 51, 234, 0.08);
+    }
+
+    .auth-page .logo-section img {
+        width: 75px;
+        height: 75px;
+    }
+
+    .auth-page .logo-section h1 {
+        font-size: 1.25em;
+    }
+
+    .auth-page .tab-btn {
+        font-size: 0.82em;
+        padding: 7px;
+    }
+}

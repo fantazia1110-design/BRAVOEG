@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <title data-ar="BRAVO | من نحن - رحلتنا نحو التميز 🔥" data-en="BRAVO | About Us - Our Journey to Excellence 🔥" data-fr="BRAVO | À propos de nous - Notre parcours vers l'excellence 🔥">BRAVO | من نحن - رحلتنا نحو التميز 🔥</title>
+    
+    <meta name="description" data-ar="تعرف على BRAVO - المنصة الأولى لتعليم صناعة المنظفات ومستحضرات التجميل والعطور. +5 سنوات خبرة، +32,000 عميل سعيد" data-en="Discover BRAVO - the #1 platform for learning detergent, cosmetics, and perfume manufacturing. 5+ years of experience, 32,000+ happy customers" data-fr="Découvrez BRAVO - la première plateforme pour apprendre la fabrication de détergents, cosmétiques et parfums. 5+ ans d'expérience, 32 000+ clients satisfaits" content="تعرف على BRAVO - المنصة الأولى لتعليم صناعة المنظفات ومستحضرات التجميل والعطور. +5 سنوات خبرة، +32,000 عميل سعيد">
+    <meta name="keywords" content="BRAVO, صناعة المنظفات, تركيبات كيميائية, كورسات صناعة, برامج مصانع">
+    <meta name="author" content="BRAVO">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="BRAVO | من نحن">
+    <meta property="og:description" content="المنصة العربية الأولى لتعليم الصناعات الكيميائية">
+    <meta property="og:site_name" content="BRAVO">
+    <meta property="og:image" content="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <meta property="og:locale" content="ar_AR">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <link rel="apple-touch-icon" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <meta name="theme-color" content="#9333ea">
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    
+    <!-- Modular CSS -->
+    <link rel="stylesheet" href="shared/css/global.css?v=15">
+    <link rel="stylesheet" href="shared/css/toast.css?v=5">
+    <link rel="stylesheet" href="shared/css/header.css?v=22">
+    <link rel="stylesheet" href="shared/css/footer.css?v=15">
+    <link rel="stylesheet" href="shared/css/responsive.css?v=15">
+    <link rel="stylesheet" href="shared/css/components.css?v=15">
+    <link rel="stylesheet" href="shared/css/reveal.css?v=2">
+    <link rel="stylesheet" href="shared/css/quick-view.css?v=22">
+    <link rel="stylesheet" href="css/about.css?v=105">
+    
+</head>
+<body class="about-page">
+
+    <!-- Particles Background -->
+    <canvas id="particles" aria-hidden="true"></canvas>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
+
+    <!-- Dropdown Overlay -->
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    <!-- ==================== HEADER ==================== -->
+<header role="banner">
+    <nav role="navigation" aria-label="Main Navigation">
+        <!-- Logo -->
+        <a href="index.html" class="logo" aria-label="BRAVO Home">
+            <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO Logo" class="logo-img" width="55" height="55">
+            <span class="logo-text">BRAVO</span>
+        </a>
+        
+        <ul class="nav-menu" id="navMenu" role="menubar">
+            <!-- Mobile: divider -->
+            <li class="nav-menu-divider" role="separator"><span data-ar="الحساب" data-en="Account" data-fr="Compte">الحساب</span></li>
+            <!-- Mobile: حسابي -->
+            <li class="mobile-action-item" role="none">
+                <a class="mobile-action-btn" href="Profile.html">
+                    <i class="fas fa-user"></i>
+                    <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
+                </a>
+            </li>
+            <!-- Mobile: طلباتي -->
+            <li class="mobile-action-item" role="none">
+                <a class="mobile-action-btn" href="orders.html">
+                    <i class="fas fa-box"></i>
+                    <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+                    <span class="action-badge" id="ordersBadgeMobile">0</span>
+                </a>
+            </li>
+            <!-- Mobile: divider -->
+            <li class="nav-menu-divider" role="separator"><span data-ar="الصفحات الرئيسية" data-en="Main Pages" data-fr="Pages principales">الصفحات الرئيسية</span></li>
+            <!-- الرئيسية -->
+            <li role="none">
+                <a href="index.html" role="menuitem">
+                    <i class="fas fa-house-chimney" aria-hidden="true"></i>
+                    <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span>
+                </a>
+            </li>
+            <!-- Conditional -->
+            <li class="conditional-nav-item nav-item-wishlist" data-page="wishlist.html" style="display:none;">
+                <a href="Wishlist.html" role="menuitem">
+                    <i class="fas fa-heart"></i>
+                    <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                    <span class="action-badge" id="wishlistBadge">0</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-cart" data-page="cart.html" style="display:none;">
+                <a href="cart.html" role="menuitem">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                    <span class="action-badge" id="cartBadge">0</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-checkout" data-page="checkout.html" style="display:none;">
+                <a href="checkout.html" role="menuitem">
+                    <i class="fas fa-credit-card"></i>
+                    <span data-ar="إتمام الشراء" data-en="Checkout" data-fr="Paiement">إتمام الشراء</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-profile" data-page="profile.html" style="display:none;">
+                <a href="Profile.html" role="menuitem">
+                    <i class="fas fa-user"></i>
+                    <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-orders" data-page="orders.html" style="display:none;">
+                <a href="orders.html" role="menuitem">
+                    <i class="fas fa-box"></i>
+                    <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+                </a>
+            </li>
+            <!-- المنتجات -->
+            <li role="none">
+                <a href="products.html" role="menuitem">
+                    <i class="fas fa-store" aria-hidden="true"></i>
+                    <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span>
+                </a>
+            </li>
+            <!-- من نحن -->
+            <li role="none">
+                <a href="about.html" class="active" role="menuitem" aria-current="page">
+                    <i class="fas fa-users-gear" aria-hidden="true"></i>
+                    <span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span>
+                </a>
+            </li>
+            <!-- تواصل معنا -->
+            <li role="none">
+                <a href="contact.html" role="menuitem">
+                    <i class="fas fa-headset" aria-hidden="true"></i>
+                    <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span>
+                </a>
+            </li>
+            <!-- Mobile: divider -->
+            <li class="nav-menu-divider" role="separator"><span data-ar="التسوق" data-en="Shopping" data-fr="Achats">التسوق</span></li>
+            <!-- Mobile: wishlist -->
+            <li class="mobile-action-item" role="none">
+                <a class="mobile-action-btn" href="Wishlist.html">
+                    <i class="fas fa-heart"></i>
+                    <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                    <span class="action-badge" id="wishlistBadgeMobile">0</span>
+                </a>
+            </li>
+            <!-- Mobile: cart -->
+            <li class="mobile-action-item" role="none">
+                <a class="mobile-action-btn" href="cart.html">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                    <span class="action-badge" id="cartBadgeMobile">0</span>
+                </a>
+            </li>
+            <!-- Mobile: notifications -->
+            <li class="mobile-action-item" role="none">
+                <a class="mobile-action-btn" href="javascript:toggleDropdown('notificationsDropdown')">
+                    <i class="fas fa-bell"></i>
+                    <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                    <span class="action-badge" id="notificationsBadgeMobile">0</span>
+                </a>
+            </li>
+            <!-- Mobile: language -->
+            <li class="nav-menu-divider" role="separator"><span data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span></li>
+            <li class="mobile-action-item" role="none">
+                <a class="mobile-action-btn" href="javascript:toggleLanguage()">
+                    <i class="fas fa-globe"></i>
+                    <span id="mobileLangText"><span class="flag-icon">🇪🇬</span> <span data-ar="العربية" data-en="English" data-fr="Français">العربية</span></span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Action Buttons -->
+        <div class="nav-actions">
+            
+            <!-- Theme Toggle -->
+            
+
+            <!-- Language Switch -->
+            <div class="action-btn-wrapper">
+                <button class="action-btn lang-switch" onclick="toggleLanguage()" aria-label="تبديل اللغة">
+                    <span id="langText">EN</span>
+                </button>
+                <span class="action-label" data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span>
+            </div>
+
+            <!-- Notifications -->
+            <div class="action-btn-wrapper dropdown" id="notificationsDropdown">
+                <button class="action-btn" onclick="toggleDropdown('notificationsDropdown')" aria-label="الإشعارات" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-bell" aria-hidden="true"></i>
+                    <span class="action-badge" id="notificationsBadge" style="display: none;">0</span>
+                </button>
+                <span class="action-label" data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                <div class="dropdown-menu" id="notificationsMenu" role="menu">
+                    <div class="dropdown-header">
+                        <h4>
+                            <i class="fas fa-bell" aria-hidden="true"></i> 
+                            <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                        </h4>
+                    </div>
+                    <div class="dropdown-content" id="notificationsContent"></div>
+                    <div class="dropdown-footer">
+                        <button class="dropdown-btn" onclick="markAllAsRead()">
+                            <span data-ar="تعليم الكل كمقروء" data-en="Mark all as read" data-fr="Tout lire">تعليم الكل كمقروء</span>
+                            <span class="emoji">✅</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wishlist -->
+            <div class="action-btn-wrapper dropdown" id="wishlistDropdown">
+                <button class="action-btn" onclick="toggleDropdown('wishlistDropdown')" aria-label="المفضلة" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-heart" aria-hidden="true"></i>
+                    <span class="action-badge" id="wishlistBadge" style="display: none;">0</span>
+                </button>
+                <span class="action-label" data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                <div class="dropdown-menu" id="wishlistMenu" role="menu">
+                    <div class="dropdown-header">
+                        <h4>
+                            <i class="fas fa-heart" aria-hidden="true"></i> 
+                            <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                        </h4>
+                    </div>
+                    <div class="dropdown-content" id="wishlistContent"></div>
+                    <div class="dropdown-footer">
+                        <a href="wishlist.html" class="dropdown-btn">
+                            <span data-ar="عرض الكل" data-en="View All" data-fr="Voir tout">عرض الكل</span>
+                            <span class="emoji">❤️</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders -->
+            <div class="action-btn-wrapper">
+                <a href="orders.html" class="action-btn" aria-label="طلباتي">
+                    <i class="fas fa-box" aria-hidden="true"></i>
+                    <span class="action-badge" id="ordersBadge" style="display: none;">0</span>
+                </a>
+                <span class="action-label" data-ar="طلباتي" data-en="Orders" data-fr="Commandes">طلباتي</span>
+            </div>
+            <!-- Cart -->
+            <div class="action-btn-wrapper dropdown" id="cartDropdown">
+                <button class="action-btn" onclick="toggleDropdown('cartDropdown')" aria-label="سلة التسوق" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                    <span class="action-badge" id="cartBadge" style="display: none;">0</span>
+                </button>
+                <span class="action-label" data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                <div class="dropdown-menu" id="cartMenu" role="menu">
+                    <div class="dropdown-header">
+                        <h4>
+                            <i class="fas fa-shopping-cart" aria-hidden="true"></i> 
+                            <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                        </h4>
+                    </div>
+                    <div class="dropdown-content" id="cartContent"></div>
+                    <div class="dropdown-footer">
+                        <a href="cart.html" class="dropdown-btn dropdown-btn-cart">
+                            <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                            <span class="emoji">🛒</span>
+                        </a>
+                        <a href="checkout.html" class="dropdown-btn dropdown-btn-checkout">
+                            <span data-ar="إتمام الشراء" data-en="Checkout" data-fr="Paiement">إتمام الشراء</span>
+                            <span class="emoji">💳</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Menu -->
+            <div class="action-btn-wrapper dropdown" id="userDropdown">
+                <button class="action-btn" onclick="toggleDropdown('userDropdown')" aria-label="حسابي" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                </button>
+                <span class="action-label" data-ar="حسابي" data-en="Account" data-fr="Compte">حسابي</span>
+                <div class="dropdown-menu" id="userMenu" role="menu">
+                    <div class="user-info" id="userInfo">
+                        <div class="user-avatar" id="userAvatar">
+                            <i class="fas fa-user" aria-hidden="true"></i>
+                        </div>
+                        <div class="user-details">
+                            <h4 id="userName" data-ar="زائر" data-en="Guest" data-fr="Invité">زائر</h4>
+                            <p id="userEmail" data-ar="سجل الدخول للمتابعة" data-en="Login to continue" data-fr="Connectez-vous">سجل الدخول للمتابعة</p>
+                        </div>
+                    </div>
+                    <div class="user-menu-content" id="guestMenuContent">
+                        <a href="auth.html" class="user-menu-item">
+                            <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                            <span data-ar="تسجيل الدخول" data-en="Login" data-fr="Connexion">تسجيل الدخول</span>
+                        </a>
+                        <a href="auth.html?mode=register" class="user-menu-item">
+                            <i class="fas fa-user-plus" aria-hidden="true"></i>
+                            <span data-ar="إنشاء حساب جديد" data-en="Create Account" data-fr="Créer un compte">إنشاء حساب جديد</span>
+                        </a>
+                    </div>
+                    <div class="user-menu-content" id="loggedInMenuContent" style="display: none;"></div>
+                    <div class="dropdown-footer" id="logoutSection" style="display: none;">
+                        <button class="dropdown-btn logout-btn" onclick="handleLogout()">
+                            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                            <span data-ar="تسجيل الخروج" data-en="Logout" data-fr="Déconnexion">تسجيل الخروج</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Toggle -->
+            <div class="action-btn-wrapper mobile-menu-toggle">
+                <button class="action-btn" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
+                    <i class="fas fa-bars" id="mobileMenuIcon" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <!-- Admin Button -->
+            <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;" aria-label="لوحة التحكم">
+                <i class="fas fa-user-shield" aria-hidden="true"></i>
+                <span data-ar="لوحة التحكم" data-en="Admin" data-fr="Admin">لوحة التحكم</span>
+            </a>
+            
+        </div>
+    </nav>
+</header>
+
+    <!-- ==================== MAIN CONTENT START ==================== -->
+    <main class="page-content">
+
+        <div class="container">
+            <div class="breadcrumb reveal">
+                <a href="index.html"><i class="fas fa-home home-icon"></i> <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span></a>
+                <i class="fas fa-chevron-left chevron"></i>
+                <span class="current" data-ar="عن الموقع" data-en="About" data-fr="À propos">عن الموقع</span>
+            </div>
+        </div>
+
+        <!-- ==================== HERO SECTION ==================== -->
+        <section class="about-hero-section">
+            
+            <div class="about-hero-wrapper">
+                
+                <!-- Left Content -->
+                <div class="about-hero-content">
+                    
+                    <!-- Hero Tag -->
+                    <div class="hero-tag reveal">
+                        <span class="tag-icon">🔥</span>
+                        <span class="tag-text" data-ar="اكتشف من نحن" data-en="Discover Who We Are" data-fr="Découvrez qui nous sommes">اكتشف من نحن</span>
+                        <span class="tag-line"></span>
+                    </div>
+                    
+                    <!-- Main Title -->
+                    <h1 class="hero-main-title reveal">
+                        <span class="title-small" data-ar="مرحباً بك في" data-en="Welcome to" data-fr="Bienvenue sur">مرحباً بك في</span>
+                        <span class="title-large">
+                            <span class="brand-text">BRAVO</span>
+                        </span>
+                    </h1>
+                    
+                    <!-- Description -->
+                    <p class="hero-description reveal"
+                       data-ar="أكثر من مجرد متجر رقمي.. نحن منصة متكاملة تُمكّن رواد الأعمال والمصنّعين من تحويل أفكارهم إلى مشاريع ناجحة في عالم الصناعات الكيميائية"
+                       data-en="More than a digital store.. We are an integrated platform empowering entrepreneurs and manufacturers to turn their ideas into successful projects" data-fr="Plus qu'une boutique numérique.. Nous sommes une plateforme intégrée qui permet aux entrepreneurs de transformer leurs idées en projets réussis">
+                        أكثر من مجرد متجر رقمي.. نحن منصة متكاملة تُمكّن رواد الأعمال والمصنّعين من تحويل أفكارهم إلى مشاريع ناجحة في عالم الصناعات الكيميائية
+                    </p>
+                    
+                    <!-- Features -->
+                    <div class="hero-features reveal">
+                        <div class="mini-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>تركيبات مجربة</span>
+                        </div>
+                        <div class="mini-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>دعم مستمر</span>
+                        </div>
+                        <div class="mini-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>خبرة +10 سنوات</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="hero-actions reveal">
+                        <a href="#story" class="hero-btn primary">
+                            <span class="btn-text" data-ar="اقرأ قصتنا" data-en="Read Our Story" data-fr="Lire notre histoire">اقرأ قصتنا</span>
+                            <span class="btn-icon"><i class="fas fa-arrow-down"></i></span>
+                        </a>
+                        <a href="products.html" class="hero-btn secondary">
+                            <span class="btn-text" data-ar="تصفح المنتجات" data-en="Browse Products" data-fr="Parcourir les produits">تصفح المنتجات</span>
+                            <span class="btn-icon"><i class="fas fa-shopping-bag"></i></span>
+                        </a>
+                    </div>
+                    
+                </div>
+                
+                <!-- Right Visual -->
+                <div class="about-hero-visual reveal">
+                    <div class="visual-container">
+                        
+                        <!-- Main Logo Circle -->
+                        <div class="main-visual-circle">
+                            <div class="circle-content">
+                                <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO Logo" loading="lazy" class="logo-image">
+                            </div>
+                        </div>
+                        
+                        <!-- Logo Badge -->
+                        <div class="logo-badge">
+                            <span class="badge-icon">⚡</span>
+                            <span class="badge-text">BRAVO</span>
+                        </div>
+                        
+                        <!-- Stats Vertical -->
+                        <div class="stats-vertical">
+                            <div class="stat-card">
+                                <span class="stat-icon-bg"><span class="stat-emoji">📚</span></span>
+                                <div class="stat-info">
+                                    <span class="stat-name" data-ar="كتب علمية" data-en="Scientific Books" data-fr="Livres scientifiques">كتب علمية</span>
+                                    <span class="stat-number">50+</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-icon-bg"><span class="stat-emoji">🧪</span></span>
+                                <div class="stat-info">
+                                    <span class="stat-name" data-ar="تركيبات" data-en="Formulas" data-fr="Formules">تركيبات</span>
+                                    <span class="stat-number">500+</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-icon-bg"><span class="stat-emoji">💻</span></span>
+                                <div class="stat-info">
+                                    <span class="stat-name" data-ar="برامج ذكية" data-en="Smart Software" data-fr="Logiciel intelligent">برامج ذكية</span>
+                                    <span class="stat-number">30+</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-icon-bg"><span class="stat-emoji">🎓</span></span>
+                                <div class="stat-info">
+                                    <span class="stat-name" data-ar="كورسات" data-en="Courses" data-fr="Cours">كورسات</span>
+                                    <span class="stat-number">20+</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Stats Bar -->
+            <div class="hero-stats-bar reveal">
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <div class="stat-icon-wrap"><span class="stat-emoji-icon">👥</span></div>
+                        <div class="stat-info">
+                            <div class="stat-data">
+                                <span class="stat-number" data-count="32586">0</span>
+                                <span class="stat-plus">+</span>
+                            </div>
+                            <span class="stat-label" data-ar="عميل سعيد" data-en="Happy Clients" data-fr="Clients satisfaits">عميل سعيد</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon-wrap"><span class="stat-emoji-icon">🧪</span></div>
+                        <div class="stat-info">
+                            <div class="stat-data">
+                                <span class="stat-number" data-count="500">0</span>
+                                <span class="stat-plus">+</span>
+                            </div>
+                            <span class="stat-label" data-ar="تركيبة ناجحة" data-en="Successful Formulas" data-fr="Formules réussies">تركيبة ناجحة</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Scroll Indicator inside bar -->
+                    <div class="scroll-indicator" style="opacity: 0.8;">
+                        <div class="mouse"><div class="wheel"></div></div>
+                        <span data-ar="اسحب للأسفل" data-en="Scroll Down" data-fr="Défiler vers le bas">اسحب للأسفل</span>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-icon-wrap"><span class="stat-emoji-icon">📚</span></div>
+                        <div class="stat-info">
+                            <div class="stat-data">
+                                <span class="stat-number" data-count="100">0</span>
+                                <span class="stat-plus">+</span>
+                            </div>
+                            <span class="stat-label" data-ar="برامج وكتب" data-en="Digital Products" data-fr="Produits numériques">برامج وكتب</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon-wrap"><span class="stat-emoji-icon">⭐</span></div>
+                        <div class="stat-info">
+                            <div class="stat-data">
+                                <span class="stat-number" id="ratingNum">0</span>
+                                <div class="stat-stars">
+                                    <span class="star-emoji">⭐</span>
+                                    <span class="star-emoji">⭐</span>
+                                    <span class="star-emoji">⭐</span>
+                                    <span class="star-emoji">⭐</span>
+                                    <span class="star-emoji">⭐</span>
+                                </div>
+                            </div>
+                            <span class="stat-label" data-ar="تقييم العملاء" data-en="Customer Rating" data-fr="Évaluation client">تقييم العملاء</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== STORY SECTION ==================== -->
+        <section class="about-story-section" id="story" data-reveal="fadeInLeft">
+            <div class="container">
+                <div class="section-badge reveal">
+                    <i class="fas fa-book-open"></i>
+                    <span data-ar="قصتنا" data-en="Our Story" data-fr="Notre histoire">قصتنا</span>
+                </div>
+                
+                <h2 class="section-title reveal">
+                    <span data-ar="كيف بدأت" data-en="How It Started" data-fr="Comment tout a commencé">كيف بدأت</span>
+                    <span class="highlight" data-ar="الرحلة" data-en="The Journey" data-fr="Le parcours">الرحلة</span>
+                </h2>
+                
+                <div class="story-timeline">
+                    <!-- 2019 -->
+                    <div class="timeline-item reveal">
+                        <div class="timeline-dot"><i class="fas fa-lightbulb"></i></div>
+                        <div class="timeline-content">
+                            <span class="timeline-year">2019</span>
+                            <h3 data-ar="البداية" data-en="The Beginning" data-fr="Le début">البداية</h3>
+                            <p data-ar="لاحظنا أن الكثير من رواد الأعمال يبحثون عن معلومات موثوقة في مجال الصناعات الكيميائية ولا يجدونها. من هنا جاءت الفكرة."
+                               data-en="We noticed many entrepreneurs searching for reliable information." data-fr="Nous avons remarqué que de nombreux entrepreneurs cherchaient des infos fiables.">
+                                لاحظنا أن الكثير من رواد الأعمال يبحثون عن معلومات موثوقة في مجال الصناعات الكيميائية ولا يجدونها. من هنا جاءت الفكرة.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 2020 -->
+                    <div class="timeline-item reveal">
+                        <div class="timeline-dot"><i class="fas fa-rocket"></i></div>
+                        <div class="timeline-content">
+                            <span class="timeline-year">2020</span>
+                            <h3 data-ar="الانطلاقة" data-en="The Launch" data-fr="Le lancement">الانطلاقة</h3>
+                            <p data-ar="أطلقنا أول مجموعة من الكتب والتركيبات. التفاعل كان مذهلاً! استقبلنا مئات الطلبات في الأسابيع الأولى."
+                               data-en="We launched our first collection. The response was amazing!" data-fr="Nous avons lancé notre première collection. La réponse était incroyable !">
+                                أطلقنا أول مجموعة من الكتب والتركيبات. التفاعل كان مذهلاً! استقبلنا مئات الطلبات في الأسابيع الأولى.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 2022 -->
+                    <div class="timeline-item reveal">
+                        <div class="timeline-dot"><i class="fas fa-code"></i></div>
+                        <div class="timeline-content">
+                            <span class="timeline-year">2022</span>
+                            <h3 data-ar="التطوير" data-en="Development" data-fr="Développement">التطوير</h3>
+                            <p data-ar="أضفنا البرامج الذكية وملفات Excel الاحترافية التي تحسب النسب والتكاليف تلقائياً. هذا غير قواعد اللعبة!"
+                               data-en="We added smart software. This was a game changer!" data-fr="Nous avons ajouté des logiciels intelligents. Ça a tout changé !">
+                                أضفنا البرامج الذكية وملفات Excel الاحترافية التي تحسب النسب والتكاليف تلقائياً. هذا غير قواعد اللعبة!
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- 2024 -->
+                    <div class="timeline-item reveal">
+                        <div class="timeline-dot"><i class="fas fa-crown"></i></div>
+                        <div class="timeline-content">
+                            <span class="timeline-year">2024</span>
+                            <h3 data-ar="الريادة" data-en="Leadership" data-fr="Leadership">الريادة</h3>
+                            <p data-ar="اليوم، أصبحت BRAVO المرجع الأول لأكثر من 32,000 مصنّع ورائد أعمال في الوطن العربي. والرحلة مستمرة!"
+                               data-en="Today, BRAVO is the #1 reference for 32,000+ manufacturers." data-fr="Aujourd'hui, BRAVO est la référence n°1 pour 32 000+ fabricants.">
+                                اليوم، أصبحت BRAVO المرجع الأول لأكثر من 32,000 مصنّع ورائد أعمال في الوطن العربي. والرحلة مستمرة!
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2026 -->
+                    <div class="timeline-item reveal">
+                        <div class="timeline-dot"><i class="fas fa-globe"></i></div>
+                        <div class="timeline-content">
+                            <span class="timeline-year">2026</span>
+                            <h3 data-ar="انطلاقة الموقع" data-en="Website Launch" data-fr="Lancement du site">انطلاقة الموقع</h3>
+                            <p data-ar="أطلقنا موقع BRAVO الإلكتروني، ولسه مكملين في التطوير والابتكار. الأفضل لسه جاي!"
+                               data-en="We launched BRAVO website, still developing and innovating. The best is yet to come!"
+                               data-fr="Nous avons lancé le site BRAVO, toujours en développement et innovation. Le meilleur est à venir !">
+                                أطلقنا موقع BRAVO الإلكتروني، ولسه مكملين في التطوير والابتكار. الأفضل لسه جاي!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== MISSION & VISION ==================== -->
+        <section class="about-mission-section" data-reveal="flipUp">
+            <div class="container">
+                <div class="mission-grid">
+                    <!-- Mission Card -->
+                    <div class="mission-card reveal">
+                        <div class="mission-icon"><i class="fas fa-bullseye"></i></div>
+                        <div class="mission-content">
+                            <h3 data-ar="رسالتنا" data-en="Our Mission" data-fr="Notre mission">رسالتنا</h3>
+                            <p data-ar="تمكين كل شخص طموح من دخول عالم الصناعات الكيميائية بثقة، من خلال توفير المعرفة والأدوات والدعم اللازم للنجاح."
+                               data-en="Empowering every ambitious person to enter the chemical industry." data-fr="Permettre à toute personne ambitieuse d'entrer dans l'industrie chimique.">
+                                تمكين كل شخص طموح من دخول عالم الصناعات الكيميائية بثقة، من خلال توفير المعرفة والأدوات والدعم اللازم للنجاح.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Vision Card -->
+                    <div class="mission-card reveal">
+                        <div class="mission-icon"><i class="fas fa-eye"></i></div>
+                        <div class="mission-content">
+                            <h3 data-ar="رؤيتنا" data-en="Our Vision" data-fr="Notre vision">رؤيتنا</h3>
+                            <p data-ar="أن نكون المنصة العربية الأولى والأكثر ثقة في مجال تعليم وتطوير صناعات المنظفات ومستحضرات التجميل والعطور."
+                               data-en="To be the #1 Arabic platform in chemical industries education." data-fr="Être la plateforme arabe n°1 dans l'éducation aux industries chimiques.">
+                                أن نكون المنصة العربية الأولى والأكثر ثقة في مجال تعليم وتطوير صناعات المنظفات ومستحضرات التجميل والعطور.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== VALUES SECTION ==================== -->
+        <section class="about-values-section" data-reveal="staggerFade">
+            <div class="container">
+                
+                <h2 class="section-title reveal">
+                    <span data-ar="المبادئ التي" data-en="The Principles We" data-fr="Les principes que nous">المبادئ التي</span>
+                    <span class="highlight" data-ar="نعمل بها" data-en="Work By" data-fr="Travail par">نعمل بها</span>
+                </h2>
+                
+                <div class="values-grid">
+                    <div class="value-card reveal">
+                        <div class="value-number">01</div>
+                        <div class="value-icon-wrap"><i class="fas fa-award"></i></div>
+                        <h4 data-ar="الجودة" data-en="Quality" data-fr="Qualité">الجودة</h4>
+                        <p data-ar="نختار كل منتج بعناية فائقة ونتأكد من جودته قبل إضافته للمتجر"
+                           data-en="We carefully select every product" data-fr="Nous sélectionnons chaque produit avec soin">
+                            نختار كل منتج بعناية فائقة ونتأكد من جودته قبل إضافته للمتجر
+                        </p>
+                    </div>
+                    
+                    <div class="value-card reveal">
+                        <div class="value-number">02</div>
+                        <div class="value-icon-wrap"><i class="fas fa-shield-alt"></i></div>
+                        <h4 data-ar="المصداقية" data-en="Trust" data-fr="Confiance">المصداقية</h4>
+                        <p data-ar="نقدم معلومات دقيقة وصادقة. لا مبالغات ولا وعود كاذبة"
+                           data-en="Accurate and honest information" data-fr="Informations précises et honnêtes">
+                            نقدم معلومات دقيقة وصادقة. لا مبالغات ولا وعود كاذبة
+                        </p>
+                    </div>
+                    
+                    <div class="value-card reveal">
+                        <div class="value-number">03</div>
+                        <div class="value-icon-wrap"><i class="fas fa-hand-holding-heart"></i></div>
+                        <h4 data-ar="الدعم" data-en="Support" data-fr="Support">الدعم</h4>
+                        <p data-ar="نقف معك في كل خطوة. فريقنا متاح دائماً للمساعدة والإرشاد"
+                           data-en="Always here to help" data-fr="Toujours là pour vous aider">
+                            نقف معك في كل خطوة. فريقنا متاح دائماً للمساعدة والإرشاد
+                        </p>
+                    </div>
+                    
+                    <div class="value-card reveal">
+                        <div class="value-number">04</div>
+                        <div class="value-icon-wrap"><i class="fas fa-sync-alt"></i></div>
+                        <h4 data-ar="التطوير" data-en="Growth" data-fr="Croissance">التطوير</h4>
+                        <p data-ar="نتعلم ونتطور باستمرار. كل يوم نضيف شيئاً جديداً ومفيداً"
+                           data-en="Continuous learning and growth" data-fr="Apprentissage continu et croissance">
+                            نتعلم ونتطور باستمرار. كل يوم نضيف شيئاً جديداً ومفيداً
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== WHY BRAVO ==================== -->
+        <section class="about-why-section" data-reveal="fadeInRight">
+            <div class="container">
+                <div class="why-content">
+                    <div class="why-text">
+                    <div class="section-badge light reveal">
+                        <i class="fas fa-question-circle"></i>
+                        <span data-ar="لماذا نحن؟" data-en="Why Us?" data-fr="Pourquoi nous ?">لماذا نحن؟</span>
+                    </div>
+                    
+                    <h2 class="section-title light reveal">
+                            <span data-ar="ما يميز" data-en="What Makes" data-fr="Ce qui fait">ما يميز</span>
+                            <span class="highlight-light" data-ar="BRAVO" data-en="BRAVO" data-fr="BRAVO">BRAVO</span>
+                        </h2>
+                        
+                        <div class="why-features">
+                            <div class="why-feature reveal">
+                                <div class="feature-check"><i class="fas fa-check"></i></div>
+                                <div class="feature-info">
+                                    <h5 data-ar="تركيبات مجربة 100%" data-en="100% Tested" data-fr="100% Testé">تركيبات مجربة 100%</h5>
+                                    <p data-ar="كل تركيباتنا تم تجربتها في مصانع حقيقية" data-en="Tested in real factories" data-fr="Testé dans de vraies usines">كل تركيباتنا تم تجربتها في مصانع حقيقية</p>
+                                </div>
+                            </div>
+                            
+                            <div class="why-feature reveal">
+                                <div class="feature-check"><i class="fas fa-check"></i></div>
+                                <div class="feature-info">
+                                    <h5 data-ar="برامج توفر وقتك" data-en="Time-Saving" data-fr="Gain de temps">برامج توفر وقتك</h5>
+                                    <p data-ar="حسابات دقيقة لأي كمية بضغطة زر" data-en="Accurate calculations" data-fr="Calculs précis">حسابات دقيقة لأي كمية بضغطة زر</p>
+                                </div>
+                            </div>
+                            
+                            <div class="why-feature reveal">
+                                <div class="feature-check"><i class="fas fa-check"></i></div>
+                                <div class="feature-info">
+                                    <h5 data-ar="تحميل فوري" data-en="Instant Download" data-fr="Téléchargement instantané">تحميل فوري</h5>
+                                    <p data-ar="احصل على المنتج مباشرة بعد إتمام الدفع" data-en="Get product right after payment" data-fr="Recevez le produit juste après le paiement">احصل على المنتج مباشرة بعد إتمام الدفع</p>
+                                </div>
+                            </div>
+                            
+                            <div class="why-feature reveal">
+                                <div class="feature-check"><i class="fas fa-check"></i></div>
+                                <div class="feature-info">
+                                    <h5 data-ar="دفع آمن 100%" data-en="100% Secure Payment" data-fr="Paiement 100% Sécurisé">دفع آمن 100%</h5>
+                                    <p data-ar="وسائل دفع موثوقة مع حماية كاملة لبياناتك" data-en="Trusted payment with full data protection" data-fr="Paiement sécurisé avec protection totale des données">وسائل دفع موثوقة مع حماية كاملة لبياناتك</p>
+                                </div>
+                            </div>
+                            
+                            <div class="why-feature reveal">
+                                <div class="feature-check"><i class="fas fa-check"></i></div>
+                                <div class="feature-info">
+                                    <h5 data-ar="محتوى احترافي" data-en="Professional Content" data-fr="Contenu professionnel">محتوى احترافي</h5>
+                                    <p data-ar="كتب وملفات مختارة بعناية وبجودة عالية" data-en="Carefully selected high-quality files" data-fr="Fichiers de haute qualité soigneusement sélectionnés">كتب وملفات مختارة بعناية وبجودة عالية</p>
+                                </div>
+                            </div>
+                            
+                            <div class="why-feature reveal">
+                                <div class="feature-check"><i class="fas fa-check"></i></div>
+                                <div class="feature-info">
+                                    <h5 data-ar="دعم فني 24/7" data-en="24/7 Support" data-fr="Support 24/7">دعم فني 24/7</h5>
+                                    <p data-ar="فريقنا موجود دائماً لمساعدتك" data-en="Always here" data-fr="Toujours là">فريقنا موجود دائماً لمساعدتك</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="why-image reveal">
+                        <div class="image-wrapper">
+                            <div class="image-main">
+                                <span class="big-emoji">🏆</span>
+                                <h3 data-ar="نجاحك هدفنا" data-en="Your Success" data-fr="Votre succès">نجاحك هدفنا</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TEAM SECTION ==================== -->
+        <section class="about-team-section" data-reveal="staggerFade">
+            <div class="container">
+                <div class="section-badge reveal">
+                    <i class="fas fa-users"></i>
+                    <span data-ar="فريقنا" data-en="Our Team" data-fr="Notre équipe">فريقنا</span>
+                </div>
+                
+                <h2 class="section-title reveal">
+                    <span data-ar="الأشخاص خلف" data-en="The People Behind" data-fr="Les personnes derrière">الأشخاص خلف</span>
+                    <span class="highlight" data-ar="النجاح" data-en="Success" data-fr="Succès">النجاح</span>
+                </h2>
+                
+                <div class="team-grid">
+                    <!-- Founder -->
+                    <div class="team-card reveal">
+                        <div class="team-avatar small"><span class="emoji">👨‍🔬</span></div>
+                        <div class="team-info">
+                            <h4 data-ar="فريق الخبراء" data-en="Expert Team" data-fr="Équipe d'experts">فريق الخبراء</h4>
+                            <span class="team-role" data-ar="خبراء الكيمياء والتصنيع" data-en="Chemistry & Manufacturing Experts" data-fr="Experts en chimie et fabrication">خبراء الكيمياء والتصنيع</span>
+                            <p data-ar="كيميائيون متخصصون بخبرة +10 سنوات في مجال الصناعات الكيميائية وتطوير التركيبات"
+                               data-en="Specialized chemists with 10+ years" data-fr="Chimistes spécialisés avec 10+ ans d'expérience">
+                                كيميائيون متخصصون بخبرة +10 سنوات في مجال الصناعات الكيميائية وتطوير التركيبات
+                            </p>
+    
+                        </div>
+                    </div>
+                    
+                    <!-- Content Team -->
+                    <div class="team-card reveal">
+                        <div class="team-avatar small"><span class="emoji">✍️</span></div>
+                        <div class="team-info">
+                            <h4 data-ar="فريق المحتوى" data-en="Content" data-fr="Contenu">فريق المحتوى</h4>
+                            <span class="team-role" data-ar="الكتابة والتحرير" data-en="Writing" data-fr="Rédaction">الكتابة والتحرير</span>
+                            <p data-ar="خبراء في إعداد المحتوى العلمي بأسلوب مبسط"
+                               data-en="Scientific content experts" data-fr="Experts en contenu scientifique">
+                                خبراء في إعداد المحتوى العلمي بأسلوب مبسط
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Dev Team -->
+                    <div class="team-card reveal">
+                        <div class="team-avatar small"><span class="emoji">👩‍💻</span></div>
+                        <div class="team-info">
+                            <h4 data-ar="فريق التطوير" data-en="Dev Team" data-fr="Équipe Dev">فريق التطوير</h4>
+                            <span class="team-role" data-ar="البرمجة والتقنية" data-en="Tech" data-fr="Tech">البرمجة والتقنية</span>
+                            <p data-ar="مطورون محترفون يعملون على تحسين تجربتك"
+                               data-en="Professional developers" data-fr="Développeurs professionnels">
+                                مطورون محترفون يعملون على تحسين تجربتك
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Support Team -->
+                    <div class="team-card reveal">
+                        <div class="team-avatar small"><span class="emoji">🎧</span></div>
+                        <div class="team-info">
+                            <h4 data-ar="فريق الدعم" data-en="Support" data-fr="Support">فريق الدعم</h4>
+                            <span class="team-role" data-ar="خدمة العملاء" data-en="Customer Service" data-fr="Service client">خدمة العملاء</span>
+                            <p data-ar="متاحون 24 ساعة طوال أيام الأسبوع للإجابة على أسئلتك"
+                               data-en="Available 24/7" data-fr="Disponible 24/7">
+                                متاحون 24 ساعة طوال أيام الأسبوع للإجابة على أسئلتك
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== CTA SECTION ==================== -->
+        <section class="about-cta-section" data-reveal="zoomIn">
+            <div class="cta-bg-shapes">
+                <div class="cta-shape shape-1"></div>
+                <div class="cta-shape shape-2"></div>
+            </div>
+            <div class="container">
+                <div class="cta-content reveal">
+                    <span class="cta-emoji">🚀</span>
+                    <h2 data-ar="هل أنت جاهز لبدء رحلتك؟" data-en="Ready to Start?" data-fr="Prêt à commencer ?">
+                        هل أنت جاهز لبدء رحلتك؟
+                    </h2>
+                    <p data-ar="انضم لآلاف المصنعين ورواد الأعمال الذين حققوا نجاحهم مع BRAVO"
+                       data-en="Join thousands who achieved success" data-fr="Rejoignez des milliers de personnes qui ont réussi">
+                        انضم لآلاف المصنعين ورواد الأعمال الذين حققوا نجاحهم مع BRAVO
+                    </p>
+                    <div class="cta-buttons">
+                        <a href="products.html" class="hero-btn primary">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span data-ar="تصفح المنتجات" data-en="Browse Products" data-fr="Parcourir les produits">تصفح المنتجات</span>
+                        </a>
+                        <a href="contact.html" class="hero-btn secondary">
+                            <i class="fas fa-headset"></i>
+                            <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    <!-- ==================== MAIN CONTENT END ==================== -->
+
+
+    <!-- ==================== FOOTER ==================== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="footer-logo">
+                    <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO">
+                    <span>BRAVO</span>
+                </div>
+                <p data-ar="المنصة الأولى لتعليم الصناعات الكيميائية" data-en="The #1 Platform for Chemical Industries" data-fr="La plateforme n°1 pour les industries chimiques">المنصة الأولى لتعليم الصناعات الكيميائية</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4 data-ar="روابط سريعة" data-en="Quick Links" data-fr="Liens rapides">روابط سريعة</h4>
+                <ul>
+                    <li>
+                        <a href="index.html">
+                            <i class="fas fa-angle-left"></i> 
+                            <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="products.html">
+                            <i class="fas fa-angle-left"></i> 
+                            <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="about.html">
+                            <i class="fas fa-angle-left"></i> 
+                            <span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="contact.html">
+                            <i class="fas fa-angle-left"></i> 
+                            <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4 data-ar="أقسام المتجر" data-en="Categories" data-fr="Catégories">أقسام المتجر</h4>
+                <ul>
+                    <li><a href="products.html?cat=books"><span class="emoji">📚</span> <span data-ar="كتب" data-en="Books" data-fr="Livres">كتب</span></a></li>
+                    <li><a href="products.html?cat=software"><span class="emoji">💻</span> <span data-ar="برامج" data-en="Software" data-fr="Logiciels">برامج</span></a></li>
+                    <li><a href="products.html?cat=formulas"><span class="emoji">🧪</span> <span data-ar="تركيبات" data-en="Formulas" data-fr="Formules">تركيبات</span></a></li>
+                    <li><a href="products.html?cat=courses"><span class="emoji">🎓</span> <span data-ar="كورسات" data-en="Courses" data-fr="Cours">كورسات</span></a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4 data-ar="تواصل" data-en="Contact" data-fr="Contact">تواصل</h4>
+                <ul class="contact-info">
+                    <li><i class="fas fa-phone"></i> <span dir="ltr">+20 101 285 3829</span></li>
+                    <li><i class="fas fa-envelope"></i> info@bravo.com</li>
+                    <li><i class="fas fa-map-marker-alt"></i> <span data-ar="القاهرة، مصر" data-en="Cairo, Egypt" data-fr="Le Caire, Égypte">القاهرة، مصر</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 BRAVO Store. <span data-ar="جميع الحقوق محفوظة" data-en="All rights reserved" data-fr="Tous droits réservés">جميع الحقوق محفوظة</span>.</p>
+            <div class="payment-methods">
+                <i class="fas fa-credit-card"></i>
+                <i class="fab fa-cc-paypal"></i>
+                <i class="fab fa-bitcoin"></i>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <!-- Scroll to Top -->
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- WhatsApp Float -->
+    <a href="https://wa.me/201012853829?text=مرحباً، أريد الاستفسار" class="whatsapp-float" target="_blank" title="تواصل معنا عبر واتساب">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- JavaScript -->
+    
+    <!-- Main App Script -->
+    <script src="js/include.js?v=20"></script>
+    <script src="js/app.js?v=20260722t"></script>
+    <script>initPageHero();</script>
+
+    <!-- Page Specific Script -->
+    <script>
+    // Counter Animation for Stats
+    function animateCounter(element, target, duration) {
+        if (!duration) duration = 2000;
+        var targetStr = element.getAttribute('data-count');
+        var isDecimal = targetStr.indexOf('.') !== -1;
+        var startTime = null;
+        function step(ts) {
+            if (!startTime) startTime = ts;
+            var elapsed = ts - startTime;
+            var progress = Math.min(elapsed / duration, 1);
+            if (progress >= 1) {
+                element.textContent = targetStr;
+            } else {
+                var value = target * progress;
+                if (isDecimal) {
+                    var n = Math.round(value * 10);
+                    element.textContent = Math.floor(n / 10) + '.' + (n % 10);
+                } else {
+                    element.textContent = Math.round(value);
+                }
+                requestAnimationFrame(step);
+            }
+        }
+        requestAnimationFrame(step);
+    }
+    
+    var statsBar = document.querySelector('.hero-stats-bar');
+    var hasAnimated = false;
+    var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+            if (entry.isIntersecting && !hasAnimated) {
+                hasAnimated = true;
+                var counters = document.querySelectorAll('.hero-stats-bar .stat-number[data-count]');
+                counters.forEach(function(counter) {
+                    var target = parseFloat(counter.getAttribute('data-count'));
+                    animateCounter(counter, target);
+                });
+                // Rating stat: animate from 0 to 4.5
+                var ratingEl = document.getElementById('ratingNum');
+                if (ratingEl) {
+                    var rStart = null;
+                    (function rStep(ts) {
+                        if (!rStart) rStart = ts;
+                        var elapsed = ts - rStart;
+                        var p = Math.min(elapsed / 2000, 1);
+                        if (p >= 1) {
+                            ratingEl.textContent = '4.5';
+                        } else {
+                            var v = 4.5 * p;
+                            ratingEl.textContent = Math.round(v * 10) / 10 + '';
+                            requestAnimationFrame(rStep);
+                        }
+                    })();
+                    requestAnimationFrame(rStep);
+                }
+            }
+        });
+    }, { threshold: 0.3 });
+    if (statsBar) {
+        observer.observe(statsBar);
+    }
+
+    // Entrance reveal animation with stagger
+    setTimeout(function() {
+        document.querySelectorAll('.reveal').forEach(function(el, i) {
+            setTimeout(function() { el.classList.add('revealed'); }, i * 80);
+        });
+    }, 200);
+    setTimeout(function() {
+        document.querySelectorAll('[data-reveal]').forEach(function(el) { el.classList.add('revealed'); });
+    }, 600);
+
+    // --- JS Animations (bypass CSS animation issues) ---
+    (function() {
+        // Logo float animation only
+        var logo = document.querySelector('.logo-image');
+        if (logo) {
+            var startTime = Date.now();
+            function animateLogo() {
+                var elapsed = (Date.now() - startTime) / 1000;
+                var y = Math.sin(elapsed * 1.5) * 10;
+                logo.style.transform = 'translateY(' + y + 'px)';
+                requestAnimationFrame(animateLogo);
+            }
+            requestAnimationFrame(animateLogo);
+        }
+    })();
+
+    // Force section paddings based on viewport - matching homepage (components.css)
+    document.querySelectorAll('[data-reveal]').forEach(function(el) { 
+        el.classList.add('revealed'); 
+        el.removeAttribute('data-reveal');
+    });
+    var w = window.innerWidth;
+    var secPad, secPadLR;
+    if (w <= 480) { secPad = '20px'; secPadLR = '3%'; }
+    else if (w <= 768) { secPad = '25px'; secPadLR = '4%'; }
+    else { secPad = '35px'; secPadLR = '5%'; }
+    var sections = document.querySelectorAll('.about-story-section, .about-mission-section, .about-values-section, .about-why-section, .about-team-section, .about-cta-section');
+    for (var i = 0; i < sections.length; i++) {
+        sections[i].style.setProperty('padding', secPad + ' ' + secPadLR, 'important');
+        var c = sections[i].querySelector('.container');
+        if (c) c.style.setProperty('padding', '0', 'important');
+        var all = sections[i].querySelectorAll('*');
+        for (var a = 0; a < all.length; a++) {
+            all[a].style.setProperty('margin-top', '0', 'important');
+            all[a].style.setProperty('margin-bottom', '0', 'important');
+        }
+    }
+    var storyTitles = document.querySelectorAll('.section-title');
+    for (var t = 0; t < storyTitles.length; t++) {
+        storyTitles[t].style.setProperty('margin-bottom', '25px', 'important');
+    }
+    var timelineItems = document.querySelectorAll('.timeline-item');
+    for (var li = 0; li < timelineItems.length; li++) {
+        timelineItems[li].style.setProperty('margin-bottom', '22px', 'important');
+        timelineItems[li].style.setProperty('padding', '16px 30px', 'important');
+    }
+    var mc = document.querySelectorAll('.mission-card');
+    for (var i = 0; i < mc.length; i++) {
+        mc[i].style.setProperty('padding', '24px 28px', 'important');
+        mc[i].style.setProperty('gap', '14px', 'important');
+        mc[i].style.setProperty('margin', '0', 'important');
+        var pp = mc[i].querySelectorAll('p');
+        for (var ppi = 0; ppi < pp.length; ppi++) {
+            pp[ppi].style.setProperty('font-weight', '700', 'important');
+        }
+    }
+    // Why section - bold titles + descriptions
+    var whyBold = document.querySelectorAll('.why-feature .feature-info h5, .why-feature .feature-info p');
+    for (var wb = 0; wb < whyBold.length; wb++) {
+        whyBold[wb].style.setProperty('font-weight', '700', 'important');
+    }
+    // Team cards - bold titles + descriptions
+    var teamBold = document.querySelectorAll('.team-card .team-info h4, .team-card .team-info p');
+    for (var tb = 0; tb < teamBold.length; tb++) {
+        teamBold[tb].style.setProperty('font-weight', '700', 'important');
+    }
+    // CTA section - spacing
+    var ctaP = document.querySelector('.about-cta-section .cta-content p');
+    if (ctaP) ctaP.style.setProperty('font-weight', '700', 'important');
+    var ctaH2 = document.querySelector('.about-cta-section .cta-content h2');
+    if (ctaH2) ctaH2.style.setProperty('font-weight', '900', 'important');
+    var ctaEmoji = document.querySelector('.about-cta-section .cta-emoji');
+    if (ctaEmoji) ctaEmoji.style.setProperty('margin-bottom', '25px', 'important');
+    if (ctaH2) ctaH2.style.setProperty('margin-bottom', '20px', 'important');
+    if (ctaP) ctaP.style.setProperty('margin-bottom', '35px', 'important');
+    var ctaBtns = document.querySelector('.about-cta-section .cta-buttons');
+    if (ctaBtns) ctaBtns.style.setProperty('gap', '25px', 'important');
+    // Features + team spacing
+    var wfItems = document.querySelectorAll('.why-feature');
+    for (var wi = 0; wi < wfItems.length; wi++) {
+        wfItems[wi].style.setProperty('padding', '12px 16px', 'important');
+        wfItems[wi].style.setProperty('margin-bottom', '10px', 'important');
+    }
+    var tc = document.querySelectorAll('.team-card');
+    var isPhone = window.innerWidth <= 480;
+    for (var tci = 0; tci < tc.length; tci++) {
+        tc[tci].style.setProperty('padding', isPhone ? '12px 10px' : '14px 18px', 'important');
+        tc[tci].style.setProperty('gap', isPhone ? '8px' : '12px', 'important');
+    }
+    // Values section - bold descriptions + white color + remove numbers
+    var vc = document.querySelectorAll('.value-card p');
+    for (var v = 0; v < vc.length; v++) {
+        vc[v].style.setProperty('font-weight', '700', 'important');
+        vc[v].style.setProperty('color', '#FFFFFF', 'important');
+    }
+    var vn = document.querySelectorAll('.value-number');
+    for (var vni = 0; vni < vn.length; vni++) {
+        vn[vni].style.setProperty('display', 'none', 'important');
+    }
+    // Restore trophy animation
+    var trophy = document.querySelector('.why-image .image-main');
+    if (trophy) {
+        trophy.style.setProperty('animation', 'trophyPulse 2.5s ease-in-out infinite', 'important');
+    }
+    // Inject keyframes for trophyPulse
+    var s = document.createElement('style');
+    s.textContent = '@keyframes trophyPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }';
+    document.head.appendChild(s);
+    // Inject keyframes for brandGradient if not present
+    var hasGrad = Array.from(document.styleSheets).some(function(sh) { try { return sh.rules && sh.cssRules && Array.from(sh.cssRules).some(function(r) { return r.name === 'brandGradient'; }); } catch(e) { return false; } });
+    if (!hasGrad) {
+        var sg = document.createElement('style');
+        sg.textContent = '@keyframes brandGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }';
+        document.head.appendChild(sg);
+    }
+    </script>
+
+    <!-- Quick View Modal Container -->
+    <div id="quickViewModal" class="quick-view-modal-overlay"></div>
+</body>
+</html>
+
+

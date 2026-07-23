@@ -1,0 +1,29 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/admin/:path*", "destination": "/admin.html" },
+    { "source": "/checkout", "destination": "/checkout.html" },
+    { "source": "/checkout/:path*", "destination": "/checkout.html" },
+    { "source": "/auth", "destination": "/auth.html" },
+    { "source": "/auth/:path*", "destination": "/auth.html" },
+    { "source": "/orders", "destination": "/orders.html" },
+    { "source": "/orders/:path*", "destination": "/orders.html" },
+    { "source": "/cart", "destination": "/cart.html" },
+    { "source": "/cart/:path*", "destination": "/cart.html" },
+    { "source": "/wishlist", "destination": "/Wishlist.html" },
+    { "source": "/wishlist/:path*", "destination": "/Wishlist.html" },
+    { "source": "/profile", "destination": "/Profile.html" },
+    { "source": "/profile/:path*", "destination": "/Profile.html" },
+    { "source": "/pending-order", "destination": "/pending-order.html" },
+    { "source": "/pending-order/:path*", "destination": "/pending-order.html" },
+    { "source": "/products", "destination": "/products.html" },
+    { "source": "/products/:path*", "destination": "/products.html" },
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/download", "destination": "/download.html" },
+    { "source": "/pending", "destination": "/pending.html" },
+    { "source": "/404", "destination": "/404.html" }
+  ]
+}

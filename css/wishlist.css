@@ -1,0 +1,106 @@
+/* ╔══════════════════════════════════════════════════════════════════════════════════╗
+   ║   📄 صفحة: المفضلة (Wishlist Page)                                          ║
+   ╚══════════════════════════════════════════════════════════════════════════════════╝ */
+
+.wishlist-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 20px; padding: 15px 20px; }
+.wishlist-count { font-size: 1em; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+.wishlist-count i { color: #ef4444; font-size: 1.1em; }
+.wishlist-count span { color: var(--primary); font-size: 1.1em; }
+.wishlist-actions .action-buttons { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 220px; }
+.wishlist-actions .action-btn { padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; width: 100%; height: auto; font-size: 0.88em; background: transparent; position: relative; overflow: hidden; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; color: white; }
+.wishlist-actions .action-btn::before, .wishlist-actions .action-btn::after { display: none !important; }
+.wishlist-actions .action-btn:hover::before, .wishlist-actions .action-btn:hover::after { display: none !important; }
+.wishlist-actions .action-btn:hover { color: white; background: transparent; border-color: transparent; transform: translateY(-2px); box-shadow: none; }
+.wishlist-actions .action-btn i { position: relative; z-index: 1; font-size: 0.95em; }
+.wishlist-actions .action-btn:hover i { color: white; transform: none; filter: none; -webkit-text-fill-color: white; }
+.wishlist-actions .btn-primary { background: var(--gradient-primary); color: white; }
+.wishlist-actions .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(147, 51, 234, 0.4); }
+.wishlist-actions .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+.wishlist-actions .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4); }
+
+/* Product grid - same 4-column layout as index page */
+
+
+/* Fixed breadcrumb position - match cart page */
+body > .container { margin-top: 0 !important; padding-top: 160px; max-width: 1600px; }
+
+/* Page hero subtitle styling */
+.page-hero-wrapper { text-align: center; }
+.wishlist-page .page-hero-wrapper .page-subtitle { font-size: clamp(1.15em, 3vw, 1.4em); font-weight: 800; color: var(--text-primary); margin-bottom: 35px; line-height: 1.8; opacity: 0.9; }
+
+/* ===== Empty State ===== */
+.empty-state { text-align: center; padding: 80px 20px 60px; }
+.empty-state .heart-icon { font-size: 7em; margin-bottom: 25px; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; animation: wishHeartbeat 1.8s ease-in-out infinite; }
+@keyframes wishHeartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+.empty-state h3 { font-size: 2.2em; font-weight: 900; margin-bottom: 18px; color: var(--text-primary); letter-spacing: -0.5px; }
+.empty-state p { color: var(--text-secondary); margin-bottom: 35px; font-size: 1.15em; line-height: 1.9; max-width: 500px; margin-left: auto; margin-right: auto; }
+.empty-state .cta-btn { display: inline-flex; align-items: center; gap: 12px; padding: 16px 36px; background: var(--gradient-primary); color: white; border-radius: 14px; text-decoration: none; font-weight: 800; font-size: 1.05em; transition: all 0.3s; box-shadow: 0 8px 25px rgba(147, 51, 234, 0.35); border: none; cursor: pointer; font-family: inherit; }
+.empty-state .cta-btn:hover { transform: translateY(-4px); box-shadow: 0 12px 35px rgba(147, 51, 234, 0.55); }
+.empty-state .cta-btn i { font-size: 1.15em; }
+
+/* Product card styles are now in shared/css/product-card.css (loaded after this file) */
+
+/* Wishlist footer buttons */
+.wishlist-footer { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 25px; padding-bottom: 30px; }
+.back-home-btn, .continue-shop-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 35px; border-radius: 16px; font-weight: 900; font-size: 1.15em; text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-family: inherit; cursor: pointer; border: none; min-height: 48px; }
+.back-home-btn { background: var(--card-bg); border: 2px solid var(--border-color); color: var(--text-primary); }
+.back-home-btn:hover { background: rgba(147,51,234,0.1); border-color: var(--primary); transform: translateY(-3px); }
+.continue-shop-btn { background: var(--gradient-primary); color: white; box-shadow: 0 5px 20px rgba(147,51,234,0.3); }
+.continue-shop-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(147,51,234,0.5); }
+
+/* Responsive - wishlist-specific only */
+@media (max-width: 768px) {
+    .wishlist-page .page-hero-wrapper { margin-bottom: 28px; }
+    .wishlist-page .page-hero-wrapper h1 .hero-headline { font-size: clamp(1.4em, 4.5vw, 2em); }
+    .wishlist-actions { flex-direction: column; align-items: stretch; }
+    .wishlist-actions .action-buttons { max-width: 100%; }
+    .empty-state .cta-btn { padding: 14px 28px; font-size: 0.95em; }
+    body > .container { margin-top: 0 !important; padding-top: 100px; }
+}
+@media (max-width: 576px) {
+    .wishlist-page .page-hero-wrapper { margin-bottom: 20px; }
+    .wishlist-page .page-hero-wrapper h1 .hero-headline { font-size: clamp(1.1em, 4.5vw, 1.4em); }
+    .empty-state { padding: 50px 16px 30px; }
+    .empty-state .heart-icon { font-size: 4.5em; }
+    .wishlist-footer { gap: 10px; }
+    .wishlist-footer .back-home-btn,
+    .wishlist-footer .continue-shop-btn { padding: 14px 28px; font-size: 1em; border-radius: 14px; gap: 8px; min-height: 48px; }
+    .empty-state h3 { font-size: 1.5em; margin-bottom: 14px; }
+    .empty-state p { font-size: 0.95em; margin-bottom: 25px; line-height: 1.7; }
+    .empty-state .cta-btn { padding: 13px 24px; font-size: 0.9em; border-radius: 12px; }
+    body > .container { margin-top: 0 !important; padding-top: 90px; }
+}
+@media (max-width: 480px) {
+    .wishlist-page .page-hero-wrapper { margin-bottom: 20px; }
+    .wishlist-page .page-hero-wrapper h1 .hero-headline { font-size: clamp(1.1em, 4.5vw, 1.4em); }
+    .wishlist-footer { gap: 10px; }
+    .wishlist-footer .back-home-btn,
+    .wishlist-footer .continue-shop-btn { padding: 14px 28px; font-size: 1em; border-radius: 14px; gap: 8px; min-height: 48px; }
+    body > .container { margin-top: 0 !important; padding-top: 88px; }
+}
+@media (max-width: 400px) {
+    .wishlist-page .page-hero-wrapper { margin-bottom: 14px; }
+    .wishlist-page .page-hero-wrapper h1 .hero-headline { font-size: clamp(1em, 4.5vw, 1.2em); }
+    .empty-state { padding: 40px 12px 20px; }
+    .empty-state .heart-icon { font-size: 3.5em; }
+    .empty-state h3 { font-size: 1.3em; }
+    .empty-state p { font-size: 0.85em; }
+    .empty-state .cta-btn { padding: 11px 20px; font-size: 0.8em; border-radius: 10px; gap: 8px; }
+    .wishlist-footer { gap: 8px; }
+    .wishlist-footer .back-home-btn,
+    .wishlist-footer .continue-shop-btn { padding: 12px 22px; font-size: 0.92em; gap: 8px; min-height: 44px; border-radius: 12px; }
+    body > .container { margin-top: 0 !important; padding-top: 80px; }
+}
+@media (max-width: 360px) {
+    .wishlist-page .page-hero-wrapper { margin-bottom: 10px; }
+    .wishlist-page .page-hero-wrapper h1 .hero-headline { font-size: clamp(1em, 4vw, 1.2em); }
+    .wishlist-footer { gap: 8px; }
+    .wishlist-footer .back-home-btn,
+    .wishlist-footer .continue-shop-btn { padding: 12px 22px; font-size: 0.92em; gap: 8px; min-height: 44px; border-radius: 12px; }
+    .empty-state { padding: 30px 10px 15px; }
+    .empty-state .heart-icon { font-size: 3em; }
+    .empty-state h3 { font-size: 1.1em; }
+    .empty-state p { font-size: 0.8em; margin-bottom: 20px; }
+    .empty-state .cta-btn { padding: 10px 16px; font-size: 0.75em; border-radius: 8px; gap: 6px; }
+    body > .container { margin-top: 0 !important; padding-top: 80px; }
+}

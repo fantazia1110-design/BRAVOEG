@@ -1,0 +1,148 @@
+[build]
+  publish = "."
+
+[build.processing]
+  skip_processing = true
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/checkout"
+  to = "/checkout.html"
+  status = 200
+
+[[redirects]]
+  from = "/checkout/*"
+  to = "/checkout.html"
+  status = 200
+
+[[redirects]]
+  from = "/auth"
+  to = "/auth.html"
+  status = 200
+
+[[redirects]]
+  from = "/auth/*"
+  to = "/auth.html"
+  status = 200
+
+[[redirects]]
+  from = "/orders"
+  to = "/orders.html"
+  status = 200
+
+[[redirects]]
+  from = "/orders/*"
+  to = "/orders.html"
+  status = 200
+
+[[redirects]]
+  from = "/cart"
+  to = "/cart.html"
+  status = 200
+
+[[redirects]]
+  from = "/cart/*"
+  to = "/cart.html"
+  status = 200
+
+[[redirects]]
+  from = "/wishlist"
+  to = "/Wishlist.html"
+  status = 200
+
+[[redirects]]
+  from = "/wishlist/*"
+  to = "/Wishlist.html"
+  status = 200
+
+[[redirects]]
+  from = "/profile"
+  to = "/Profile.html"
+  status = 200
+
+[[redirects]]
+  from = "/profile/*"
+  to = "/Profile.html"
+  status = 200
+
+[[redirects]]
+  from = "/pending-order"
+  to = "/pending-order.html"
+  status = 200
+
+[[redirects]]
+  from = "/pending-order/*"
+  to = "/pending-order.html"
+  status = 200
+
+[[redirects]]
+  from = "/products"
+  to = "/products.html"
+  status = 200
+
+[[redirects]]
+  from = "/products/*"
+  to = "/products.html"
+  status = 200
+
+[[redirects]]
+  from = "/about"
+  to = "/about.html"
+  status = 200
+
+[[redirects]]
+  from = "/contact"
+  to = "/contact.html"
+  status = 200
+
+[[redirects]]
+  from = "/download"
+  to = "/download.html"
+  status = 200
+
+[[redirects]]
+  from = "/pending"
+  to = "/pending.html"
+  status = 200
+
+[[redirects]]
+  from = "/404"
+  to = "/404.html"
+  status = 200
+
+[[headers]]
+  for = "/shared/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/shared/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"

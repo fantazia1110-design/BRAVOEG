@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>تفاصيل المنتج - BRAVO Store</title>
+    <meta name="description" content="تفاصيل المنتج الكاملة - BRAVO Store">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="تفاصيل المنتج - BRAVO Store">
+    <meta property="og:description" content="اكتشف تفاصيل المنتجات الرقمية الاحترافية">
+    <meta property="og:image" content="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <meta property="og:type" content="website">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Modular CSS -->
+    <link rel="stylesheet" href="shared/css/global.css?v=15">
+    <link rel="stylesheet" href="shared/css/toast.css?v=5">
+    <link rel="stylesheet" href="shared/css/header.css?v=24">
+    <link rel="stylesheet" href="shared/css/footer.css?v=15">
+    <link rel="stylesheet" href="shared/css/responsive.css?v=15">
+    <link rel="stylesheet" href="shared/css/components.css?v=8">
+    <link rel="stylesheet" href="shared/css/quick-view.css?v=22">
+    <link rel="stylesheet" href="shared/css/reveal.css?v=1">
+    <link rel="stylesheet" href="shared/css/product-card.css?v=53">
+    <link rel="stylesheet" href="css/product-details.css?v=82">
+    <link rel="stylesheet" href="css/products.css?v=39">
+</head>
+<body class="product-details-page">
+
+    <!-- ==================== PARTICLES ==================== -->
+    <canvas id="particles" aria-hidden="true"></canvas>
+
+    <!-- ==================== TOAST CONTAINER ==================== -->
+    <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
+
+    <!-- ==================== DROPDOWN OVERLAY ==================== -->
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    <header role="banner">
+        <nav role="navigation" aria-label="Main Navigation">
+            <!-- Logo -->
+            <a href="index.html" class="logo" aria-label="BRAVO Home">
+                <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO Logo" class="logo-img" width="55" height="55">
+                <span class="logo-text">BRAVO</span>
+            </a>
+            
+            <ul class="nav-menu" id="navMenu" role="menubar">
+    
+    <!-- Mobile: divider -->
+    <li class="nav-menu-divider" role="separator"><span data-ar="الحساب" data-en="Account" data-fr="Compte">الحساب</span></li>
+
+    <!-- Mobile: حسابي -->
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn" href="Profile.html">
+            <i class="fas fa-user"></i>
+            <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
+        </a>
+    </li>
+
+    <!-- Mobile: طلباتي -->
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn" href="orders.html">
+            <i class="fas fa-box"></i>
+            <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+            <span class="action-badge" id="ordersBadgeMobile">0</span>
+        </a>
+    </li>
+
+    <!-- Mobile: divider -->
+    <li class="nav-menu-divider" role="separator"><span data-ar="الصفحات الرئيسية" data-en="Main Pages" data-fr="Pages principales">الصفحات الرئيسية</span></li>
+
+    <!-- الرئيسية -->
+            <li role="none">
+                <a href="index.html" role="menuitem">
+                    <i class="fas fa-house-chimney" aria-hidden="true"></i>
+                    <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span>
+                </a>
+            </li>
+
+            <!-- الصفحات الشرطية تظهر هنا فقط عند فتحها -->
+            <li class="conditional-nav-item nav-item-wishlist" data-page="wishlist.html" style="display:none;">
+                <a href="Wishlist.html" role="menuitem">
+                    <i class="fas fa-heart"></i>
+                    <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                    <span class="action-badge" id="wishlistBadge">0</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-cart" data-page="cart.html" style="display:none;">
+                <a href="cart.html" role="menuitem">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                    <span class="action-badge" id="cartBadge">0</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-checkout" data-page="checkout.html" style="display:none;">
+                <a href="checkout.html" role="menuitem">
+                    <i class="fas fa-credit-card"></i>
+                    <span data-ar="إتمام الشراء" data-en="Checkout" data-fr="Paiement">إتمام الشراء</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-profile" data-page="profile.html" style="display:none;">
+                <a href="Profile.html" role="menuitem">
+                    <i class="fas fa-user"></i>
+                    <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-orders" data-page="orders.html" style="display:none;">
+                <a href="orders.html" role="menuitem">
+                    <i class="fas fa-box"></i>
+                    <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-product-details" data-page="product-details.html" style="display:none;">
+                <a role="menuitem" aria-current="page" style="cursor:default;pointer-events:none;">
+                    <i class="fas fa-info-circle"></i>
+                    <span data-ar="تفاصيل المنتج" data-en="Product Details" data-fr="Détails">تفاصيل المنتج</span>
+                </a>
+            </li>
+
+            <!-- المنتجات -->
+            <li role="none">
+                <a href="products.html" role="menuitem">
+                    <i class="fas fa-store" aria-hidden="true"></i> 
+                    <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span>
+                </a>
+            </li>
+            
+            <!-- من نحن -->
+            <li role="none">
+                <a href="about.html" role="menuitem">
+                    <i class="fas fa-users-gear" aria-hidden="true"></i> 
+                    <span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span>
+                </a>
+            </li>
+            
+            <!-- تواصل معنا -->
+            <li role="none">
+                <a href="contact.html" role="menuitem">
+                    <i class="fas fa-headset" aria-hidden="true"></i> 
+                    <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span>
+                </a>
+            </li>
+
+
+    <!-- Mobile: divider -->
+    <li class="nav-menu-divider" role="separator"><span data-ar="التسوق" data-en="Shopping" data-fr="Achats">التسوق</span></li>
+
+    <!-- Mobile: wishlist -->
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn" href="Wishlist.html">
+            <i class="fas fa-heart"></i>
+            <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+            <span class="action-badge" id="wishlistBadgeMobile">0</span>
+        </a>
+    </li>
+
+    <!-- Mobile: cart -->
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn" href="cart.html">
+            <i class="fas fa-shopping-cart"></i>
+            <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+            <span class="action-badge" id="cartBadgeMobile">0</span>
+        </a>
+    </li>
+
+    <!-- Mobile: notifications -->
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn" href="javascript:toggleDropdown('notificationsDropdown')">
+            <i class="fas fa-bell"></i>
+            <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+            <span class="action-badge" id="notificationsBadgeMobile">0</span>
+        </a>
+    </li>
+
+    <!-- Mobile: language -->
+    <li class="nav-menu-divider" role="separator"><span data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span></li>
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn" href="javascript:toggleLanguage()">
+            <i class="fas fa-globe"></i>
+            <span id="mobileLangText"><span class="flag-icon">🇪🇬</span> <span data-ar="العربية" data-en="English" data-fr="Français">العربية</span></span>
+        </a>
+    </li>
+
+</ul>
+            <!-- Action Buttons -->
+            <div class="nav-actions">
+                
+                <!-- Theme Toggle -->
+                
+
+                <!-- Language Switch -->
+                <div class="action-btn-wrapper">
+                    <button class="action-btn lang-switch" onclick="toggleLanguage()" aria-label="تبديل اللغة">
+                        <span id="langText">EN</span>
+                    </button>
+                    <span class="action-label" data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span>
+                </div>
+
+                <!-- Notifications -->
+                <div class="action-btn-wrapper dropdown" id="notificationsDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('notificationsDropdown')" aria-label="الإشعارات" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell" aria-hidden="true"></i>
+                        <span class="action-badge" id="notificationsBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                    <div class="dropdown-menu" id="notificationsMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4>
+                                <i class="fas fa-bell" aria-hidden="true"></i> 
+                                <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                            </h4>
+                        </div>
+                        <div class="dropdown-content" id="notificationsContent"></div>
+                        <div class="dropdown-footer">
+                            <button class="dropdown-btn" onclick="markAllAsRead()">
+                                <span data-ar="تعليم الكل كمقروء" data-en="Mark all as read" data-fr="Tout lire">تعليم الكل كمقروء</span>
+                                <span class="emoji">✅</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wishlist -->
+                <div class="action-btn-wrapper dropdown" id="wishlistDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('wishlistDropdown')" aria-label="المفضلة" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-heart" aria-hidden="true"></i>
+                        <span class="action-badge" id="wishlistBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                    <div class="dropdown-menu" id="wishlistMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4>
+                                <i class="fas fa-heart" aria-hidden="true"></i> 
+                                <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                            </h4>
+                        </div>
+                        <div class="dropdown-content" id="wishlistContent"></div>
+                        <div class="dropdown-footer">
+                            <a href="wishlist.html" class="dropdown-btn">
+                                <span data-ar="عرض الكل" data-en="View All" data-fr="Voir tout">عرض الكل</span>
+                                <span class="emoji">❤️</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders -->
+                <div class="action-btn-wrapper desktop-only">
+                    <a href="orders.html" class="action-btn" aria-label="طلباتي">
+                        <i class="fas fa-box" aria-hidden="true"></i>
+                        <span class="action-badge" id="ordersBadge" style="display: none;">0</span>
+                    </a>
+                    <span class="action-label" data-ar="طلباتي" data-en="Orders" data-fr="Commandes">طلباتي</span>
+                </div>
+
+                <!-- Cart -->
+                <div class="action-btn-wrapper dropdown" id="cartDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('cartDropdown')" aria-label="سلة التسوق" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        <span class="action-badge" id="cartBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                    <div class="dropdown-menu" id="cartMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4>
+                                <i class="fas fa-shopping-cart" aria-hidden="true"></i> 
+                                <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                            </h4>
+                        </div>
+                        <div class="dropdown-content" id="cartContent"></div>
+                        <div class="dropdown-footer">
+                            <a href="cart.html" class="dropdown-btn dropdown-btn-cart">
+                                <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                                <span class="emoji">🛒</span>
+                            </a>
+                            <a href="checkout.html" class="dropdown-btn dropdown-btn-checkout">
+                                <span data-ar="إتمام الشراء" data-en="Checkout" data-fr="Paiement">إتمام الشراء</span>
+                                <span class="emoji">💳</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Menu -->
+                <div class="action-btn-wrapper dropdown" id="userDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('userDropdown')" aria-label="حسابي" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                    </button>
+                    <span class="action-label" data-ar="حسابي" data-en="Account" data-fr="Compte">حسابي</span>
+                    <div class="dropdown-menu" id="userMenu" role="menu">
+                        <div class="user-info" id="userInfo">
+                            <div class="user-avatar" id="userAvatar">
+                                <i class="fas fa-user" aria-hidden="true"></i>
+                            </div>
+                            <div class="user-details">
+                                <h4 id="userName" data-ar="زائر" data-en="Guest" data-fr="Invité">زائر</h4>
+                                <p id="userEmail" data-ar="سجل الدخول للمتابعة" data-en="Login to continue" data-fr="Connectez-vous">سجل الدخول للمتابعة</p>
+                            </div>
+                        </div>
+                        <div class="user-menu-content" id="guestMenuContent">
+                            <a href="auth.html" class="user-menu-item">
+                                <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                                <span data-ar="تسجيل الدخول" data-en="Login" data-fr="Connexion">تسجيل الدخول</span>
+                            </a>
+                            <a href="auth.html?mode=register" class="user-menu-item">
+                                <i class="fas fa-user-plus" aria-hidden="true"></i>
+                                <span data-ar="إنشاء حساب جديد" data-en="Create Account" data-fr="Créer un compte">إنشاء حساب جديد</span>
+                            </a>
+                        </div>
+                        <div class="user-menu-content" id="loggedInMenuContent" style="display: none;"></div>
+                        <div class="dropdown-footer" id="logoutSection" style="display: none;">
+                            <button class="dropdown-btn logout-btn" onclick="handleLogout()">
+                                <span data-ar="تسجيل الخروج" data-en="Logout" data-fr="Déconnexion">تسجيل الخروج</span>
+                                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Toggle -->
+                <div class="action-btn-wrapper mobile-menu-toggle">
+                    <button class="action-btn" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
+                        <i class="fas fa-bars" id="mobileMenuIcon" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <!-- Admin Button -->
+                <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;" aria-label="لوحة التحكم">
+                    <i class="fas fa-user-shield" aria-hidden="true"></i>
+                    <span data-ar="لوحة التحكم" data-en="Admin" data-fr="Admin">لوحة التحكم</span>
+                </a>
+                
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <div class="container">
+
+        <!-- Breadcrumb (always visible) -->
+        <div class="breadcrumb reveal">
+            <a href="index.html">
+                <i class="fas fa-home home-icon"></i>
+                <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span>
+            </a>
+            <i class="fas fa-chevron-left chevron"></i>
+            <a href="products.html" id="breadcrumbProductsLink">
+                <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span>
+            </a>
+            <i class="fas fa-chevron-left chevron"></i>
+            <a href="products.html" id="breadcrumbCategoryLink" style="display:none;">
+                <span id="breadcrumbCategoryText" data-ar="القسم" data-en="Category" data-fr="Catégorie">القسم</span>
+            </a>
+            <i class="fas fa-chevron-left chevron" id="breadcrumbCategoryChevron" style="display:none;"></i>
+            <span class="current" id="breadcrumbProduct" data-ar="المنتج" data-en="Product" data-fr="Produit">المنتج</span>
+        </div>
+
+        <!-- Loading Overlay (hidden after product loads) -->
+        <div class="product-loading" id="productLoading">
+            <div class="loading-ring">
+                <div class="loading-ring-inner"></div>
+            </div>
+            <span data-ar="جاري تحميل المنتج..." data-en="Loading product..." data-fr="Chargement du produit...">جاري تحميل المنتج...</span>
+        </div>
+
+        <!-- Product Content (hidden during loading) -->
+        <div id="productContent" style="display:none;">
+        <!-- Product Details Grid -->
+        <div class="product-details" id="productDetailsGrid" data-reveal="fadeInRight">
+            <!-- Product Images -->
+            <div class="product-image-section">
+                <!-- Main Image -->
+                <div class="main-image-container" id="mainImageContainer">
+                    <!-- Badges -->
+                    <div class="badge-column" id="productBadges"></div>
+                    <i class="fas fa-box image-placeholder"></i>
+                    <div class="zoom-indicator">
+                        <i class="fas fa-search-plus"></i>
+                        <span data-ar="مرر للتكبير" data-en="Hover to zoom" data-fr="Survolez pour zoomer">مرر للتكبير</span>
+                    </div>
+
+                    <!-- Image overlay buttons (mobile) -->
+                    <div class="image-overlay-buttons">
+                        <button class="overlay-btn overlay-wishlist-btn" onclick="window.addToWishlist(event)" aria-label="Add to wishlist">
+                        <i class="fas fa-heart"></i>
+                        </button>
+                        <button class="overlay-btn overlay-share-btn" onclick="window.shareProduct()" aria-label="Share">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Thumbnail Gallery -->
+                <div class="thumbnail-gallery-wrapper">
+                    <button class="thumb-arrow thumb-arrow-prev" id="thumbPrev" type="button" aria-label="Previous images">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div class="thumbnail-gallery" id="thumbnailGallery"></div>
+                    <button class="thumb-arrow thumb-arrow-next" id="thumbNext" type="button" aria-label="Next images">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <!-- Video Section -->
+                <div class="product-video-section" id="productVideoSection" style="display:none;margin-top:16px;">
+                    <div class="video-wrapper" style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:16px;border:2px solid var(--primary);">
+                        <iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="product-info-section">
+                <!-- Product Title -->
+                <h1 class="product-title" id="productTitle">تحميل المنتج...</h1>
+
+                <!-- Meta Row: Category -->
+                <div class="product-meta-row">
+                    <span class="product-category" id="productCategoryLine"><span id="categoryText"></span></span>
+                </div>
+
+                <!-- Wishlist & Share -->
+                <div class="product-wishlist-share">
+                    <button class="btn btn-secondary btn-icon-only" onclick="window.addToWishlist(event)">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                    <button class="btn btn-secondary btn-icon-only" onclick="window.shareProduct()">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                </div>
+
+                <!-- Price Section (Homepage style) -->
+                <div class="price-section">
+                    <div class="product-price">
+                        <div class="price-old-save-row">
+                            <div class="price-old hidden" id="priceOld">
+                                <span class="price-old-value" id="oldPriceValue">---</span>
+                                <span id="oldPriceCurrency">---</span>
+                            </div>
+                            <span class="price-save hidden" id="priceSave">
+                                <i class="fas fa-tag"></i>
+                                <span data-ar="وفر" data-en="Save" data-fr="Enregistrer">وفر</span>
+                                <span id="saveAmount">0</span>
+                                <span id="saveCurrency">EGP</span>
+                            </span>
+                        </div>
+                        <div class="price-final">
+                            <i class="fas fa-fire animated-fire"></i>
+                            <span class="price-value" id="productPrice">---</span>
+                            <span class="price-currency" id="productCurrency">---</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn btn-buy-now" onclick="window.buyNow()">
+                        <i class="fas fa-bolt"></i>
+                        <span data-ar="اشتر الآن" data-en="Buy Now" data-fr="Acheter">اشتر الآن</span>
+                    </button>
+                    
+                    <button class="btn btn-add-cart" onclick="window.addToCart()">
+                        <i class="fas fa-cart-plus"></i>
+                        <span class="btn-text-default" data-ar="أضف للسلة" data-en="Add to Cart" data-fr="Ajouter au panier">أضف للسلة</span>
+                        <span class="btn-text-added" data-ar="تمت الإضافة" data-en="Added" data-fr="Ajouté">تمت الإضافة</span>
+                    </button>
+                    
+                    <button class="btn btn-secondary btn-icon-only action-wishlist-btn" onclick="window.addToWishlist(event)">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                    
+                    <button class="btn btn-secondary btn-icon-only action-share-btn" onclick="window.shareProduct()">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                </div>
+
+                <!-- Features Grid -->
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-download"></i></div>
+                        <span class="feature-text" data-ar="تحميل فوري" data-en="Instant Download" data-fr="Téléchargement instantané">تحميل فوري</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                        <span class="feature-text" data-ar="دفع آمن 100%" data-en="100% Secure" data-fr="100% Sécurisé">دفع آمن 100%</span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                        <span class="feature-text">
+                            <span data-ar="دعم فني" data-en="Support" data-fr="Support">دعم فني</span>
+                            <small class="feature-sub" data-ar="24/7" data-en="24/7" data-fr="24/7">24/7</small>
+                        </span>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-certificate"></i></div>
+                        <span class="feature-text" data-ar="جودة مضمونة" data-en="Quality Guaranteed" data-fr="Qualité garantie">جودة مضمونة</span>
+                    </div>
+                </div>
+
+                <!-- Social Share -->
+                <div class="social-share">
+                    <span class="share-label">
+                        <i class="fas fa-share-alt"></i>
+                        <span data-ar="شارك المنتج:" data-en="Share Product:" data-fr="Partager le produit :">شارك المنتج:</span>
+                    </span>
+                    <div class="share-buttons">
+                        <a href="https://www.facebook.com/profile.php?id=100095293684019" target="_blank" class="share-btn facebook" title="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://wa.me/201012853829?text=مرحباً%2C%20أريد%20الاستفسار%20عن%20المنتج" 
+                           target="_blank"
+                           class="share-btn whatsapp" 
+                           title="تواصل معنا">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <button class="share-btn copy" onclick="copyProductLink()" title="Copy Link">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Tabs -->
+        <div class="details-section" data-reveal="fadeInUp">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('description')">
+                    <i class="fas fa-align-left"></i>
+                    <span data-ar="الوصف الكامل" data-en="Full Description" data-fr="Description complète">الوصف الكامل</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('features')">
+                    <i class="fas fa-list-check"></i>
+                    <span data-ar="المميزات" data-en="Features" data-fr="Caractéristiques">المميزات</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('requirements')">
+                    <i class="fas fa-gear"></i>
+                    <span data-ar="المتطلبات" data-en="Requirements" data-fr="Prérequis">المتطلبات</span>
+                </button>
+                <button class="tab-btn" onclick="switchTab('faq')">
+                    <i class="fas fa-question-circle"></i>
+                    <span data-ar="الأسئلة الشائعة" data-en="FAQ" data-fr="FAQ">الأسئلة الشائعة</span>
+                </button>
+            </div>
+
+            <!-- Description Tab -->
+            <div id="descriptionTab" class="tab-content active">
+                <h3>
+                    <span class="emoji">📝</span> 
+                    <span data-ar="الوصف الكامل للمنتج" data-en="Full Product Description" data-fr="Description complète du produit">الوصف الكامل للمنتج</span>
+                </h3>
+                <p id="fullDescription" style="font-size: 1.15em; line-height: 2; color: var(--text-secondary); margin-top: 20px; font-weight: 700;">
+                    جاري تحميل الوصف الكامل...
+                </p>
+            </div>
+
+            <!-- Features Tab -->
+            <div id="featuresTab" class="tab-content">
+                <h3>
+                    <span class="emoji">✨</span> 
+                    <span data-ar="المميزات الرئيسية" data-en="Key Features" data-fr="Caractéristiques principales">المميزات الرئيسية</span>
+                </h3>
+                <ul></ul>
+            </div>
+
+            <!-- Requirements Tab -->
+            <div id="requirementsTab" class="tab-content">
+                <h3>
+                    <span class="emoji">⚙️</span> 
+                    <span data-ar="المتطلبات التقنية" data-en="Technical Requirements" data-fr="Prérequis techniques">المتطلبات التقنية</span>
+                </h3>
+                <ul></ul>
+            </div>
+
+            <!-- FAQ Tab -->
+            <div id="faqTab" class="tab-content">
+                <h3>
+                    <span class="emoji">❓</span> 
+                    <span data-ar="الأسئلة الشائعة" data-en="FAQ" data-fr="FAQ">الأسئلة الشائعة</span>
+                </h3>
+                <div class="faq-list"></div>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        <div class="related-section" id="relatedSection" style="display: none;" data-reveal="fadeInLeft">
+            <h2 class="section-title">
+                <span class="emoji">🔥</span>
+                <span data-ar="منتجات ذات صلة" data-en="Related Products" data-fr="Produits associés">منتجات ذات صلة</span>
+            </h2>
+            <div class="related-grid" id="relatedGrid"></div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <a href="products.html" class="btn-bottom btn-shop">
+                <i class="fas fa-store"></i>
+                <span data-ar="تسوق الآن" data-en="Shop Now" data-fr="Acheter maintenant">تسوق الآن</span>
+            </a>
+            <a href="cart.html" class="btn-bottom btn-cart-bottom">
+                <i class="fas fa-shopping-cart"></i>
+                <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+            </a>
+        </div>
+        </div><!-- /productContent -->
+    </div><!-- /container -->
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO">
+                        <span>BRAVO</span>
+                    </div>
+                    <p data-ar="المنصة الأولى لتعليم الصناعات الكيميائية" data-en="The #1 Platform for Chemical Industries" data-fr="La plateforme n°1 pour les industries chimiques">المنصة الأولى لتعليم الصناعات الكيميائية</p>
+                    <div class="social-links">
+                        <a href="#" target="_blank"><i class="fab fa-facebook"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 data-ar="روابط سريعة" data-en="Quick Links" data-fr="Liens rapides">روابط سريعة</h4>
+                    <ul>
+                        <li><a href="index.html"><span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span></a></li>
+                        <li><a href="products.html"><span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span></a></li>
+                        <li><a href="about.html"><span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span></a></li>
+                        <li><a href="contact.html"><span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span></a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 data-ar="الفئات" data-en="Categories" data-fr="Catégories">الفئات</h4>
+                    <ul>
+                        <li><a href="products.html?cat=books"><span class="emoji">📚</span> <span data-ar="كتب" data-en="Books" data-fr="Livres">كتب</span></a></li>
+                        <li><a href="products.html?cat=software"><span class="emoji">💻</span> <span data-ar="برامج" data-en="Software" data-fr="Logiciels">برامج</span></a></li>
+                        <li><a href="products.html?cat=formulas"><span class="emoji">🧪</span> <span data-ar="تركيبات" data-en="Formulas" data-fr="Formules">تركيبات</span></a></li>
+                        <li><a href="products.html?cat=courses"><span class="emoji">🎓</span> <span data-ar="كورسات" data-en="Courses" data-fr="Cours">كورسات</span></a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 data-ar="تواصل" data-en="Contact" data-fr="Contact">تواصل</h4>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-phone"></i> <span dir="ltr">+20 101 285 3829</span></li>
+                        <li><i class="fas fa-envelope"></i> info@bravo.com</li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span data-ar="القاهرة، مصر" data-en="Cairo, Egypt" data-fr="Le Caire, Égypte">القاهرة، مصر</span></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 BRAVO Store. <span data-ar="جميع الحقوق محفوظة" data-en="All rights reserved" data-fr="Tous droits réservés">جميع الحقوق محفوظة</span>.</p>
+                <div class="payment-methods">
+                    <i class="fas fa-credit-card"></i>
+                    <i class="fab fa-cc-paypal"></i>
+                    <i class="fab fa-bitcoin"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== SCROLL TO TOP ==================== -->
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- ==================== WHATSAPP FLOAT ==================== -->
+    <a href="https://wa.me/201012853829?text=مرحباً، أريد الاستفسار" 
+       class="whatsapp-float" 
+       target="_blank" 
+       title="تواصل معنا عبر واتساب">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- ==================== MAIN JAVASCRIPT ==================== -->
+    <script src="js/include.js?v=24"></script>
+    <script src="js/app.js?v=20260722t"></script>
+    <script src="js/product-details.js?v=49"></script>
+    <script>initPageHero();</script>
+    <script>
+    function revealElement(el) {
+        if (!el || el.classList.contains('revealed')) return;
+        var rect = el.getBoundingClientRect();
+        var isVisible = rect.top < window.innerHeight - 60 && rect.bottom > 0;
+        if (isVisible) {
+            el.classList.add('revealed');
+        }
+    }
+    function checkReveals() {
+        document.querySelectorAll('.reveal:not(.revealed)').forEach(revealElement);
+        document.querySelectorAll('[data-reveal]:not(.revealed)').forEach(revealElement);
+    }
+    window.addEventListener('scroll', checkReveals, { passive: true });
+    setInterval(checkReveals, 500);
+    checkReveals();
+    setTimeout(checkReveals, 500);
+    setTimeout(checkReveals, 2000);
+    setTimeout(checkReveals, 5000);
+    </script>
+    <div id="quickViewModal" class="quick-view-modal-overlay"></div>
+    <script>
+    (function(){
+        var sp = document.querySelector('.loading-ring');
+        if (!sp) return;
+        var angle = 0;
+        function spin(){
+            angle = (angle + 6) % 360;
+            sp.style.transform = 'rotate(' + angle + 'deg)';
+            requestAnimationFrame(spin);
+        }
+        requestAnimationFrame(spin);
+    })();
+    </script>
+</body>
+</html>
+
+

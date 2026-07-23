@@ -1,0 +1,2804 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>BRAVO | لوحة التحكم v2</title>
+    <meta name="description" content="لوحة تحكم BRAVO الاحترافية - إدارة كاملة للمنتجات والطلبات">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <meta name="theme-color" content="#9333ea">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <!-- Modular CSS -->
+    <link rel="stylesheet" href="shared/css/global.css">
+    <link rel="stylesheet" href="shared/css/header.css?v=2">
+    <link rel="stylesheet" href="shared/css/footer.css?v=2">
+    <link rel="stylesheet" href="shared/css/toast.css?v=5">
+    <link rel="stylesheet" href="shared/css/components.css?v=14">
+    <link rel="stylesheet" href="shared/css/product-card.css?v=14">
+    <link rel="stylesheet" href="shared/css/responsive.css?v=15">
+    <link rel="stylesheet" href="css/admin2.css?v=99">
+    <style>
+        /* Sidebar brand animations - defined here for reliability */
+        @keyframes logoFloatSidebar { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+        @keyframes textGradientShiftSidebar { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        aside.admin-sidebar a.sidebar-brand img { animation: logoFloatSidebar 1.5s ease-in-out infinite !important; will-change: transform; }
+        aside.admin-sidebar a.sidebar-brand span { animation: textGradientShiftSidebar 4s ease-in-out infinite !important; background-size: 300% 100% !important; -webkit-background-clip: text !important; -webkit-text-fill-color: transparent !important; background-clip: text !important; }
+        /* Sidebar buttons: match main site header nav EXACTLY */
+        .sidebar-menu button.tab {
+            padding: 14px 28px !important;
+            color: var(--text-primary) !important;
+            font-weight: 800 !important;
+            font-size: 1.05em !important;
+            border-radius: 16px !important;
+            transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1), color 0.25s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            position: relative !important;
+            border: 1.5px solid rgba(147, 51, 234, 0.15) !important;
+            background: rgba(147, 51, 234, 0.03) !important;
+            background-clip: padding-box !important;
+            width: 100% !important;
+            cursor: pointer !important;
+            margin: 4px 0 !important;
+            text-decoration: none !important;
+            overflow: visible !important;
+            font-family: inherit !important;
+        }
+        .sidebar-menu button.tab::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #9333ea, #f59e0b);
+            border-radius: 16px;
+            z-index: -1;
+            opacity: 0;
+            transform: scale(0.92);
+            transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+        }
+        .sidebar-menu button.tab:hover::before,
+        .sidebar-menu button.tab.active::before {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .sidebar-menu button.tab::after {
+            content: '';
+            position: absolute;
+            right: -2px;
+            top: 20%;
+            height: 60%;
+            width: 4px;
+            background: linear-gradient(180deg, #9333ea, #f59e0b);
+            border-radius: 4px;
+            opacity: 0;
+            transform: scaleY(0.3);
+            transition: all 0.35s ease;
+            box-shadow: 0 0 12px rgba(147,51,234,0.6);
+        }
+        .sidebar-menu button.tab.active::after {
+            opacity: 1;
+            transform: scaleY(1);
+        }
+        .sidebar-menu button.tab i {
+            font-size: 1.2em !important;
+            background: linear-gradient(135deg, #9333ea, #ec4899) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            transition: all 0.4s ease !important;
+            filter: drop-shadow(0 2px 6px rgba(147, 51, 234, 0.3)) !important;
+            min-width: 20px !important;
+            text-align: center !important;
+        }
+        .sidebar-menu button.tab:hover,
+        .sidebar-menu button.tab.active {
+            color: white !important;
+            border-color: rgba(255, 255, 255, 0.8) !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 25px rgba(147, 51, 234, 0.45), 0 0 15px rgba(255, 255, 255, 0.1) !important;
+            background: rgba(147, 51, 234, 0.03) !important;
+        }
+        .sidebar-menu button.tab:hover i,
+        .sidebar-menu button.tab.active i {
+            color: white !important;
+            -webkit-text-fill-color: white !important;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5)) !important;
+            transform: scale(1.2) rotate(-8deg) !important;
+        }
+        .sidebar-footer a, .sidebar-footer button {
+            padding: 14px 28px !important;
+            color: var(--text-primary) !important;
+            font-weight: 800 !important;
+            font-size: 1.05em !important;
+            border-radius: 16px !important;
+            transition: transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1), color 0.25s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            position: relative !important;
+            border: 1.5px solid rgba(147, 51, 234, 0.15) !important;
+            background: rgba(147, 51, 234, 0.03) !important;
+            background-clip: padding-box !important;
+            width: 100% !important;
+            cursor: pointer !important;
+            margin: 4px 0 !important;
+            text-decoration: none !important;
+            overflow: visible !important;
+            font-family: inherit !important;
+        }
+        .sidebar-footer a::before, .sidebar-footer button::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #9333ea, #f59e0b);
+            border-radius: 16px;
+            z-index: -1;
+            opacity: 0;
+            transform: scale(0.92);
+            transition: opacity 0.35s ease, transform 0.4s cubic-bezier(0.34, 1.2, 0.64, 1);
+        }
+        .sidebar-footer a:hover::before, .sidebar-footer button:hover::before {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .sidebar-footer a i, .sidebar-footer button i {
+            font-size: 1.2em !important;
+            background: linear-gradient(135deg, #9333ea, #ec4899) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            transition: all 0.4s ease !important;
+            filter: drop-shadow(0 2px 6px rgba(147, 51, 234, 0.3)) !important;
+            min-width: 20px !important;
+            text-align: center !important;
+        }
+        .sidebar-footer a:hover, .sidebar-footer button:hover {
+            color: white !important;
+            border-color: rgba(255, 255, 255, 0.8) !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 8px 25px rgba(147, 51, 234, 0.45), 0 0 15px rgba(255, 255, 255, 0.1) !important;
+            background: rgba(147, 51, 234, 0.03) !important;
+        }
+        .sidebar-footer a:hover i, .sidebar-footer button:hover i {
+            color: white !important;
+            -webkit-text-fill-color: white !important;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.5)) !important;
+        }
+        /* RESPONSIVE ADMIN LOGIN - محسن لكل الهواتف */
+        @media (max-width: 768px) {
+            .login-section .auth-container { padding: 35px 22px !important; max-width: 95% !important; }
+            .login-section .auth-container .logo-section img { width: 140px !important; height: 140px !important; }
+            .login-section .auth-container h1 { font-size: 2em !important; }
+            .login-btn { padding: 16px !important; font-size: 1.2em !important; }
+        }
+        @media (max-width: 480px) {
+            .login-section .auth-container { padding: 25px 16px !important; }
+            .login-section .auth-container .logo-section img { width: 100px !important; height: 100px !important; }
+            .login-section .auth-container h1 { font-size: 1.5em !important; }
+            .login-section .auth-container p { font-size: 1em !important; }
+            .input-group label { font-size: 1em !important; }
+            .input-group .input-wrapper input { padding: 14px 48px 14px 14px !important; font-size: 0.95em !important; }
+            .input-group .input-wrapper input[type="password"] { padding: 14px 48px 14px 48px !important; }
+            .toggle-password { width: 34px !important; height: 34px !important; font-size: 1em !important; }
+            .remember-checkbox { font-size: 1em !important; }
+            .checkmark { width: 22px !important; height: 22px !important; border-width: 2px !important; }
+            .login-btn { padding: 14px !important; font-size: 1.1em !important; }
+        }
+        @media (max-width: 380px) {
+            .login-section .auth-container { padding: 18px 12px !important; }
+            .login-section .auth-container .logo-section img { width: 75px !important; height: 75px !important; }
+            .login-section .auth-container h1 { font-size: 1.2em !important; }
+            .input-group .input-wrapper input { padding: 12px 42px 12px 12px !important; font-size: 0.85em !important; }
+            .input-group .input-wrapper input[type="password"] { padding: 12px 42px 12px 42px !important; }
+            .toggle-password { width: 30px !important; height: 30px !important; font-size: 0.85em !important; }
+            .login-btn { padding: 12px !important; font-size: 1em !important; }
+        }
+        @keyframes _loginPulse { 0%,100%{transform:translate(-50%,-50%) scale(0.5);opacity:0.3} 50%{transform:translate(-50%,-50%) scale(1.6);opacity:1} }
+        @keyframes _loginFloat { 0%,100%{transform:translateY(0px) rotate(0deg)} 25%{transform:translateY(-25px) rotate(-5deg)} 50%{transform:translateY(-8px) rotate(0deg)} 75%{transform:translateY(-25px) rotate(5deg)} }
+        @keyframes _loginTitleShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        .login-pulse-bg {  }
+        .login-logo-float {  }
+        .login-title-shift {  }
+        .login-section .input-group input::placeholder { color:rgba(255,255,255,0.4) !important; }
+        .login-section .remember-checkbox input:checked ~ .checkmark { background:var(--gradient-primary) !important; border-color:var(--primary) !important; }
+        .login-section .remember-checkbox input:checked ~ .checkmark::after { content:'✓' !important; color:white !important; font-size:16px !important; font-weight:900 !important; }
+        /* Mobile: match main site EXACTLY — no overrides, header.css handles it */
+    </style>
+    <script>
+        /* ═══════════════════════════════════════════════════
+           EARLY RESTORE: restore active tab BEFORE app.js loads
+           ═══════════════════════════════════════════════════ */
+        (function() {
+            var savedTab = null;
+            try { savedTab = sessionStorage.getItem('adminActiveTab') || localStorage.getItem('adminActiveTab') || window.name.match(/adminTab=(\w+)/)?.[1] || null; } catch(e) {}
+            if (!savedTab) { savedTab = 'overview'; }
+            window._adminRestoreTab = savedTab;
+            function applyTab(tab) {
+                var btn = document.querySelector('.sidebar-menu button[data-tab="' + tab + '"]');
+                if (btn) btn.classList.add('active');
+                var link = document.querySelector('.nav-menu .tab-link[data-tab="' + tab + '"]');
+                if (link) link.classList.add('active');
+            }
+            function tryRestore() {
+                if (typeof window.switchTab === 'function') {
+                    var tab = window._adminRestoreTab || 'overview';
+                    var btn = document.querySelector('.sidebar-menu button[data-tab="' + tab + '"]');
+                    if (btn && !btn.classList.contains('active')) {
+                        try { btn.click(); } catch(e) { switchTab(tab); }
+                    }
+                    try { sessionStorage.setItem('adminActiveTab', tab); localStorage.setItem('adminActiveTab', tab); window.name = 'adminTab=' + tab; } catch(e) {}
+                } else {
+                    setTimeout(tryRestore, 50);
+                }
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', tryRestore);
+            } else {
+                tryRestore();
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="css/orders.css?v=70">
+    <style>
+        /* مطابق لـ orders.html — ألوان وحالة الكارد */
+        .order-card[data-status="pending"] > .order-card-inner { background:linear-gradient(135deg,rgba(249,115,22,0.3),rgba(234,88,12,0.2)); border:3px solid #f59e0b; animation:adminOrderPendingBorder 2.5s ease-in-out infinite; }
+        @keyframes adminOrderPendingBorder { 0%,100%{border-color:#8b5cf6;box-shadow:0 0 18px rgba(139,92,246,0.3)} 50%{border-color:#f59e0b;box-shadow:0 0 30px rgba(245,158,11,0.4)} }
+        .order-card[data-status="confirmed"] > .order-card-inner { background:linear-gradient(135deg,#D1FAE5,#6EE7B7) !important; border-color:#10b981 !important; }
+        .order-card[data-status="rejected"] > .order-card-inner { background:linear-gradient(135deg,#FEE2E2,#FCA5A5) !important; border-color:#ef4444 !important; }
+        .order-card[data-status="suspended"] > .order-card-inner { background:linear-gradient(135deg,rgba(139,92,246,0.25),rgba(124,58,237,0.15)); border-color:#8b5cf6 !important; }
+        /* إزالة cursor:default من admin — نفس طلباتي pointer */
+        .admin-orders-grid .order-card { cursor: pointer !important; }
+        /* Suggestion chips */
+        .suggestion-chip { display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--bg-card);border:2px solid var(--border-color);border-radius:20px;cursor:pointer;font-size:13px;font-weight:700;transition:all .2s;user-select:none;box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+        .suggestion-chip:hover { border-color:var(--primary);background:rgba(147,51,234,0.08); }
+        .suggestion-chip.active { background:var(--primary);border-color:var(--primary);color:#fff; }
+        .suggestion-chip.active::before { content:'✓\00a0';font-weight:bold; }
+    </style>
+    <!-- مكتبة الرسوم البيانية (Chart.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+</head>
+<body class="admin-page login-state">
+
+    <!-- ==================== ADMIN HEADER (main site style) ==================== -->
+    <header role="banner">
+        <nav role="navigation" aria-label="Admin Navigation">
+            <a href="index.html" class="logo" aria-label="BRAVO Home">
+                <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO Logo" class="logo-img" width="55" height="55">
+                <span class="logo-text">BRAVO</span>
+            </a>
+            
+            <ul class="nav-menu" id="navMenu" role="menubar">
+                <li role="none">
+                    <a href="#" onclick="switchTab('overview');return false;" role="menuitem" class="tab-link active" data-tab="overview">
+                        <i class="fas fa-chart-pie" aria-hidden="true"></i>
+                        <span data-ar="نظرة عامة" data-en="Overview" data-fr="Aperçu">نظرة عامة</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="#" onclick="switchTab('products');return false;" role="menuitem" class="tab-link" data-tab="products">
+                        <i class="fas fa-box-open" aria-hidden="true"></i>
+                        <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="#" onclick="switchTab('orders');return false;" role="menuitem" class="tab-link" data-tab="orders">
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        <span data-ar="الطلبات" data-en="Orders" data-fr="Commandes">الطلبات</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="#" onclick="switchTab('pages');return false;" role="menuitem" class="tab-link" data-tab="pages">
+                        <i class="fas fa-file-alt" aria-hidden="true"></i>
+                        <span data-ar="الصفحات" data-en="Pages" data-fr="Pages">الصفحات</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="#" onclick="switchTab('payments');return false;" role="menuitem" class="tab-link" data-tab="payments">
+                        <i class="fas fa-credit-card" aria-hidden="true"></i>
+                        <span data-ar="بوابات الدفع" data-en="Payments" data-fr="Paiements">بوابات الدفع</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="#" onclick="switchTab('trash');if(window.renderTrash)window.renderTrash();return false;" role="menuitem" class="tab-link" data-tab="trash">
+                        <i class="fas fa-trash-restore" aria-hidden="true"></i>
+                        <span data-ar="سلة المهملات" data-en="Trash" data-fr="Corbeille">سلة المهملات</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="#" onclick="switchTab('customers');return false;" role="menuitem" class="tab-link" data-tab="customers">
+                        <i class="fas fa-users" aria-hidden="true"></i>
+                        <span data-ar="العملاء" data-en="Customers" data-fr="Clients">العملاء</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="#" onclick="switchTab('settings');return false;" role="menuitem" class="tab-link" data-tab="settings">
+                        <i class="fas fa-cogs" aria-hidden="true"></i>
+                        <span data-ar="الإعدادات" data-en="Settings" data-fr="Paramètres">الإعدادات</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="nav-actions">
+                <div class="action-btn-wrapper" id="languageSection">
+                    <button class="action-btn lang-switch" onclick="toggleLanguage()" aria-label="تبديل اللغة">
+                        <span id="langText"><span class="flag-icon">🇪🇬</span></span>
+                    </button>
+                    <span class="action-label" data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span>
+                </div>
+                <div class="action-btn-wrapper">
+                    <a href="index.html" class="action-btn" title="عرض المتجر">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    <span class="action-label" data-ar="المتجر" data-en="Store" data-fr="Boutique">المتجر</span>
+                </div>
+                <div class="action-btn-wrapper">
+                    <button class="action-btn mobile-menu-toggle" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars" id="mobileMenuIcon"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <script>
+    function toggleMobileMenu() {
+        var m = document.getElementById('navMenu');
+        if (m) { m.classList.toggle('active'); }
+        var s = document.getElementById('adminSidebar');
+        if (s && s.classList.contains('active')) { s.classList.remove('active'); }
+    }
+    document.querySelectorAll('.tab-link').forEach(function(el) {
+        el.addEventListener('click', function() {
+            document.getElementById('navMenu')?.classList.remove('active');
+        });
+    });
+    </script>
+
+    <!-- Particles Background -->
+    <canvas id="particles" aria-hidden="true"></canvas>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
+
+    <!-- Custom Modal -->
+    <div class="custom-modal-overlay" id="customModalOverlay">
+        <div class="custom-modal">
+            <div class="custom-modal-icon" id="modalIcon"></div>
+            <h3 class="custom-modal-title" id="modalTitle"></h3>
+            <p class="custom-modal-message" id="modalMessage"></p>
+            <div class="custom-modal-buttons" id="modalButtons"></div>
+        </div>
+    </div>
+
+    <!-- ==================== ADMIN LOGIN SECTION ==================== -->
+    <div class="login-section" id="loginSection" data-reveal="fadeInUp">
+        <div class="auth-container" style="background:var(--card-bg);border:3px solid var(--border-color);border-radius:30px;padding:40px 55px;max-width:900px;margin:0 auto;box-shadow:0 20px 60px rgba(147,51,234,0.2);backdrop-filter:blur(20px);overflow:hidden;">
+            <div class="logo-section" style="text-align:center;margin-bottom:14px;position:relative;">
+                <div class="login-pulse-bg" style="position:absolute;top:50%;left:50%;width:210px;height:210px;background:radial-gradient(circle,rgba(147,51,234,0.3),transparent 70%);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;"></div>
+                <img class="login-logo-float" src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO Logo" style="width:180px;height:180px;position:relative;z-index:1;filter:drop-shadow(0 0 40px rgba(147,51,234,0.8)) drop-shadow(0 0 80px rgba(147,51,234,0.3));margin-bottom:6px;">
+                <h1 class="login-title-shift" style="font-size:2.4em;font-weight:900;background:linear-gradient(90deg,#9333ea 0%,#f59e0b 25%,#9333ea 50%,#f59e0b 75%,#9333ea 100%);background-size:300% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 6px 0;">BRAVO Store</h1>
+                <p style="color:var(--text-secondary);font-size:1.15em;font-weight:700;position:relative;z-index:1;">لوحة التحكم المتقدمة</p>
+            </div>
+            <form id="loginForm" style="display:flex;flex-direction:column;gap:16px;">
+                <div class="input-group" style="margin:0;">
+                    <label style="font-weight:800;font-size:1.1em;color:var(--text-primary);display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span>👤</span> <span data-ar="اسم المستخدم" data-en="Username" data-fr="Nom d'utilisateur">اسم المستخدم</span></label>
+                    <div class="input-wrapper" style="position:relative;">
+                        <i class="fas fa-user" style="position:absolute;right:20px;top:50%;transform:translateY(-50%);color:var(--primary);font-size:1.3em;pointer-events:none;z-index:1;"></i>
+                        <input type="text" id="username" required data-ar-placeholder="أدخل اسم المستخدم" data-en-placeholder="Enter username" placeholder="أدخل اسم المستخدم" autocomplete="username" style="width:100%;padding:16px 65px 16px 28px;background:rgba(0,0,0,0.3);border:2px solid rgba(147,51,234,0.3);border-radius:14px;color:#fff;font-family:inherit;font-size:1.05em;font-weight:600;transition:all 0.3s;box-sizing:border-box;" onfocus="this.style.outline='none';this.style.borderColor='var(--primary)';this.style.boxShadow='0 0 22px rgba(147,51,234,0.3)';this.style.transform='translateY(-2px)'" onblur="this.style.outline='';this.style.borderColor='rgba(147,51,234,0.3)';this.style.boxShadow='none';this.style.transform='none'">
+                    </div>
+                </div>
+                <div class="input-group" style="margin:0;">
+                    <label style="font-weight:800;font-size:1.1em;color:var(--text-primary);display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span>🔒</span> <span data-ar="كلمة المرور" data-en="Password" data-fr="Mot de passe">كلمة المرور</span></label>
+                    <div class="input-wrapper" style="position:relative;">
+                        <i class="fas fa-lock" style="position:absolute;right:20px;top:50%;transform:translateY(-50%);color:var(--primary);font-size:1.3em;pointer-events:none;z-index:1;"></i>
+                        <input type="password" id="password" required data-ar-placeholder="أدخل كلمة المرور" data-en-placeholder="Enter password" placeholder="أدخل كلمة المرور" autocomplete="current-password" style="width:100%;padding:16px 65px 16px 28px;background:rgba(0,0,0,0.3);border:2px solid rgba(147,51,234,0.3);border-radius:14px;color:#fff;font-family:inherit;font-size:1.05em;font-weight:600;transition:all 0.3s;box-sizing:border-box;" onfocus="this.style.outline='none';this.style.borderColor='var(--primary)';this.style.boxShadow='0 0 22px rgba(147,51,234,0.3)';this.style.transform='translateY(-2px)'" onblur="this.style.outline='';this.style.borderColor='rgba(147,51,234,0.3)';this.style.boxShadow='none';this.style.transform='none'">
+                        <button type="button" class="toggle-password" id="togglePasswordBtn" style="position:absolute;left:20px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--primary);cursor:pointer;font-size:1.3em;padding:10px;z-index:2;border-radius:8px;transition:all 0.3s;" onmouseover="this.style.background='rgba(147,51,234,0.1)'" onmouseout="this.style.background='none'"><i class="fas fa-eye" id="toggleIcon"></i></button>
+                    </div>
+                </div>
+                <div class="remember-me" style="margin:0;display:flex;align-items:center;">
+                    <label class="remember-checkbox" style="display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:800;font-size:1em;position:relative;color:var(--text-primary);">
+                        <input type="checkbox" id="rememberMe" style="opacity:0;position:absolute;">
+                        <span class="checkmark" style="width:24px;height:24px;border:2.5px solid var(--border-color);border-radius:6px;background:var(--card-bg);transition:all 0.3s;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></span>
+                        <span data-ar="تذكرني" data-en="Remember me" data-fr="Se souvenir de moi">تذكرني</span>
+                    </label>
+                </div>
+                <button type="submit" class="login-btn" style="width:100%;padding:18px;background:var(--gradient-primary);border:none;border-radius:16px;color:white;font-size:1.3em;font-weight:900;cursor:pointer;transition:all 0.4s;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 15px 40px rgba(147,51,234,0.4);font-family:inherit;position:relative;overflow:hidden;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 20px 50px rgba(147,51,234,0.6)'" onmouseout="this.style.transform='none';this.style.boxShadow='0 15px 40px rgba(147,51,234,0.4)'">
+                    <i class="fas fa-shield-halved"></i>
+                    <span data-ar="دخول المشرف" data-en="Admin Login" data-fr="Connexion Admin">دخول المشرف</span>
+                </button>
+                <div class="divider" style="display:flex;align-items:center;gap:8px;margin:3px 0;">
+                    <span style="flex:1;height:1.5px;background:var(--border-color);"></span>
+                    <span style="color:var(--text-secondary);font-weight:700;font-size:0.85em;">لوحة التحكم</span>
+                    <span style="flex:1;height:1.5px;background:var(--border-color);"></span>
+                </div>
+                <a href="index.html" style="display:flex;align-items:center;justify-content:center;gap:6px;color:var(--text-secondary);font-weight:700;font-size:0.9em;text-decoration:none;padding:8px;border-radius:10px;transition:all 0.3s;" onmouseover="this.style.color='var(--primary)';this.style.background='rgba(147,51,234,0.08)'" onmouseout="this.style.color='var(--text-secondary)';this.style.background='transparent'">
+                    <i class="fas fa-arrow-right"></i>
+                    <span data-ar="العودة للمتجر" data-en="Back to Store" data-fr="Retour à la boutique">العودة للمتجر</span>
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== ENTERPRISE DASHBOARD ==================== -->
+    <div class="dashboard-wrapper" id="adminPanel">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar" id="adminSidebar" data-reveal="fadeInLeft">
+            <a href="index.html" class="sidebar-brand" title="العودة للمتجر" style="display:flex;align-items:center;gap:15px;cursor:pointer;text-decoration:none;flex-shrink:0;position:relative;padding:8px 15px;border-radius:20px;height:80px;justify-content:center;border-bottom:2px solid var(--border-color);">
+                <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO Logo" style="width:62px;height:62px;object-fit:contain;filter:drop-shadow(0 4px 20px rgba(147,51,234,0.6)) drop-shadow(0 0 40px rgba(236,72,153,0.4));">
+                <span style="font-size:1.85em;font-weight:800;background:linear-gradient(90deg,#9333ea 0%,#f59e0b 50%,#9333ea 100%);background-size:300% 100%;letter-spacing:2px;position:relative;">BRAVO</span>
+            </a>
+            
+    <ul class="sidebar-menu">
+        <li>
+            <button class="tab active" data-tab="overview" onclick="switchTab('overview')">
+                <i class="fas fa-chart-pie"></i>
+                <span data-ar="نظرة عامة" data-en="Overview" data-fr="Aperçu">نظرة عامة</span>
+            </button>
+        </li>
+        <li>
+            <button class="tab" data-tab="products" onclick="switchTab('products')">
+                <i class="fas fa-box-open"></i>
+                <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span>
+                <span class="tab-badge" id="sidebarProductsCount">0</span>
+            </button>
+        </li>
+        <li>
+            <button class="tab" data-tab="orders" onclick="switchTab('orders')">
+                <i class="fas fa-shopping-cart"></i>
+                <span data-ar="الطلبات" data-en="Orders" data-fr="Commandes">الطلبات</span>
+                <span class="tab-badge" id="ordersCount">0</span>
+            </button>
+        </li>
+        <li>
+            <button class="tab" data-tab="pages" onclick="switchTab('pages')">
+                <i class="fas fa-file-alt"></i>
+                <span data-ar="الصفحات" data-en="Pages" data-fr="Pages">الصفحات</span>
+                <span class="tab-badge" id="sidebarPagesCount">0</span>
+            </button>
+        </li>
+        <li>
+            <button class="tab" data-tab="payments" onclick="switchTab('payments')">
+                <i class="fas fa-credit-card"></i>
+                <span data-ar="بوابات الدفع" data-en="Payments" data-fr="Paiements">بوابات الدفع</span>
+            </button>
+        </li>
+        <li>
+            <button class="tab" data-tab="trash" onclick="switchTab('trash'); if(window.renderTrash) window.renderTrash();">
+                <i class="fas fa-trash-restore"></i>
+                <span data-ar="سلة المهملات" data-en="Trash" data-fr="Corbeille">سلة المهملات</span>
+            </button>
+        </li>
+        <li>
+            <button class="tab" data-tab="languages" onclick="switchTab('languages')">
+                <i class="fas fa-language"></i>
+                <span data-ar="اللغات" data-en="Languages" data-fr="Langues">اللغات</span>
+            </button>
+        </li>
+        <li>
+            <button class="tab" data-tab="categoriesmgt" onclick="switchTab('categoriesmgt')">
+                <i class="fas fa-layer-group"></i>
+                <span data-ar="التصنيفات" data-en="Categories" data-fr="Catégories">التصنيفات</span>
+            </button>
+        </li>
+        <li>
+            <button class="tab" data-tab="customers" onclick="switchTab('customers')">
+                <i class="fas fa-users"></i>
+                <span data-ar="العملاء" data-en="Customers" data-fr="Clients">العملاء</span>
+                <span class="tab-badge" id="sidebarCustomersCount">0</span>
+            </button>
+        </li>
+        <li>
+            <button class="tab" data-tab="settings" onclick="switchTab('settings')">
+                <i class="fas fa-cogs"></i>
+                <span data-ar="الإعدادات" data-en="Settings" data-fr="Paramètres">الإعدادات</span>
+            </button>
+        </li>
+    </ul>
+
+            <div class="sidebar-footer">
+                <a href="#" onclick="toggleLanguage();return false;" style="display:flex;align-items:center;gap:15px;padding:15px 20px;color:var(--text-secondary);text-decoration:none;font-weight:700;border-radius:15px;transition:all 0.3s;background:transparent;border:none;width:100%;cursor:pointer;font-size:1.1em;font-family:inherit;">
+                    <i class="fas fa-globe"></i>
+                    <span id="sidebarLangText">EN</span>
+                </a>
+                <a href="index.html">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span data-ar="عرض الموقع" data-en="View Site" data-fr="Voir le site">عرض الموقع</span>
+                </a>
+                <button onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span data-ar="تسجيل خروج" data-en="Logout" data-fr="Déconnexion">تسجيل خروج</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="admin-main" data-reveal="fadeInUp">
+
+            <!-- Content Area -->
+            <div class="admin-content-area">
+
+                <!-- Success Message -->
+                <div class="success-message" id="successMessage" style="display:none; padding:15px; background:var(--success); color:white; border-radius:12px; margin-bottom:20px; font-weight:bold; text-align:center;">
+                    ✅ <span data-ar="تم حفظ التغييرات بنجاح!" data-en="Changes saved successfully!" data-fr="Modifications enregistrées !">تم حفظ التغييرات بنجاح!</span>
+                </div>
+
+                <!-- ==================== OVERVIEW TAB ==================== -->
+                <div class="tab-content active" id="overviewTab">
+                    
+                    <!-- Top Stats -->
+                    <div class="dashboard-stats">
+                        <div class="dash-stat-card">
+                            <div class="stat-icon-box"><i class="fas fa-box-open"></i></div>
+                            <div class="stat-info">
+                                <h4 data-ar="إجمالي المنتجات" data-en="Total Products" data-fr="Total produits">إجمالي المنتجات</h4>
+                                <h2 id="totalProducts">0</h2>
+                            </div>
+                        </div>
+                        <div class="dash-stat-card">
+                            <div class="stat-icon-box success"><i class="fas fa-check-circle"></i></div>
+                            <div class="stat-info">
+                                <h4 data-ar="طلبات مؤكدة" data-en="Confirmed Orders" data-fr="Commandes confirmées">طلبات مؤكدة</h4>
+                                <h2 id="confirmedOrders">0</h2>
+                            </div>
+                        </div>
+                        <div class="dash-stat-card">
+                            <div class="stat-icon-box warning"><i class="fas fa-clock"></i></div>
+                            <div class="stat-info">
+                                <h4 data-ar="طلبات بالانتظار" data-en="Pending Orders" data-fr="Commandes en attente">طلبات بالانتظار</h4>
+                                <h2 id="pendingOrders">0</h2>
+                            </div>
+                        </div>
+                        <div class="dash-stat-card">
+                            <div class="stat-icon-box" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white;"><i class="fas fa-coins"></i></div>
+                            <div class="stat-info">
+                                <h4 data-ar="الإيرادات المؤكدة" data-en="Total Revenue" data-fr="Revenu total">الإيرادات المؤكدة</h4>
+                                <h2 id="totalRevenue">0</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Area -->
+                    <div class="charts-wrapper">
+                        <div class="chart-box">
+                            <h3><i class="fas fa-chart-line" style="color:var(--primary)"></i> <span data-ar="المبيعات المؤكدة (آخر فترة)" data-en="Confirmed Sales" data-fr="Ventes confirmées">المبيعات المؤكدة (آخر فترة)</span></h3>
+                            <div class="chart-container-inner">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-box">
+                            <h3><i class="fas fa-chart-pie" style="color:var(--warning)"></i> <span data-ar="حالة الطلبات" data-en="Orders Status" data-fr="Statut des commandes">حالة الطلبات</span></h3>
+                            <div class="chart-container-inner">
+                                <canvas id="ordersPieChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+            <!-- ==================== PRODUCTS TAB ==================== -->
+                <div class="tab-content" id="productsTab">
+
+                <!-- Products List -->
+                    <div class="admin-filters-card">
+                        <div class="admin-filters-header">
+                            <h3>
+                                <i class="fas fa-boxes" style="color:var(--primary)"></i> 
+                                <span data-ar="إدارة المنتجات" data-en="Manage Products" data-fr="Gérer les produits">إدارة المنتجات</span> 
+                                (<span id="productsCount">0</span>)
+                            </h3>
+                        </div>
+                        <div class="admin-orders-search" style="width:100%;">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="adminProductsSearch" oninput="adminProductsSearch()" data-ar-placeholder="🔍 بحث: اسم المنتج، السعر، القسم..." data-en-placeholder="🔍 Search: product name, price, category..." placeholder="🔍 بحث: اسم المنتج، السعر، القسم...">
+                        </div>
+                        <div class="admin-products-filters" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; width:100%;">
+                            <button class="filter-btn active" onclick="filterProducts('all', event)" id="prodFilterAll">
+                                <span data-ar="الكل" data-en="All" data-fr="Tout">الكل</span>
+                                (<span id="prodCountAll">0</span>)
+                            </button>
+                            <button class="filter-btn" onclick="filterProducts('books', event)" id="prodFilterBooks">
+                                <span>📚 <span data-ar="كتب" data-en="Books" data-fr="Livres">كتب</span></span>
+                                (<span id="prodCountBooks">0</span>)
+                            </button>
+                            <button class="filter-btn" onclick="filterProducts('software', event)" id="prodFilterSoftware">
+                                <span>💻 <span data-ar="برامج" data-en="Software" data-fr="Logiciels">برامج</span></span>
+                                (<span id="prodCountSoftware">0</span>)
+                            </button>
+                            <button class="filter-btn" onclick="filterProducts('formulas', event)" id="prodFilterFormulas">
+                                <span>🧪 <span data-ar="تركيبات" data-en="Formulas" data-fr="Formules">تركيبات</span></span>
+                                (<span id="prodCountFormulas">0</span>)
+                            </button>
+                            <button class="filter-btn" onclick="filterProducts('courses', event)" id="prodFilterCourses">
+                                <span>🎓 <span data-ar="كورسات" data-en="Courses" data-fr="Cours">كورسات</span></span>
+                                (<span id="prodCountCourses">0</span>)
+                            </button>
+                            <button type="button" class="filter-btn filter-toggle-icon" onclick="this.classList.toggle('active'); document.getElementById('productsAdvancedFilters').classList.toggle('active')" title="فلاتر ذكية">
+                                <i class="fas fa-sliders-h"></i>
+                            </button>
+                            <button class="btn-add-new" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 10px 30px rgba(239,68,68,0.35);margin-inline-start:auto;width:auto;" onclick="deleteAllProducts()">
+                                <i class="fas fa-trash"></i> <span data-ar="حذف الكل" data-en="Delete All" data-fr="Tout supprimer">حذف الكل</span>
+                            </button>
+                        </div>
+                        <div class="advanced-filters" id="productsAdvancedFilters">
+                            <select id="productsAdvBadge" class="advanced-filter-select" onchange="adminProductsSearch()">
+                                <option value="all">🏷️ الوسم (الكل)</option>
+                                <option value="hot">🔥 الأكثر مبيعاً</option>
+                                <option value="new">🆕 جديد</option>
+                                <option value="featured">⭐ مميز</option>
+                                <option value="none">❌ بدون</option>
+                            </select>
+                            <select id="productsAdvSort" class="advanced-filter-select" onchange="adminProductsSearch()">
+                                <option value="default">📊 الترتيب (الافتراضي)</option>
+                                <option value="price_asc">💰 السعر: من الأقل للأعلى</option>
+                                <option value="price_desc">💰 السعر: من الأعلى للأقل</option>
+                            </select>
+                            <select id="productsAdvDate" class="advanced-filter-select" onchange="adminProductsSearch()">
+                                <option value="all">📅 الوقت (الكل)</option>
+                                <option value="today">📅 اليوم</option>
+                                <option value="week">📅 آخر 7 أيام</option>
+                                <option value="month">📅 آخر 30 يوم</option>
+                                <option value="custom">📅 تحديد تاريخ...</option>
+                            </select>
+                            <select id="productsAdvPayment" class="advanced-filter-select" onchange="adminProductsSearch()">
+                                <option value="all">💳 طريقة الدفع (الكل)</option>
+                            </select>
+                            <input type="hidden" id="productsAdvCustomDate" value="">
+                            <input type="hidden" id="productsAdvCustomDateEnd" value="">
+                            <button onclick="resetProductsFilters()" class="advanced-filter-reset">
+                                <i class="fas fa-sync-alt"></i> إعادة ضبط
+                            </button>
+                        </div>
+                    </div>
+                    <div class="admin-products-actions">
+                        <button class="btn-add-new" onclick="var sec=document.getElementById('addProductFormSection'); sec.classList.add('active'); this.parentElement.style.display='none'; setTimeout(function(){ document.getElementById('productTitle').focus(); },300);">
+                            <i class="fas fa-plus"></i> <span data-ar="إضافة منتج" data-en="Add Product" data-fr="Ajouter un produit">إضافة منتج</span>
+                        </button>
+                    </div>
+                    <div class="admin-products-grid" id="productsContainer">
+                        <!-- JS will populate product cards here -->
+                    </div>
+                    <div class="empty-state" id="productsEmptyState" style="display: none;">
+                        <i class="fas fa-box-open"></i>
+                        <h3 data-ar="لا توجد منتجات حتى الآن" data-en="No products yet" data-fr="Pas encore de produits">لا توجد منتجات حتى الآن</h3>
+                    </div>
+                </div>
+
+            <!-- ==================== ORDERS TAB ==================== -->
+            <div class="tab-content" id="ordersTab">
+                <div class="admin-filters-card">
+                    <div class="admin-filters-header">
+                        <h3>
+                            <i class="fas fa-shopping-basket" style="color:var(--primary)"></i>
+                            <span data-ar="إدارة الطلبات" data-en="Order Management" data-fr="Gestion des commandes">إدارة الطلبات</span>
+                            (<span id="ordersCountAll">0</span>)
+                        </h3>
+                    </div>
+                    <div class="admin-orders-search" style="width:100%;">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="adminOrdersSearch" oninput="adminOrdersSearch()" data-ar-placeholder="🔍 بحث: اسم، بريد، هاتف، رقم طلب..." data-en-placeholder="🔍 Search: name, email, phone, order ID..." placeholder="🔍 بحث: اسم، بريد، هاتف، رقم طلب...">
+                    </div>
+                    <div class="admin-products-filters">
+                        <button class="filter-btn active" onclick="filterOrders('all', event)" id="orderFilterAll">
+                            <span data-ar="الكل" data-en="All" data-fr="Tout">الكل</span>
+                            (<span id="allCount">0</span>)
+                        </button>
+                        <button class="filter-btn" onclick="filterOrders('pending', event)" id="orderFilterPending">
+                            <span data-ar="قيد الانتظار" data-en="Pending" data-fr="En attente">قيد الانتظار</span>
+                            (<span id="pendingCount">0</span>)
+                        </button>
+                        <button class="filter-btn" onclick="filterOrders('confirmed', event)" id="orderFilterConfirmed">
+                            <span data-ar="مؤكدة" data-en="Confirmed" data-fr="Confirmé">مؤكدة</span>
+                            (<span id="confirmedCount">0</span>)
+                        </button>
+                        <button class="filter-btn" onclick="filterOrders('rejected', event)" id="orderFilterRejected">
+                            <span data-ar="مرفوضة" data-en="Rejected" data-fr="Rejeté">مرفوضة</span>
+                            (<span id="rejectedCount">0</span>)
+                        </button>
+                        <button type="button" class="filter-btn filter-toggle-icon" onclick="this.classList.toggle('active'); document.getElementById('ordersAdvancedFilters').classList.toggle('active')" title="فلاتر ذكية">
+                            <i class="fas fa-sliders-h"></i>
+                        </button>
+                        <button class="btn-add-new" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 10px 30px rgba(239,68,68,0.35);margin-inline-start:auto;width:auto;" onclick="deleteAllOrders()">
+                            <i class="fas fa-trash"></i> <span data-ar="حذف الكل" data-en="Delete All" data-fr="Tout supprimer">حذف الكل</span>
+                        </button>
+                    </div>
+                    <div class="advanced-filters" id="ordersAdvancedFilters">
+                        <select id="ordersAdvBadge" class="advanced-filter-select" onchange="adminOrdersSearch()">
+                            <option value="all">🏷️ الوسم (الكل)</option>
+                            <option value="hot">🔥 الأكثر مبيعاً</option>
+                            <option value="new">🆕 جديد</option>
+                            <option value="featured">⭐ مميز</option>
+                            <option value="none">❌ بدون</option>
+                        </select>
+                        <select id="ordersAdvSort" class="advanced-filter-select" onchange="adminOrdersSearch()">
+                            <option value="default">📊 الترتيب (الافتراضي)</option>
+                            <option value="price_asc">💰 السعر: من الأقل للأعلى</option>
+                            <option value="price_desc">💰 السعر: من الأعلى للأقل</option>
+                        </select>
+                        <select id="ordersAdvDate" class="advanced-filter-select" onchange="adminOrdersSearch()">
+                            <option value="all">📅 الوقت (الكل)</option>
+                            <option value="today">📅 اليوم</option>
+                            <option value="week">📅 آخر 7 أيام</option>
+                            <option value="month">📅 آخر 30 يوم</option>
+                            <option value="custom">📅 تحديد تاريخ...</option>
+                        </select>
+                        <select id="ordersAdvCategory" class="advanced-filter-select" onchange="adminOrdersSearch()">
+                            <option value="all">📦 الفئة (الكل)</option>
+                            <option value="books">📚 كتب</option>
+                            <option value="software">💻 برامج</option>
+                            <option value="formulas">🧪 تركيبات</option>
+                            <option value="courses">🎓 كورسات</option>
+                        </select>
+                        <select id="ordersAdvPayment" class="advanced-filter-select" onchange="adminOrdersSearch()">
+                            <option value="all">💳 طريقة الدفع (الكل)</option>
+                        </select>
+                        <input type="hidden" id="ordersAdvCustomDate" value="">
+                        <input type="hidden" id="ordersAdvCustomDateEnd" value="">
+                        <button onclick="resetOrdersFilters()" class="advanced-filter-reset">
+                            <i class="fas fa-sync-alt"></i> إعادة ضبط
+                        </button>
+                    </div>
+                </div>
+                <div id="ordersContainer" class="admin-orders-grid"></div>
+                <div class="empty-state" id="ordersEmptyState" style="display: none;">
+                    <i class="fas fa-shopping-cart"></i>
+                    <h3 data-ar="لا توجد طلبات" data-en="No orders" data-fr="Aucune commande">لا توجد طلبات</h3>
+                </div>
+            </div>
+
+                <!-- ==================== PAGES TAB (CMS) ==================== -->
+                <div class="tab-content" id="pagesTab">
+                    <div class="admin-table-container">
+                        <div class="admin-table-header" style="flex-direction:column;align-items:flex-start;gap:20px;">
+                            <h3>
+                                <i class="fas fa-file-alt" style="color:var(--primary)"></i> 
+                                <span data-ar="إدارة الصفحات" data-en="Manage Pages" data-fr="Gérer les pages">إدارة الصفحات</span>
+                                (<span id="pagesCount">0</span>)
+                            </h3>
+                            <button class="btn-add-new" onclick="openAddPageModal()">
+                                <i class="fas fa-plus"></i> <span data-ar="أضف صفحة جديدة" data-en="Add New Page" data-fr="Ajouter une nouvelle page">أضف صفحة جديدة</span>
+                            </button>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width:40px;text-align:center;">#</th>
+                                        <th style="text-align:center;">عنوان الصفحة</th>
+                                        <th style="text-align:center;">الرابط (Slug)</th>
+                                        <th style="width:130px;text-align:center;">الحالة</th>
+                                        <th style="text-align:center;">النوع</th>
+                                        <th style="text-align:center;">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pagesContainer">
+                                    <!-- JS will populate tr here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== PAYMENTS TAB ==================== -->
+                <div class="tab-content" id="paymentsTab">
+                    <div class="form-section-card">
+                        <div class="admin-table-header" style="margin-bottom:20px;">
+                            <h3><i class="fas fa-credit-card" style="color:var(--primary)"></i> <span data-ar="بوابات وطرق الدفع" data-en="Payment Gateways" data-fr="Passerelles de paiement">بوابات وطرق الدفع</span></h3>
+                            <button class="btn-add-new" onclick="openAddPaymentModal()">
+                                <i class="fas fa-plus"></i> <span data-ar="إضافة بوابة جديدة" data-en="Add Gateway" data-fr="Ajouter une passerelle">إضافة بوابة جديدة</span>
+                            </button>
+                        </div>
+                        <p style="color:var(--text-secondary); margin-bottom: 20px; font-weight:900; font-size:18px;">إدارة بوابات الدفع: أضف، عدل، رتب، أو احذف طرق الدفع المتاحة للعملاء.</p>
+                        <div id="paymentMethodsAdminContainer">
+                            <p style="color:var(--text-secondary);text-align:center;padding:40px;">جاري التحميل...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== TRASH TAB ==================== -->
+                <div class="tab-content" id="trashTab">
+                    <div class="admin-table-container">
+                        <div class="admin-table-header">
+                            <h3>
+                                <i class="fas fa-trash-restore" style="color:var(--danger)"></i> 
+                                <span data-ar="سلة المهملات" data-en="Trash" data-fr="Corbeille">سلة المهملات</span>
+                                <span style="font-size: 0.6em; color: var(--text-secondary); margin-right: 10px;">(يتم مسح العناصر تلقائياً بعد 30 يوم)</span>
+                            </h3>
+                            <button class="btn-add-new" style="background: linear-gradient(135deg, #ef4444, #dc2626);" onclick="emptyTrash()">
+                                <i class="fas fa-dumpster"></i> <span data-ar="إفراغ السلة" data-en="Empty Trash" data-fr="Vider la corbeille">إفراغ السلة</span>
+                            </button>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align:center;">الاسم / العنوان</th>
+                                        <th style="text-align:center;">النوع</th>
+                                        <th style="width: 150px; min-width: 150px;text-align:center;">السعر</th>
+                                        <th style="width: 180px; min-width: 180px;text-align:center;">تاريخ الحذف</th>
+                                        <th style="width: 100px; min-width: 100px;text-align:center;">أيام متبقية</th>
+                                        <th style="text-align:center;">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="trashContainer">
+                                    <!-- JS will populate tr here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== SETTINGS TAB ==================== -->
+                <!-- ==================== LANGUAGES TAB ==================== -->
+                <div class="tab-content" id="languagesTab">
+                    <div class="wp-grid" style="grid-template-columns:1fr;">
+                        <div class="wp-card" style="border:2px solid rgba(147,51,234,0.4);border-radius:20px;padding:28px;background:linear-gradient(135deg,rgba(147,51,234,0.05),rgba(30,15,50,0.5));">
+                            <h2 style="font-size:1.3em;font-weight:900;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:2px solid rgba(147,51,234,0.15);">
+                                <i class="fas fa-language" style="color:#a78bfa;font-size:1.2em;"></i>
+                                <span data-ar="إدارة اللغات" data-en="Languages Management" data-fr="Gestion des langues">إدارة اللغات</span>
+                            </h2>
+                            <div class="langs-toolbar" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+                                <button class="btn-add-new" onclick="openLangModal()">
+                                    <i class="fas fa-plus"></i>
+                                    <span data-ar="إضافة لغة" data-en="Add Language" data-fr="Ajouter une langue">إضافة لغة</span>
+                                </button>
+                            </div>
+                            <div class="langs-table-wrap" style="overflow-x:auto;">
+                                <table class="admin-table" id="langsTable" style="width:100%;border-collapse:collapse;min-width:600px;">
+                                    <thead>
+                                        <tr style="background:rgba(147,51,234,0.1);border-bottom:2px solid rgba(147,51,234,0.3);">
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;"><span data-ar="الرمز" data-en="Code" data-fr="Code">الرمز</span></th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;"><span data-ar="العلم" data-en="Flag" data-fr="Drapeau">العلم</span></th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;"><span data-ar="الاسم (عربي)" data-en="Name (Ar)" data-fr="Nom (Ar)">الاسم (عربي)</span></th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;">Name (En)</th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;">Nom (Fr)</th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;"><span data-ar="حالة" data-en="Status" data-fr="Statut">حالة</span></th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;"><span data-ar="إجراءات" data-en="Actions" data-fr="Actions">إجراءات</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="langsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== CATEGORIES MANAGEMENT TAB ==================== -->
+                <div class="tab-content" id="categoriesmgtTab">
+                    <div class="wp-grid" style="grid-template-columns:1fr;">
+                        <div class="wp-card" style="border:2px solid rgba(147,51,234,0.4);border-radius:20px;padding:28px;background:linear-gradient(135deg,rgba(147,51,234,0.05),rgba(30,15,50,0.5));">
+                            <h2 style="font-size:1.3em;font-weight:900;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:2px solid rgba(147,51,234,0.15);">
+                                <i class="fas fa-layer-group" style="color:#a78bfa;font-size:1.2em;"></i>
+                                <span data-ar="إدارة التصنيفات" data-en="Categories Management" data-fr="Gestion des catégories">إدارة التصنيفات</span>
+                            </h2>
+                            <div class="cats-toolbar" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+                                <button class="btn-add-new" onclick="openCatModal()">
+                                    <i class="fas fa-plus"></i>
+                                    <span data-ar="إضافة تصنيف" data-en="Add Category" data-fr="Ajouter une catégorie">إضافة تصنيف</span>
+                                </button>
+                            </div>
+                            <div class="cats-table-wrap" style="overflow-x:auto;">
+                                <table class="admin-table" id="catsTable" style="width:100%;border-collapse:collapse;min-width:650px;">
+                                    <thead>
+                                        <tr style="background:rgba(147,51,234,0.1);border-bottom:2px solid rgba(147,51,234,0.3);">
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;"><span data-ar="ترتيب" data-en="Order" data-fr="Ordre">ترتيب</span></th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;"><span data-ar="المفتاح" data-en="Key" data-fr="Clé">المفتاح</span></th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;"><span data-ar="أيقونة" data-en="Icon" data-fr="Icône">أيقونة</span></th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;"><span data-ar="صورة" data-en="Image" data-fr="Image">صورة</span></th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;"><span data-ar="الاسم (عربي)" data-en="Name (Ar)" data-fr="Nom (Ar)">الاسم (عربي)</span></th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;">Name (En)</th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;">Nom (Fr)</th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;"><span data-ar="حالة" data-en="Status" data-fr="Statut">حالة</span></th>
+                                            <th style="padding:12px 16px;text-align:start;color:#c4b5fd;font-weight:900;"><span data-ar="إجراءات" data-en="Actions" data-fr="Actions">إجراءات</span></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="catsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== CUSTOMERS TAB ==================== -->
+                <div class="tab-content" id="customersTab">
+                    <div class="admin-filters-card">
+                        <div class="admin-filters-header">
+                            <h3>
+                                <i class="fas fa-users" style="color:var(--primary)"></i>
+                                <span data-ar="إدارة العملاء" data-en="Customer Management" data-fr="Gestion des clients">إدارة العملاء</span>
+                                (<span id="customersCountAll">0</span>)
+                            </h3>
+                        </div>
+                        <div class="admin-orders-search" style="width:100%;">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="adminCustomersSearch" oninput="adminCustomersSearch()" data-ar-placeholder="🔍 بحث: اسم، بريد، هاتف..." data-en-placeholder="🔍 Search: name, email, phone..." placeholder="🔍 بحث: اسم، بريد، هاتف...">
+                        </div>
+                        <div class="admin-products-filters">
+                            <button class="filter-btn active" onclick="filterCustomers('all', event)" id="custFilterAll">
+                                <span data-ar="الكل" data-en="All" data-fr="Tous">الكل</span>
+                                (<span id="custCountAll">0</span>)
+                            </button>
+                            <button class="filter-btn" onclick="filterCustomers('withOrders', event)" id="custFilterWithOrders">
+                                <span data-ar="لديهم طلبات" data-en="With Orders" data-fr="Avec commandes">لديهم طلبات</span>
+                                (<span id="custCountWithOrders">0</span>)
+                            </button>
+                            <button class="filter-btn" onclick="filterCustomers('noOrders', event)" id="custFilterNoOrders">
+                                <span data-ar="بدون طلبات" data-en="No Orders" data-fr="Sans commandes">بدون طلبات</span>
+                                (<span id="custCountNoOrders">0</span>)
+                            </button>
+                            <button type="button" class="filter-btn filter-toggle-icon" onclick="this.classList.toggle('active'); document.getElementById('customersAdvancedFilters').classList.toggle('active')" title="فلاتر ذكية">
+                                <i class="fas fa-sliders-h"></i>
+                            </button>
+                            <button class="btn-add-new" style="background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 10px 30px rgba(239,68,68,0.35);margin-inline-start:auto;width:auto;" onclick="deleteAllCustomers()">
+                                <i class="fas fa-trash"></i> <span data-ar="حذف الكل" data-en="Delete All" data-fr="Tout supprimer">حذف الكل</span>
+                            </button>
+                        </div>
+                        <div class="advanced-filters" id="customersAdvancedFilters">
+                            <select id="customersAdvSort" class="advanced-filter-select" onchange="adminCustomersSearch()">
+                                <option value="default">📊 الترتيب (الافتراضي)</option>
+                                <option value="name_asc">🔤 الاسم: أ - ي</option>
+                                <option value="name_desc">🔤 الاسم: ي - أ</option>
+                                <option value="date_asc">📅 الأقدم</option>
+                                <option value="date_desc">📅 الأحدث</option>
+                            </select>
+                            <button onclick="resetCustomersFilters()" class="advanced-filter-reset">
+                                <i class="fas fa-sync-alt"></i> إعادة ضبط
+                            </button>
+                        </div>
+                    </div>
+                    <div class="admin-table-container">
+                        <div style="overflow-x: auto;">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align:center;">#</th>
+                                        <th style="text-align:center;">الاسم</th>
+                                        <th style="text-align:center;">البريد الإلكتروني</th>
+                                        <th style="text-align:center;">رقم الهاتف</th>
+                                        <th style="text-align:center;">الطلبات</th>
+                                        <th style="text-align:center;">تاريخ التسجيل</th>
+                                        <th style="text-align:center;">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customersContainer">
+                                    <!-- JS will populate tr here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="empty-state" id="customersEmptyState" style="display: none;">
+                        <i class="fas fa-users"></i>
+                        <h3 data-ar="لا يوجد عملاء حتى الآن" data-en="No customers yet" data-fr="Pas encore de clients">لا يوجد عملاء حتى الآن</h3>
+                    </div>
+                </div>
+
+                <!-- ==================== SETTINGS TAB ==================== -->
+                <div class="tab-content" id="settingsTab">
+                    <div class="wp-grid" style="grid-template-columns: 1fr;">
+                        <div class="wp-card" style="border:2px solid rgba(147,51,234,0.4);border-radius:20px;padding:28px;background:linear-gradient(135deg,rgba(147,51,234,0.05),rgba(30,15,50,0.5));">
+                            <h2 style="font-size:1.3em;font-weight:900;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:2px solid rgba(147,51,234,0.15);"><i class="fas fa-store" style="color:#a78bfa;font-size:1.2em;"></i> إعدادات المتجر العامة <span style="color:#a78bfa;font-weight:700;font-size:0.75em;">(General)</span></h2>
+                            <div style="max-width: 100%; margin-top: 10px;">
+                                <div class="setting-row" style="display:flex;flex-direction:column;align-items:stretch;padding:16px 0;border-bottom:2px solid rgba(147,51,234,0.15);gap:8px;">
+                                    <label style="font-weight:900;font-size:0.95em;color:#c4b5fd;">اسم المتجر <span style="color:#a78bfa;font-weight:700;font-size:0.85em;">(Title)</span></label>
+                                    <input type="text" id="storeName" placeholder="BRAVO Store" style="width:100%;padding:12px 16px;border-radius:14px;border:2px solid rgba(147,51,234,0.3);background:rgba(0,0,0,0.3);color:#fff;font-weight:900;font-size:0.95em;box-sizing:border-box;transition:0.3s;" onfocus="this.style.borderColor='#8b5cf6';this.style.boxShadow='0 0 20px rgba(147,51,234,0.2)'" onblur="this.style.borderColor='rgba(147,51,234,0.3)';this.style.boxShadow='none'">
+                                </div>
+                                <div class="setting-row" style="display:flex;flex-direction:column;align-items:stretch;padding:16px 0;border-bottom:2px solid rgba(147,51,234,0.15);gap:8px;">
+                                    <label style="font-weight:900;font-size:0.95em;color:#c4b5fd;">بريد التواصل <span style="color:#a78bfa;font-weight:700;font-size:0.85em;">(Email)</span></label>
+                                    <input type="email" id="storeEmail" placeholder="bravoenergyeg@gmail.com" style="width:100%;padding:12px 16px;border-radius:14px;border:2px solid rgba(147,51,234,0.3);background:rgba(0,0,0,0.3);color:#fff;font-weight:900;font-size:0.95em;box-sizing:border-box;transition:0.3s;" onfocus="this.style.borderColor='#8b5cf6';this.style.boxShadow='0 0 20px rgba(147,51,234,0.2)'" onblur="this.style.borderColor='rgba(147,51,234,0.3)';this.style.boxShadow='none'">
+                                </div>
+                                <div class="setting-row" style="display:flex;flex-direction:column;align-items:stretch;padding:16px 0;border-bottom:none;gap:8px;">
+                                    <label style="font-weight:900;font-size:0.95em;color:#c4b5fd;">رقم هاتف الدعم <span style="color:#a78bfa;font-weight:700;font-size:0.85em;">(Phone)</span></label>
+                                    <input type="text" id="storePhone" placeholder="+20 101 285 3829" dir="ltr" style="width:100%;padding:12px 16px;border-radius:14px;border:2px solid rgba(147,51,234,0.3);background:rgba(0,0,0,0.3);color:#fff;font-weight:900;font-size:0.95em;box-sizing:border-box;transition:0.3s;" onfocus="this.style.borderColor='#8b5cf6';this.style.boxShadow='0 0 20px rgba(147,51,234,0.2)'" onblur="this.style.borderColor='rgba(147,51,234,0.3)';this.style.boxShadow='none'">
+                                </div>
+                                <button class="btn-add-new" onclick="saveStoreSettings()" style="margin-top:20px;padding:14px 28px;font-size:1em;width:auto;">
+                                    <i class="fas fa-save"></i> حفظ الإعدادات
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="wp-card" style="border:2px solid rgba(239,68,68,0.3);border-radius:20px;padding:28px;background:linear-gradient(135deg,rgba(239,68,68,0.05),rgba(30,15,50,0.5));">
+                            <h2 style="font-size:1.3em;font-weight:900;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:2px solid rgba(239,68,68,0.15);"><i class="fas fa-shield-alt" style="color:#f87171;font-size:1.2em;"></i> إعدادات الأمان وحساب المدير</h2>
+                            <div style="max-width: 100%; margin-top: 10px;">
+                                <div class="setting-row" style="display:flex;flex-direction:column;align-items:stretch;padding:16px 0;border-bottom:2px solid rgba(239,68,68,0.15);gap:8px;">
+                                    <label style="font-weight:900;font-size:0.95em;color:#fca5a5;">اسم المستخدم <span style="color:#f87171;font-weight:700;font-size:0.85em;">(Admin)</span></label>
+                                    <input type="text" id="newAdminUsername" placeholder="admin" style="width:100%;padding:12px 16px;border-radius:14px;border:2px solid rgba(239,68,68,0.3);background:rgba(0,0,0,0.3);color:#fff;font-weight:900;font-size:0.95em;box-sizing:border-box;transition:0.3s;" onfocus="this.style.borderColor='#ef4444';this.style.boxShadow='0 0 20px rgba(239,68,68,0.2)'" onblur="this.style.borderColor='rgba(239,68,68,0.3)';this.style.boxShadow='none'">
+                                </div>
+                                <div class="setting-row" style="display:flex;flex-direction:column;align-items:stretch;padding:16px 0;border-bottom:none;gap:8px;">
+                                    <label style="font-weight:900;font-size:0.95em;color:#fca5a5;">كلمة المرور الجديدة</label>
+                                    <div style="position:relative;width:100%;">
+                                        <input type="password" id="newAdminPassword" placeholder="•••••••••" style="width:100%;padding:12px 16px;padding-left:46px;border-radius:14px;border:2px solid rgba(239,68,68,0.3);background:rgba(0,0,0,0.3);color:#fff;font-weight:900;font-size:0.95em;box-sizing:border-box;transition:0.3s;" onfocus="this.style.borderColor='#ef4444';this.style.boxShadow='0 0 20px rgba(239,68,68,0.2)'" onblur="this.style.borderColor='rgba(239,68,68,0.3)';this.style.boxShadow='none'">
+                                        <span id="togglePasswordIcon" onclick="var p=document.getElementById('newAdminPassword');var i=this;if(p.type==='password'){p.type='text';i.innerHTML='<i class=\\\'fas fa-eye-slash\\\'></i>'}else{p.type='password';i.innerHTML='<i class=\\\'fas fa-eye\\\'></i>'}" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#f87171;font-size:18px;transition:0.3s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#f87171'"><i class="fas fa-eye"></i></span>
+                                    </div>
+                                </div>
+                                <button class="btn-add-new" onclick="saveAdminCredentials()" style="margin-top:20px;padding:14px 28px;font-size:1em;width:auto;background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 10px 30px rgba(239,68,68,0.35);" onmouseover="this.style.boxShadow='0 15px 40px rgba(239,68,68,0.5)'" onmouseout="this.style.boxShadow='0 10px 30px rgba(239,68,68,0.35)'">
+                                    <i class="fas fa-save"></i> تحديث بيانات الدخول
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="wp-card" style="border:2px solid rgba(59,130,246,0.3);border-radius:20px;padding:28px;background:linear-gradient(135deg,rgba(59,130,246,0.05),rgba(30,15,50,0.5));">
+                            <h2 style="font-size:1.3em;font-weight:900;color:#fff;margin-bottom:16px;display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:2px solid rgba(59,130,246,0.15);"><i class="fas fa-database" style="color:#60a5fa;font-size:1.2em;"></i> التحكم في قاعدة البيانات <span style="color:#60a5fa;font-weight:700;font-size:0.75em;">(Firebase)</span></h2>
+                            <p style="color:var(--text-secondary);font-size:0.95em;font-weight:700;margin-bottom:20px;line-height:1.7;">يمكنك أخذ نسخة احتياطية من جميع بيانات المتجر (المنتجات، الطلبات، المستخدمين).</p>
+                            <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                                <button class="btn-add-new" onclick="exportDatabaseBackup()" style="padding:14px 24px;font-size:1em;background:linear-gradient(135deg,#3b82f6,#2563eb);box-shadow:0 10px 30px rgba(59,130,246,0.35);" onmouseover="this.style.boxShadow='0 15px 40px rgba(59,130,246,0.5)'" onmouseout="this.style.boxShadow='0 10px 30px rgba(59,130,246,0.35)'">
+                                    <i class="fas fa-download"></i> إنشاء نسخة احتياطية (Backup)
+                                </button>
+                                <button class="btn-add-new" onclick="clearSystemCache()" style="padding:14px 24px;font-size:1em;background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 10px 30px rgba(245,158,11,0.35);" onmouseover="this.style.boxShadow='0 15px 40px rgba(245,158,11,0.5)'" onmouseout="this.style.boxShadow='0 10px 30px rgba(245,158,11,0.35)'">
+                                    <i class="fas fa-broom"></i> تفريغ الكاش
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Main Site Footer -->
+            <footer class="footer">
+                <div class="container">
+                    <div class="footer-content">
+                        <div class="footer-section">
+                            <div class="footer-logo">
+                                <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO">
+                                <span>BRAVO</span>
+                            </div>
+                            <p data-ar="متجر BRAVO لتعليم صناعة المنظفات ومستحضرات التجميل والعطور" data-en="The #1 Digital Store" data-fr="La boutique numérique n°1">متجر BRAVO لتعليم صناعة المنظفات ومستحضرات التجميل والعطور</p>
+                            <div class="social-links">
+                                <a href="#"><i class="fab fa-facebook"></i></a>
+                                <a href="#"><i class="fab fa-twitter"></i></a>
+                                <a href="#"><i class="fab fa-instagram"></i></a>
+                                <a href="#"><i class="fab fa-linkedin"></i></a>
+                            </div>
+                        </div>
+                        <div class="footer-section">
+                            <h4 data-ar="روابط سريعة" data-en="Quick Links" data-fr="Liens rapides">روابط سريعة</h4>
+                            <ul>
+                                <li><a href="index.html"><i class="fas fa-angle-left"></i> <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span></a></li>
+                                <li><a href="products.html"><i class="fas fa-angle-left"></i> <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span></a></li>
+                                <li><a href="about.html"><i class="fas fa-angle-left"></i> <span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span></a></li>
+                                <li><a href="contact.html"><i class="fas fa-angle-left"></i> <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span></a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-section">
+                            <h4 data-ar="أقسام المتجر" data-en="Categories" data-fr="Catégories">أقسام المتجر</h4>
+                            <ul>
+                                <li><a href="products.html?cat=books"><span class="emoji">📚</span> <span data-ar="كتب" data-en="Books" data-fr="Livres">كتب</span></a></li>
+                                <li><a href="products.html?cat=software"><span class="emoji">💻</span> <span data-ar="برامج" data-en="Software" data-fr="Logiciels">برامج</span></a></li>
+                                <li><a href="products.html?cat=formulas"><span class="emoji">🧪</span> <span data-ar="تركيبات" data-en="Formulas" data-fr="Formules">تركيبات</span></a></li>
+                                <li><a href="products.html?cat=courses"><span class="emoji">🎓</span> <span data-ar="كورسات" data-en="Courses" data-fr="Cours">كورسات</span></a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-section">
+                            <h4 data-ar="تواصل" data-en="Contact" data-fr="Contact">تواصل</h4>
+                            <ul class="contact-info">
+                                <li><i class="fas fa-phone"></i> <span dir="ltr">+20 101 285 3829</span></li>
+                                <li><i class="fas fa-envelope"></i> info@bravo.com</li>
+                                <li><i class="fas fa-map-marker-alt"></i> <span data-ar="الجيزة، مصر" data-en="Cairo, Egypt" data-fr="Le Caire, Égypte">الجيزة، مصر</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="footer-bottom">
+                        <p>&copy; 2026 BRAVO Store. <span data-ar="جميع الحقوق محفوظة" data-en="All rights reserved" data-fr="Tous droits réservés">جميع الحقوق محفوظة</span>.</p>
+                        <div class="payment-methods">
+                            <i class="fas fa-credit-card"></i>
+                            <i class="fab fa-cc-paypal"></i>
+                            <i class="fab fa-bitcoin"></i>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- ==================== IMAGE MODAL WITH ZOOM ==================== -->
+    <div class="image-modal" id="imageModal" onclick="if(event.target===this)closeImageModal()">
+        <span class="close-modal" onclick="closeImageModal()">&times;</span>
+        <div class="image-modal-toolbar">
+            <button onclick="zoomOut()" title="تصغير"><i class="fas fa-search-minus"></i></button>
+            <span id="zoomLevel">100%</span>
+            <button onclick="zoomIn()" title="تكبير"><i class="fas fa-search-plus"></i></button>
+            <button onclick="zoomReset()" title="إعادة"><i class="fas fa-expand"></i></button>
+        </div>
+        <div class="image-modal-body">
+            <img class="modal-content-img" id="modalImage" alt="Preview" onclick="if(_imgZoomLevel>1){zoomReset()}else{zoomIn()}">
+        </div>
+    </div>
+
+    <!-- ==================== EDIT ORDER MODAL ==================== -->
+    <div class="edit-order-modal" id="editOrderModal">
+        <div class="edit-order-content">
+            <div class="edit-order-header">
+                <h2>
+                    <i class="fas fa-edit" aria-hidden="true"></i>
+                    <span data-ar="تعديل الطلب" data-en="Edit Order" data-fr="Modifier la commande">تعديل الطلب</span>
+                </h2>
+            </div>
+
+            <form class="edit-order-form" id="editOrderForm">
+                <input type="hidden" id="editOrderId">
+
+                <div class="edit-form-row">
+                    <div class="edit-form-group">
+                        <label>
+                            <i class="fas fa-box" aria-hidden="true"></i>
+                            <span data-ar="المنتج:" data-en="Product:" data-fr="Produit :">المنتج:</span>
+                        </label>
+                        <input type="text" id="editOrderProductTitle" required>
+                    </div>
+                    <div class="edit-form-group">
+                        <label>
+                            <i class="fas fa-tag" aria-hidden="true"></i>
+                            <span data-ar="السعر:" data-en="Price:" data-fr="Prix :">السعر:</span>
+                        </label>
+                        <input type="number" id="editPrice" required min="0" step="0.01">
+                    </div>
+                    <div class="edit-form-group">
+                        <label>
+                            <i class="fas fa-money-bill" aria-hidden="true"></i>
+                            <span data-ar="العملة:" data-en="Currency:" data-fr="Devise :">العملة:</span>
+                        </label>
+                        <select id="editCurrency" required>
+                            <option value="EGP">EGP</option>
+                            <option value="USD">USD</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="edit-form-row">
+                    <div class="edit-form-group">
+                        <label>
+                            <i class="fas fa-user" aria-hidden="true"></i>
+                            <span data-ar="العميل:" data-en="Customer:" data-fr="Client :">العميل:</span>
+                        </label>
+                        <input type="text" id="editCustomerName" required>
+                    </div>
+                    <div class="edit-form-group">
+                        <label>
+                            <i class="fas fa-envelope" aria-hidden="true"></i>
+                            <span data-ar="البريد:" data-en="Email:" data-fr="Email :">البريد:</span>
+                        </label>
+                        <input type="email" id="editCustomerEmail" required>
+                    </div>
+                    <div class="edit-form-group">
+                        <label>
+                            <i class="fas fa-phone" aria-hidden="true"></i>
+                            <span data-ar="الهاتف:" data-en="Phone:" data-fr="Téléphone :">الهاتف:</span>
+                        </label>
+                        <input type="tel" id="editCustomerPhone" required>
+                    </div>
+                </div>
+
+                <div class="edit-form-row">
+                    <div class="edit-form-group">
+                        <label>
+                            <i class="fas fa-credit-card" aria-hidden="true"></i>
+                            <span data-ar="طريقة الدفع:" data-en="Payment Method:" data-fr="Mode de paiement :">طريقة الدفع:</span>
+                        </label>
+                        <select id="editPaymentMethod" required>
+                            <option value="exchange">🏢 مكتب صرافة</option>
+                            <option value="vodafone">📱 فودافون كاش</option>
+                            <option value="paypal">💳 بايبال</option>
+                            <option value="binance">₿ بينانس</option>
+                            <option value="bank">🏦 تحويل بنكي</option>
+                            <option value="western">💸 ويسترن يونيون</option>
+                            <option value="moneygram">💵 موني جرام</option>
+                            <option value="instapay">⚡ إنستاباي</option>
+                            <option value="redotpay">🔴 ريدوت باي</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="edit-form-row">
+                    <div class="edit-form-group">
+                        <label>
+                            <i class="fas fa-layer-group" aria-hidden="true"></i>
+                            <span data-ar="التصنيف:" data-en="Category:" data-fr="Catégorie :">التصنيف:</span>
+                        </label>
+                        <select id="editOrderCategory" style="width:100%;padding:12px;border-radius:12px;border:2px solid var(--border-color);background:var(--bg-dark);color:var(--text-primary);font-family:inherit;font-size:0.95em;">
+                            <option value="books">📚 كتب</option>
+                            <option value="software">💻 برامج</option>
+                            <option value="formulas">🧪 تركيبات</option>
+                            <option value="courses">🎓 كورسات</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="edit-form-row">
+                    <div class="edit-form-group">
+                        <label>
+                            <i class="fas fa-globe" aria-hidden="true"></i>
+                            <span data-ar="بلد العميل:" data-en="Customer Country:" data-fr="Pays du client :">بلد العميل:</span>
+                        </label>
+                        <select id="editCustomerCountry" style="width:100%;padding:12px;border-radius:12px;border:2px solid var(--border-color);background:var(--bg-dark);color:var(--text-primary);font-family:inherit;font-size:0.95em;" onchange="updateCurrencyFromCountry()">
+                            <option value="EG">🇪🇬 مصر</option>
+                            <option value="SA">🇸🇦 السعودية</option>
+                            <option value="AE">🇦🇪 الإمارات</option>
+                            <option value="QA">🇶🇦 قطر</option>
+                            <option value="KW">🇰🇼 الكويت</option>
+                            <option value="BH">🇧🇭 البحرين</option>
+                            <option value="OM">🇴🇲 عمان</option>
+                            <option value="JO">🇯🇴 الأردن</option>
+                            <option value="LB">🇱🇧 لبنان</option>
+                            <option value="US">🇺🇸 الولايات المتحدة</option>
+                            <option value="GB">🇬🇧 بريطانيا</option>
+                            <option value="CA">🇨🇦 كندا</option>
+                            <option value="AU">🇦🇺 أستراليا</option>
+                            <option value="DE">🇩🇪 ألمانيا</option>
+                            <option value="FR">🇫🇷 فرنسا</option>
+                            <option value="other">🌍 أخرى</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="edit-form-group">
+                    <label>
+                        <i class="fas fa-info-circle" aria-hidden="true"></i>
+                        <span data-ar="الحالة:" data-en="Status:" data-fr="Statut :">الحالة:</span>
+                    </label>
+                    <div class="edit-order-status-group">
+                        <div class="status-option pending">
+                            <input type="radio" id="statusPending" name="orderStatus" value="pending">
+                            <label for="statusPending">
+                                <span>⏳</span>
+                                <span data-ar="قيد الانتظار" data-en="Pending" data-fr="En attente">قيد الانتظار</span>
+                            </label>
+                        </div>
+                        <div class="status-option confirmed">
+                            <input type="radio" id="statusConfirmed" name="orderStatus" value="confirmed">
+                            <label for="statusConfirmed">
+                                <span>✅</span>
+                                <span data-ar="مؤكد" data-en="Confirmed" data-fr="Confirmé">مؤكد</span>
+                            </label>
+                        </div>
+                        <div class="status-option rejected">
+                            <input type="radio" id="statusRejected" name="orderStatus" value="rejected">
+                            <label for="statusRejected">
+                                <span>❌</span>
+                                <span data-ar="مرفوض" data-en="Rejected" data-fr="Rejeté">مرفوض</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-form-group">
+                    <label>
+                        <i class="fas fa-download" aria-hidden="true"></i>
+                        <span data-ar="رابط التحميل:" data-en="Download Link:" data-fr="Lien de téléchargement :">رابط التحميل:</span>
+                    </label>
+                    <input type="url" id="editOrderDownloadLink" style="width:100%;padding:12px;border-radius:12px;border:2px solid var(--border-color);background:var(--bg-dark);color:var(--text-primary);font-family:inherit;font-size:0.95em;" placeholder="https://...">
+                </div>
+
+                <div class="edit-form-group">
+                    <label>
+                        <i class="fas fa-image" aria-hidden="true"></i>
+                        <span data-ar="صور الطلب:" data-en="Order Images:" data-fr="Images de commande :">صور الطلب:</span>
+                    </label>
+                    <div class="order-images-row edit-order-images-row">
+                        <div class="edit-order-img-wrapper">
+                            <div class="edit-order-img-inner">
+                                <img id="editOrderProductPreviewImg" src="" alt="Product" onclick="openImageModal(this.src)" style="display:none;width:100%;height:100%;object-fit:contain;cursor:pointer;border-radius:12px;">
+                            </div>
+                            <span class="edit-order-img-label"><span data-ar="صورة المنتج" data-en="Product Image" data-fr="Image du produit">صورة المنتج</span></span>
+                        </div>
+                        <div class="edit-order-img-wrapper">
+                            <div class="edit-order-img-inner">
+                                <img id="editTransferImagePreview" src="" alt="Transfer" onclick="openImageModal(this.src)" style="display:none;width:100%;height:100%;object-fit:contain;cursor:pointer;border:2px solid var(--primary);border-radius:12px;">
+                            </div>
+                            <span class="edit-order-img-label"><span data-ar="صورة التحويل" data-en="Transfer Image" data-fr="Image de virement">صورة التحويل</span></span>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:15px;margin-top:10px;">
+                        <input type="file" id="editTransferImageInput" accept="image/*" style="display:none;">
+                        <button type="button" class="change-image-btn" onclick="document.getElementById('editTransferImageInput').click()" style="flex:1;">
+                            <i class="fas fa-upload" aria-hidden="true"></i>
+                            <span data-ar="تغيير صورة التحويل" data-en="Change Transfer Image" data-fr="Changer l'image de virement">تغيير صورة التحويل</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="edit-order-actions">
+                    <button type="submit" class="save-order-btn">
+                        <i class="fas fa-save" aria-hidden="true"></i>
+                        <span data-ar="حفظ التغييرات" data-en="Save Changes" data-fr="Enregistrer">حفظ التغييرات</span>
+                    </button>
+                    <button type="button" class="cancel-edit-btn" onclick="closeEditOrderModal()">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                        <span data-ar="إلغاء" data-en="Cancel" data-fr="Annuler">إلغاء</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== EDIT PRODUCT MODAL (ENHANCED) ==================== -->
+    <div class="edit-product-modal" id="editProductModal">
+        <div class="edit-product-content">
+            <div class="edit-order-header">
+                <h2>
+                    <i class="fas fa-edit"></i>
+                    <span data-ar="تعديل المنتج" data-en="Edit Product" data-fr="Modifier le produit">تعديل المنتج</span>
+                </h2>
+            </div>
+
+            <form id="editProductForm" class="admin-product-form">
+                <input type="hidden" id="editProductId">
+
+                <!-- Images & Video -->
+                <div class="admin-form-card">
+                    <div class="admin-form-card-title">
+                        <i class="fas fa-images"></i>
+                        <span data-ar="صور المنتج والفيديو" data-en="Product Images & Video" data-fr="Images et vidéo du produit">صور المنتج والفيديو</span>
+                    </div>
+                    <div class="multi-image-upload-container">
+                        <div class="add-images-row">
+                            <button type="button" class="add-more-image-btn" onclick="document.getElementById('editProductImageInput').click()">
+                                <i class="fas fa-plus-circle"></i>
+                                <span data-ar="إضافة صورة" data-en="Add Image" data-fr="Ajouter une image">إضافة صورة</span>
+                            </button>
+                            <input type="file" id="editProductImageInput" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="image-previews-grid" id="editProductImagePreviews"></div>
+                        <div class="form-group" style="margin-top:16px;">
+                            <label>
+                                <i class="fas fa-video" style="color:var(--primary)"></i>
+                                <span data-ar="فيديو المنتج" data-en="Product Video" data-fr="Vidéo du produit">فيديو المنتج</span>
+                            </label>
+                            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                                <input type="url" id="editProductVideoUrl" style="flex:2;min-width:200px;" data-ar-placeholder="رابط YouTube (اختياري)" data-en-placeholder="YouTube URL (optional)" placeholder="https://www.youtube.com/watch?v=...">
+                                <button type="button" class="add-more-image-btn" style="flex-shrink:0;padding:10px 16px;font-size:13px;" onclick="document.getElementById('editProductVideoFileInput').click()">
+                                    <i class="fas fa-upload"></i>
+                                    <span data-ar="رفع فيديو" data-en="Upload Video" data-fr="Téléverser une vidéo">رفع فيديو</span>
+                                </button>
+                                <input type="file" id="editProductVideoFileInput" accept="video/*" style="display:none;">
+                            </div>
+                            <small style="color:var(--text-secondary);display:block;margin-top:4px;font-size:12px;" data-ar="يمكنك إما لصق رابط YouTube أو رفع ملف فيديو من جهازك" data-en="Either paste a YouTube link or upload a video file" data-fr="Collez un lien YouTube ou téléversez une vidéo">يمكنك إما لصق رابط YouTube أو رفع ملف فيديو من جهازك</small>
+                        </div>
+                        <input type="hidden" id="editProductImagesData" value="[]">
+                    </div>
+                </div>
+
+                <!-- Basic Info -->
+                <div class="admin-form-card">
+                    <div class="admin-form-card-title">
+                        <i class="fas fa-info-circle"></i>
+                        <span data-ar="معلومات أساسية" data-en="Basic Info" data-fr="Infos de base">معلومات أساسية</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-heading" style="color:var(--primary)"></i>
+                                <span data-ar="اسم المنتج" data-en="Product Name" data-fr="Nom du produit">اسم المنتج</span>
+                            </label>
+                            <div class="lang-field-group">
+                                <div class="lang-field-row">
+                                    <span class="lang-badge ar">AR</span>
+                                    <input type="text" id="editProductTitleAr" required>
+                                </div>
+                                <div class="lang-field-row">
+                                    <span class="lang-badge en">EN</span>
+                                    <input type="text" id="editProductTitleEn" required>
+                                </div>
+                                <div class="lang-field-row">
+                                    <span class="lang-badge fr">FR</span>
+                                    <input type="text" id="editProductTitleFr" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-layer-group" style="color:var(--primary)"></i>
+                                <span data-ar="التصنيف" data-en="Category" data-fr="Catégorie">التصنيف</span>
+                            </label>
+                            <div class="admin-cat-selector" id="editProductCategorySelector">
+                                <label class="admin-cat-option" data-value="books" style="--cat-clr:#f59e0b;" onclick="selectAdminCat(this,'editProductCategory')">
+                                    <input type="radio" name="editAdminCat" value="books" hidden>
+                                    <span class="admin-cat-icon">📚</span>
+                                    <span class="admin-cat-label">كتب</span>
+                                </label>
+                                <label class="admin-cat-option" data-value="software" style="--cat-clr:#f59e0b;" onclick="selectAdminCat(this,'editProductCategory')">
+                                    <input type="radio" name="editAdminCat" value="software" hidden>
+                                    <span class="admin-cat-icon">💻</span>
+                                    <span class="admin-cat-label">برامج</span>
+                                </label>
+                                <label class="admin-cat-option" data-value="formulas" style="--cat-clr:#f59e0b;" onclick="selectAdminCat(this,'editProductCategory')">
+                                    <input type="radio" name="editAdminCat" value="formulas" hidden>
+                                    <span class="admin-cat-icon">🧪</span>
+                                    <span class="admin-cat-label">تركيبات</span>
+                                </label>
+                                <label class="admin-cat-option" data-value="courses" style="--cat-clr:#f59e0b;" onclick="selectAdminCat(this,'editProductCategory')">
+                                    <input type="radio" name="editAdminCat" value="courses" hidden>
+                                    <span class="admin-cat-icon">🎓</span>
+                                    <span class="admin-cat-label">كورسات</span>
+                                </label>
+                            </div>
+                            <select id="editProductCategory" style="display:none;">
+                                <option value="books">📖 كتب</option>
+                                <option value="software">💻 برامج</option>
+                                <option value="formulas">🧪 تركيبات</option>
+                                <option value="courses">🎓 كورسات</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pricing -->
+                <div class="admin-form-card">
+                    <div class="admin-form-card-title">
+                        <i class="fas fa-tags"></i>
+                        <span data-ar="التسعير" data-en="Pricing" data-fr="Tarification">التسعير</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-coins" style="color:#10b981"></i>
+                                <span data-ar="السعر EGP" data-en="Price EGP" data-fr="Prix EGP">السعر EGP</span>
+                            </label>
+                            <input type="number" id="editProductPriceEGP" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-dollar-sign" style="color:#10b981"></i>
+                                <span data-ar="السعر USD" data-en="Price USD" data-fr="Prix USD">السعر USD</span>
+                            </label>
+                            <input type="number" id="editProductPriceUSD" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="admin-old-price-note">
+                        <i class="fas fa-info-circle"></i>
+                        <span>إذا كان هناك خصم، املأ السعر القديم أدناه:</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-tag" style="color:#ef4444"></i>
+                                <span data-ar="السعر القديم EGP" data-en="Old Price EGP" data-fr="Ancien prix EGP">السعر القديم EGP</span>
+                            </label>
+                            <input type="number" id="editProductOldPriceEGP" min="0" step="0.01"
+                                   data-ar-placeholder="0 = بدون خصم"
+                                   data-en-placeholder="0 = No discount"
+                                   placeholder="0 = بدون خصم">
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <i class="fas fa-tag" style="color:#ef4444"></i>
+                                <span data-ar="السعر القديم USD" data-en="Old Price USD" data-fr="Ancien prix USD">السعر القديم USD</span>
+                            </label>
+                            <input type="number" id="editProductOldPriceUSD" min="0" step="0.01"
+                                   data-ar-placeholder="0 = بدون خصم"
+                                   data-en-placeholder="0 = No discount"
+                                   placeholder="0 = بدون خصم">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Badge -->
+                <div class="admin-form-card">
+                    <div class="admin-form-card-title">
+                        <i class="fas fa-fire" style="color:#f59e0b"></i>
+                        <span data-ar="الوسم" data-en="Badge" data-fr="Badge">الوسم</span>
+                    </div>
+                    <div class="admin-badge-selector" id="editBadgeSelector">
+                        <label class="admin-badge-opt" data-value="none" onclick="selectAdminBadge(this,'editProductBadge')">
+                            <input type="radio" name="editAdminBadge" value="none" hidden>
+                            <span>❌</span><span>بدون</span>
+                        </label>
+                        <label class="admin-badge-opt" data-value="hot" onclick="selectAdminBadge(this,'editProductBadge')">
+                            <input type="radio" name="editAdminBadge" value="hot" hidden>
+                            <span>🔥</span><span>الأكثر مبيعاً</span>
+                        </label>
+                        <label class="admin-badge-opt" data-value="new" onclick="selectAdminBadge(this,'editProductBadge')">
+                            <input type="radio" name="editAdminBadge" value="new" hidden>
+                            <span>🆕</span><span>جديد</span>
+                        </label>
+                        <label class="admin-badge-opt" data-value="featured" onclick="selectAdminBadge(this,'editProductBadge')">
+                            <input type="radio" name="editAdminBadge" value="featured" hidden>
+                            <span>⭐</span><span>مميز</span>
+                        </label>
+                    </div>
+                    <select id="editProductBadge" style="display:none;">
+                        <option value="none">❌ بدون بادج</option>
+                        <option value="hot">🔥 الأكثر مبيعاً</option>
+                        <option value="new">🆕 جديد</option>
+                        <option value="featured">⭐ مميز</option>
+                    </select>
+                </div>
+
+                <!-- Download & Description -->
+                <div class="admin-form-card">
+                    <div class="admin-form-card-title">
+                        <i class="fas fa-download"></i>
+                        <span data-ar="التحميل والوصف" data-en="Download & Description" data-fr="Téléchargement et description">التحميل والوصف</span>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-link" style="color:var(--primary)"></i>
+                            <span data-ar="رابط التحميل" data-en="Download Link" data-fr="Lien de téléchargement">رابط التحميل</span>
+                        </label>
+                        <input type="url" id="editProductDownloadLink" style="width:100%;">
+                    </div>
+                    <div class="form-group" style="margin-top:20px;">
+                        <label>
+                            <i class="fas fa-align-right" style="color:var(--primary)"></i>
+                            <span data-ar="الوصف" data-en="Description" data-fr="Description">الوصف</span>
+                        </label>
+                        <div class="lang-field-group">
+                            <div class="lang-field-row">
+                                <span class="lang-badge ar">AR</span>
+                                <textarea id="editProductDescriptionAr" rows="3"></textarea>
+                            </div>
+                            <div class="lang-field-row">
+                                <span class="lang-badge en">EN</span>
+                                <textarea id="editProductDescriptionEn" rows="3"></textarea>
+                            </div>
+                            <div class="lang-field-row">
+                                <span class="lang-badge fr">FR</span>
+                                <textarea id="editProductDescriptionFr" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extra Content: Features, Requirements, FAQ -->
+                <div class="admin-form-card">
+                    <div class="admin-form-card-title">
+                        <i class="fas fa-puzzle-piece"></i>
+                        <span data-ar="محتوى إضافي" data-en="Extra Content" data-fr="Contenu supplémentaire">محتوى إضافي</span>
+                    </div>
+
+                    <!-- Visibility Toggles -->
+                    <div class="form-group" style="margin-bottom:20px;">
+                        <label style="margin-bottom:12px;display:block;">
+                            <i class="fas fa-eye" style="color:var(--primary)"></i>
+                            <span data-ar="إظهار/إخفاء الأقسام" data-en="Show/Hide Sections" data-fr="Afficher/Masquer les sections">إظهار/إخفاء الأقسام</span>
+                        </label>
+                        <div style="display:flex;gap:15px;flex-wrap:wrap;">
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg-card);padding:8px 16px;border-radius:10px;border:1px solid var(--border-color);">
+                                <input type="checkbox" id="editProductShowFullDesc" checked>
+                                <span data-ar="الوصف الكامل" data-en="Full Description" data-fr="Description complète">الوصف الكامل</span>
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg-card);padding:8px 16px;border-radius:10px;border:1px solid var(--border-color);">
+                                <input type="checkbox" id="editProductShowFeatures" checked>
+                                <span data-ar="المميزات" data-en="Features" data-fr="Caractéristiques">المميزات</span>
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg-card);padding:8px 16px;border-radius:10px;border:1px solid var(--border-color);">
+                                <input type="checkbox" id="editProductShowRequirements" checked>
+                                <span data-ar="المتطلبات" data-en="Requirements" data-fr="Prérequis">المتطلبات</span>
+                            </label>
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg-card);padding:8px 16px;border-radius:10px;border:1px solid var(--border-color);">
+                                <input type="checkbox" id="editProductShowFAQ" checked>
+                                <span data-ar="الأسئلة الشائعة" data-en="FAQ" data-fr="FAQ">الأسئلة الشائعة</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-list-check" style="color:var(--primary)"></i>
+                            <span data-ar="المميزات (واحد في كل سطر)" data-en="Features (one per line)" data-fr="Caractéristiques (une par ligne)">المميزات (واحد في كل سطر)</span>
+                        </label>
+                        <div class="lang-field-group">
+                            <div class="lang-field-row">
+                                <span class="lang-badge ar">AR</span>
+                                <textarea id="editProductFeaturesAr" rows="3" placeholder="اكتب المميزات هنا، كل سطر = ميزة واحدة"></textarea>
+                            </div>
+                            <div class="lang-field-row">
+                                <span class="lang-badge en">EN</span>
+                                <textarea id="editProductFeaturesEn" rows="3" placeholder="Write features here, one per line"></textarea>
+                            </div>
+                            <div class="lang-field-row">
+                                <span class="lang-badge fr">FR</span>
+                                <textarea id="editProductFeaturesFr" rows="3" placeholder="Caractéristiques, une par ligne"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top:16px;">
+                        <label>
+                            <i class="fas fa-gear" style="color:var(--primary)"></i>
+                            <span data-ar="المتطلبات (واحد في كل سطر)" data-en="Requirements (one per line)" data-fr="Prérequis (un par ligne)">المتطلبات (واحد في كل سطر)</span>
+                        </label>
+                        <div class="lang-field-group">
+                            <div class="lang-field-row">
+                                <span class="lang-badge ar">AR</span>
+                                <textarea id="editProductRequirementsAr" rows="3" placeholder="اكتب المتطلبات هنا"></textarea>
+                            </div>
+                            <div class="lang-field-row">
+                                <span class="lang-badge en">EN</span>
+                                <textarea id="editProductRequirementsEn" rows="3" placeholder="Write requirements here"></textarea>
+                            </div>
+                            <div class="lang-field-row">
+                                <span class="lang-badge fr">FR</span>
+                                <textarea id="editProductRequirementsFr" rows="3" placeholder="Prérequis"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top:16px;">
+                        <label>
+                            <i class="fas fa-question-circle" style="color:var(--primary)"></i>
+                            <span data-ar="الأسئلة الشائعة (Q | A في كل سطر)" data-en="FAQ (Q | A per line)" data-fr="FAQ (Q | R par ligne)">الأسئلة الشائعة (سؤال | جواب في كل سطر)</span>
+                        </label>
+                        <div class="lang-field-group">
+                            <div class="lang-field-row">
+                                <span class="lang-badge ar">AR</span>
+                                <textarea id="editProductFAQAr" rows="3" placeholder="اكتب الأسئلة هنا، كل سطر = سؤال | جواب"></textarea>
+                            </div>
+                            <div class="lang-field-row">
+                                <span class="lang-badge en">EN</span>
+                                <textarea id="editProductFAQEn" rows="3" placeholder="Write FAQ here, each line = question | answer"></textarea>
+                            </div>
+                            <div class="lang-field-row">
+                                <span class="lang-badge fr">FR</span>
+                                <textarea id="editProductFAQFr" rows="3" placeholder="FAQ : question | réponse par ligne"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="admin-form-actions">
+                    <button type="submit" class="admin-form-btn primary">
+                        <i class="fas fa-save"></i>
+                        <span data-ar="حفظ التعديلات" data-en="Save Changes" data-fr="Enregistrer">حفظ التعديلات</span>
+                    </button>
+                    <button type="button" class="admin-form-btn danger" onclick="closeEditProductModal()">
+                        <i class="fas fa-times"></i>
+                        <span data-ar="إلغاء" data-en="Cancel" data-fr="Annuler">إلغاء</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== ADD PAGE MODAL ==================== -->
+    <div class="edit-product-modal edit-page-modal" id="addPageModal">
+        <div class="edit-product-content" style="max-width:600px;">
+            <div class="edit-order-header">
+                <h2><i class="fas fa-plus-circle" aria-hidden="true"></i> <span data-ar="إضافة صفحة جديدة" data-en="Add New Page" data-fr="Ajouter une nouvelle page">إضافة صفحة جديدة</span></h2>
+            </div>
+            <form id="addPageForm">
+                <div class="edit-form-group" style="margin-bottom:20px;">
+                    <label><i class="fas fa-heading" style="color:var(--primary)"></i> عنوان الصفحة</label>
+                    <input type="text" id="addPageTitle" required placeholder="مثال: سياسة الخصوصية">
+                </div>
+                <div class="edit-form-group" style="margin-bottom:20px;">
+                    <label><i class="fas fa-link" style="color:var(--primary)"></i> الرابط (Slug)</label>
+                    <input type="text" id="addPageSlug" required placeholder="مثال: privacy-policy" style="direction:ltr;">
+                    <small style="color:var(--text-secondary);display:block;margin-top:4px;">الرابط الذي سيظهر في المتصفح (بالإنجليزية)</small>
+                </div>
+                <div class="edit-form-group" style="margin-bottom:20px;">
+                    <label><i class="fas fa-tag" style="color:var(--primary)"></i> النوع</label>
+                    <select id="addPageType">
+                        <option value="معلومات">📄 معلومات</option>
+                        <option value="نظام">⚙️ نظام</option>
+                        <option value="أساسية">🏠 أساسية</option>
+                        <option value="أرشيف">📦 أرشيف</option>
+                        <option value="تفاعل">💬 تفاعل</option>
+                    </select>
+                </div>
+                <div class="edit-order-actions">
+                    <button type="submit" class="save-order-btn"><i class="fas fa-save"></i> إضافة الصفحة</button>
+                    <button type="button" class="cancel-edit-btn" onclick="closeAddPageModal()"><i class="fas fa-times"></i> إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== EDIT PAGE SETTINGS MODAL ==================== -->
+    <div class="edit-product-modal edit-page-modal" id="editPageModal">
+        <div class="edit-product-content" style="max-width: 600px;">
+            <div class="edit-order-header">
+                <h2>
+                    <i class="fas fa-cog" aria-hidden="true"></i>
+                    <span data-ar="إعدادات الصفحة (SEO)" data-en="Page Settings" data-fr="Paramètres de la page">إعدادات الصفحة (SEO)</span>
+                </h2>
+            </div>
+            <form id="editPageForm">
+                <input type="hidden" id="editPageId">
+                <div class="edit-form-group" style="margin-bottom:20px;">
+                    <label>عنوان الصفحة (Title Tag)</label>
+                    <input type="text" id="pageSeoTitle" placeholder="مثال: BRAVO | الرئيسية">
+                </div>
+                <div class="edit-form-group" style="margin-bottom:20px;">
+                    <label>وصف الصفحة (Meta Description)</label>
+                    <textarea id="pageSeoDesc" rows="3" placeholder="وصف يظهر في محركات البحث..."></textarea>
+                </div>
+                <div class="edit-form-group" style="margin-bottom:20px;">
+                    <label>حالة الصفحة</label>
+                    <select id="pageStatus">
+                        <option value="published">🟢 منشور (عام)</option>
+                        <option value="draft">🟡 مسودة (مخفي)</option>
+                    </select>
+                </div>
+                <div class="edit-order-actions">
+                    <button type="submit" class="save-order-btn"><i class="fas fa-save"></i> حفظ الإعدادات</button>
+                    <button type="button" class="cancel-edit-btn" onclick="closePageSettingsModal()"><i class="fas fa-times"></i> إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== ADD PAYMENT METHOD MODAL ==================== -->
+    <div class="edit-product-modal edit-page-modal" id="addPaymentModal">
+        <div class="edit-product-content" style="max-width: 560px;">
+            <div class="edit-order-header">
+                <h2><i class="fas fa-plus-circle"></i> <span data-ar="إضافة بوابة دفع جديدة" data-en="Add Payment Gateway" data-fr="Ajouter une passerelle de paiement">إضافة بوابة دفع جديدة</span></h2>
+                <button class="close-edit-modal" onclick="closeAddPaymentModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="addPaymentForm" onsubmit="event.preventDefault(); submitAddPaymentForm();" style="display:flex;flex-direction:column;gap:18px;">
+                <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:16px;">
+                    <div class="edit-form-group" style="margin:0;">
+                        <label style="font-weight:900;font-size:16px;color:#c4b5fd;margin-bottom:8px;display:block;">المعرف (ID) <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="addPaymentId" placeholder="مثال: vodafone" required style="width:100%;padding:14px 16px;border-radius:12px;border:2px solid rgba(147,51,234,0.3);background:rgba(0,0,0,0.3);color:#fff;font-weight:900;font-size:16px;direction:ltr;box-sizing:border-box;">
+                    </div>
+                    <div class="edit-form-group" style="margin:0;">
+                        <label style="font-weight:900;font-size:16px;color:#c4b5fd;margin-bottom:8px;display:block;">اسم طريقة الدفع <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="addPaymentNameAr" placeholder="مثال: فودافون كاش" required style="width:100%;padding:14px 16px;border-radius:12px;border:2px solid rgba(147,51,234,0.3);background:rgba(0,0,0,0.3);color:#fff;font-weight:900;font-size:16px;box-sizing:border-box;">
+                    </div>
+                </div>
+                <div class="edit-form-group" style="margin:0;">
+                    <label style="font-weight:900;font-size:16px;color:#c4b5fd;margin-bottom:8px;display:block;">صورة طريقة الدفع <span style="color:#ef4444;">*</span></label>
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        <label for="addPaymentLogoInput" style="flex:1;padding:14px 18px;border-radius:12px;border:2px dashed rgba(147,51,234,0.35);background:rgba(0,0,0,0.2);color:rgba(255,255,255,0.6);font-weight:700;font-size:15px;cursor:pointer;text-align:center;transition:0.3s;" onmouseover="this.style.borderColor='rgba(147,51,234,0.7)';this.style.background='rgba(147,51,234,0.1)';" onmouseout="this.style.borderColor='rgba(147,51,234,0.35)';this.style.background='rgba(0,0,0,0.2)';">
+                            <i class="fas fa-cloud-upload-alt" style="margin-left:8px;"></i> اختر صورة
+                        </label>
+                        <input type="file" id="addPaymentLogoInput" accept="image/*" onchange="uploadPaymentLogo('addPaymentLogoInput','addPaymentLogo','addPaymentLogoPreview')" style="display:none;">
+                        <img id="addPaymentLogoPreview" style="width:100px;height:100px;border-radius:18px;object-fit:contain;background:rgba(255,255,255,0.06);padding:10px;border:1px solid rgba(147,51,234,0.2);display:none;">
+                    </div>
+                    <input type="hidden" id="addPaymentLogo">
+                </div>
+                <div class="edit-form-group" style="margin:0;">
+                    <label style="font-weight:900;font-size:16px;color:#c4b5fd;margin-bottom:8px;display:block;">صورة QR كود <span style="color:#a78bfa;font-weight:700;font-size:13px;">(اختياري)</span></label>
+                    <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;">
+                        <label for="addPaymentQrInput" style="flex:1;padding:14px 18px;border-radius:12px;border:2px dashed rgba(147,51,234,0.35);background:rgba(0,0,0,0.2);color:rgba(255,255,255,0.6);font-weight:700;font-size:15px;cursor:pointer;text-align:center;transition:0.3s;" onmouseover="this.style.borderColor='rgba(147,51,234,0.7)';this.style.background='rgba(147,51,234,0.1)';" onmouseout="this.style.borderColor='rgba(147,51,234,0.35)';this.style.background='rgba(0,0,0,0.2)';">
+                            <i class="fas fa-qrcode" style="margin-left:8px;"></i> اختر صورة QR
+                        </label>
+                        <input type="file" id="addPaymentQrInput" accept="image/*" onchange="uploadPaymentLogo('addPaymentQrInput','addPaymentQr','addPaymentQrPreview')" style="display:none;">
+                        <img id="addPaymentQrPreview" style="width:100px;height:100px;border-radius:18px;object-fit:contain;background:rgba(255,255,255,0.06);padding:10px;border:1px solid rgba(147,51,234,0.2);display:none;">
+                    </div>
+                    <input type="hidden" id="addPaymentQr">
+                    <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+                        <div class="toggle-switch active" id="addPaymentQrToggle" onclick="this.classList.toggle('active')"></div>
+                        <span style="font-weight:700;font-size:14px;color:#c4b5fd;">إظهار QR للعميل</span>
+                    </div>
+                </div>
+                <div class="edit-form-group" style="margin:0;">
+                    <label style="font-weight:900;font-size:16px;color:#c4b5fd;margin-bottom:8px;display:block;">التعليمات — سطر لكل خطوة</label>
+                    <textarea id="addPaymentInstructionsAr" rows="3" placeholder="كل سطر = خطوة" style="width:100%;padding:14px 16px;border-radius:12px;border:2px solid rgba(147,51,234,0.3);background:rgba(0,0,0,0.3);color:#fff;font-weight:700;font-size:15px;box-sizing:border-box;resize:vertical;"></textarea>
+                </div>
+                <div class="edit-form-group" style="margin:0;">
+                    <label style="font-weight:900;font-size:16px;color:#a78bfa;margin-bottom:10px;display:block;"><i class="fas fa-toggle-on"></i> حقول البيانات — شغّل/عطّل الحقول اللي تظهر للعميل</label>
+                    <div id="addPaymentFieldsContainer" style="display:flex;flex-direction:column;gap:8px;"></div>
+                </div>
+                <div class="edit-order-actions" style="display:flex;gap:12px;margin-top:4px;">
+                    <button type="submit" class="save-order-btn" style="padding:16px 24px;font-size:1.1em;min-width:0;"><i class="fas fa-save"></i> إضافة البوابة</button>
+                    <button type="button" class="cancel-edit-btn" onclick="closeAddPaymentModal()" style="padding:16px 24px;font-size:1.1em;min-width:0;"><i class="fas fa-times"></i> إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== EDIT PAYMENT METHOD MODAL ==================== -->
+    <div class="edit-product-modal edit-page-modal" id="editPaymentModal">
+        <div class="edit-product-content" style="max-width: 560px;">
+            <div class="edit-order-header">
+                <h2><i class="fas fa-edit"></i> <span data-ar="تعديل بوابة الدفع" data-en="Edit Payment Gateway" data-fr="Modifier la passerelle">تعديل بوابة الدفع</span></h2>
+                <button class="close-edit-modal" onclick="closeEditPaymentModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="editPaymentForm" onsubmit="event.preventDefault(); submitEditPaymentForm();" style="display:flex;flex-direction:column;gap:18px;">
+                <input type="hidden" id="editPaymentId">
+                <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:16px;">
+                    <div class="edit-form-group" style="margin:0;">
+                        <label style="font-weight:900;font-size:16px;color:#c4b5fd;margin-bottom:8px;display:block;">المعرف (ID)</label>
+                        <input type="text" id="editPaymentIdDisplay" disabled style="width:100%;padding:14px 16px;border-radius:12px;border:2px solid rgba(147,51,234,0.2);background:rgba(0,0,0,0.2);color:rgba(255,255,255,0.5);font-weight:900;font-size:16px;direction:ltr;box-sizing:border-box;">
+                    </div>
+                    <div class="edit-form-group" style="margin:0;">
+                        <label style="font-weight:900;font-size:16px;color:#c4b5fd;margin-bottom:8px;display:block;">اسم طريقة الدفع <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="editPaymentNameAr" required style="width:100%;padding:14px 16px;border-radius:12px;border:2px solid rgba(147,51,234,0.3);background:rgba(0,0,0,0.3);color:#fff;font-weight:900;font-size:16px;box-sizing:border-box;">
+                    </div>
+                </div>
+                <div class="edit-form-group" style="margin:0;">
+                    <label style="font-weight:900;font-size:16px;color:#c4b5fd;margin-bottom:8px;display:block;">صورة طريقة الدفع</label>
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        <label for="editPaymentLogoInput" style="flex:1;padding:14px 18px;border-radius:12px;border:2px dashed rgba(147,51,234,0.35);background:rgba(0,0,0,0.2);color:rgba(255,255,255,0.6);font-weight:700;font-size:15px;cursor:pointer;text-align:center;transition:0.3s;" onmouseover="this.style.borderColor='rgba(147,51,234,0.7)';this.style.background='rgba(147,51,234,0.1)';" onmouseout="this.style.borderColor='rgba(147,51,234,0.35)';this.style.background='rgba(0,0,0,0.2)';">
+                            <i class="fas fa-cloud-upload-alt" style="margin-left:8px;"></i> تغيير الصورة
+                        </label>
+                        <input type="file" id="editPaymentLogoInput" accept="image/*" onchange="uploadPaymentLogo('editPaymentLogoInput','editPaymentLogo','editPaymentLogoPreview')" style="display:none;">
+                        <img id="editPaymentLogoPreview" style="width:100px;height:100px;border-radius:18px;object-fit:contain;background:rgba(255,255,255,0.06);padding:10px;border:1px solid rgba(147,51,234,0.2);">
+                    </div>
+                    <input type="hidden" id="editPaymentLogo">
+                </div>
+                <div class="edit-form-group" style="margin:0;">
+                    <label style="font-weight:900;font-size:16px;color:#c4b5fd;margin-bottom:8px;display:block;">صورة QR كود <span style="color:#a78bfa;font-weight:700;font-size:13px;">(اختياري)</span></label>
+                    <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px;">
+                        <label for="editPaymentQrInput" style="flex:1;padding:14px 18px;border-radius:12px;border:2px dashed rgba(147,51,234,0.35);background:rgba(0,0,0,0.2);color:rgba(255,255,255,0.6);font-weight:700;font-size:15px;cursor:pointer;text-align:center;transition:0.3s;" onmouseover="this.style.borderColor='rgba(147,51,234,0.7)';this.style.background='rgba(147,51,234,0.1)';" onmouseout="this.style.borderColor='rgba(147,51,234,0.35)';this.style.background='rgba(0,0,0,0.2)';">
+                            <i class="fas fa-qrcode" style="margin-left:8px;"></i> تغيير صورة QR
+                        </label>
+                        <input type="file" id="editPaymentQrInput" accept="image/*" onchange="uploadPaymentLogo('editPaymentQrInput','editPaymentQr','editPaymentQrPreview')" style="display:none;">
+                        <img id="editPaymentQrPreview" style="width:100px;height:100px;border-radius:18px;object-fit:contain;background:rgba(255,255,255,0.06);padding:10px;border:1px solid rgba(147,51,234,0.2);display:none;">
+                    </div>
+                    <input type="hidden" id="editPaymentQr">
+                    <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+                        <div class="toggle-switch active" id="editPaymentQrToggle" onclick="this.classList.toggle('active')"></div>
+                        <span style="font-weight:700;font-size:14px;color:#c4b5fd;">إظهار QR للعميل</span>
+                    </div>
+                </div>
+                <div class="edit-form-group" style="margin:0;">
+                    <label style="font-weight:900;font-size:16px;color:#c4b5fd;margin-bottom:8px;display:block;">التعليمات — سطر لكل خطوة</label>
+                    <textarea id="editPaymentInstructionsAr" rows="3" style="width:100%;padding:14px 16px;border-radius:12px;border:2px solid rgba(147,51,234,0.3);background:rgba(0,0,0,0.3);color:#fff;font-weight:700;font-size:15px;box-sizing:border-box;resize:vertical;"></textarea>
+                </div>
+                <div class="edit-form-group" style="margin:0;">
+                    <label style="font-weight:900;font-size:16px;color:#a78bfa;margin-bottom:10px;display:block;"><i class="fas fa-toggle-on"></i> حقول البيانات — شغّل/عطّل الحقول اللي تظهر للعميل</label>
+                    <div id="editPaymentFieldsContainer" style="display:flex;flex-direction:column;gap:8px;"></div>
+                </div>
+                <div class="edit-order-actions" style="display:flex;gap:12px;margin-top:4px;">
+                    <button type="submit" class="save-order-btn" style="padding:16px 24px;font-size:1.1em;min-width:0;"><i class="fas fa-save"></i> حفظ التغييرات</button>
+                    <button type="button" class="cancel-edit-btn" onclick="closeEditPaymentModal()" style="padding:16px 24px;font-size:1.1em;min-width:0;"><i class="fas fa-times"></i> إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== DATE PICKER POPUP ==================== -->
+    <div id="datePickerPopup" style="display:none;position:fixed;z-index:99999;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;" onclick="if(event.target===this){_datePickerSelected=null;_datePickerRangeStart=null;_datePickerRangeEnd=null;applyDatePicker()}">
+        <style>
+            #datePickerPopup .dp-btn { transition: all .25s cubic-bezier(.4,0,.2,1) !important; cursor:pointer !important; font-weight:900 !important; }
+            #datePickerPopup .dp-btn:hover { transform:translateY(-2px) scale(1.03) !important; box-shadow:0 8px 25px rgba(147,51,234,0.4) !important; }
+            #datePickerPopup .dp-nav:hover { background:rgba(147,51,234,0.4) !important; border-color:#8b5cf6 !important; }
+            #datePickerPopup .dp-day:hover { background:rgba(147,51,234,0.35) !important; border-color:#8b5cf6 !important; transform:scale(1.08) !important; }
+            #datePickerPopup .dp-cancel:hover { background:rgba(239,68,68,0.3) !important; border-color:#ef4444 !important; color:#fff !important; }
+            #datePickerPopup .dp-apply:hover { box-shadow:0 8px 30px rgba(139,92,246,0.5) !important; transform:translateY(-2px) scale(1.03) !important; }
+        </style>
+            <div style="background:linear-gradient(145deg,#1a0b2e,#2d1b4e);border:2px solid rgba(147,51,234,0.6);border-radius:24px;padding:25px;width:420px;box-shadow:0 25px 70px rgba(0,0,0,0.7),0 0 50px rgba(147,51,234,0.2);">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                <button onclick="datePickerMonth(-1)" class="dp-btn dp-nav" style="background:rgba(147,51,234,0.2);border:3px solid rgba(147,51,234,0.4);border-radius:14px;color:#a78bfa;font-size:20px;padding:10px 18px;"><i class="fas fa-chevron-right"></i></button>
+                <div style="text-align:center;">
+                    <span id="datePickerMonthLabel" style="color:#fff;font-weight:900;font-size:20px;display:block;"></span>
+                    <span id="datePickerRangeHint" style="color:#c4b5fd;font-size:13px;font-weight:900;margin-top:4px;display:block;">اختر تاريخ البداية</span>
+                </div>
+                <button onclick="datePickerMonth(1)" class="dp-btn dp-nav" style="background:rgba(147,51,234,0.2);border:3px solid rgba(147,51,234,0.4);border-radius:14px;color:#a78bfa;font-size:20px;padding:10px 18px;"><i class="fas fa-chevron-left"></i></button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;margin-bottom:12px;">
+                <span style="color:#c4b5fd;font-weight:900;font-size:13px;background:rgba(147,51,234,0.15);border-radius:8px;padding:5px 2px;border:1px solid rgba(147,51,234,0.2);">سبت</span>
+                <span style="color:#c4b5fd;font-weight:900;font-size:13px;background:rgba(147,51,234,0.15);border-radius:8px;padding:5px 2px;border:1px solid rgba(147,51,234,0.2);">أحد</span>
+                <span style="color:#c4b5fd;font-weight:900;font-size:13px;background:rgba(147,51,234,0.15);border-radius:8px;padding:5px 2px;border:1px solid rgba(147,51,234,0.2);">اثن</span>
+                <span style="color:#c4b5fd;font-weight:900;font-size:13px;background:rgba(147,51,234,0.15);border-radius:8px;padding:5px 2px;border:1px solid rgba(147,51,234,0.2);">ثلا</span>
+                <span style="color:#c4b5fd;font-weight:900;font-size:13px;background:rgba(147,51,234,0.15);border-radius:8px;padding:5px 2px;border:1px solid rgba(147,51,234,0.2);">أرب</span>
+                <span style="color:#c4b5fd;font-weight:900;font-size:13px;background:rgba(147,51,234,0.15);border-radius:8px;padding:5px 2px;border:1px solid rgba(147,51,234,0.2);">خمي</span>
+                <span style="color:#c4b5fd;font-weight:900;font-size:13px;background:rgba(147,51,234,0.15);border-radius:8px;padding:5px 2px;border:1px solid rgba(147,51,234,0.2);">جمع</span>
+            </div>
+            <div id="datePickerGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;margin-bottom:15px;"></div>
+            <div id="datePickerSelectedInfo" style="text-align:center;margin-bottom:15px;min-height:24px;color:#a78bfa;font-weight:900;font-size:14px;"></div>
+            <div style="display:flex;gap:10px;" dir="ltr">
+                <button onclick="_datePickerSelected=null;_datePickerRangeStart=null;_datePickerRangeEnd=null;applyDatePicker()" class="dp-btn dp-cancel" style="flex:1;padding:14px;border-radius:16px;background:rgba(239,68,68,0.15);color:#ef4444;border:3px solid rgba(239,68,68,0.3);font-size:16px;font-weight:900 !important;font-family:'Cairo',sans-serif;">✕ إلغاء</button>
+                <button id="datePickerApplyBtn" onclick="applyDatePicker()" class="dp-btn dp-apply" style="flex:1;padding:14px;border-radius:16px;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;border:3px solid rgba(139,92,246,0.5);font-size:16px;font-weight:900 !important;font-family:'Cairo',sans-serif;">تأكيد ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== LANGUAGE MODAL ==================== -->
+    <div class="edit-product-modal" id="langModal" style="display:none;">
+        <div class="edit-product-content" style="max-width:600px;">
+            <div class="edit-order-header">
+                <h2>
+                    <i class="fas fa-language"></i>
+                    <span id="langModalTitle" data-ar="إضافة لغة" data-en="Add Language" data-fr="Ajouter une langue">إضافة لغة</span>
+                </h2>
+            </div>
+            <form id="langForm" class="admin-product-form" onsubmit="saveLang(event)">
+                <input type="hidden" id="langEditIndex" value="-1">
+                <div class="admin-form-card">
+                    <div class="admin-form-card-title">
+                        <i class="fas fa-info-circle"></i>
+                        <span data-ar="بيانات اللغة" data-en="Language Info" data-fr="Infos de la langue">بيانات اللغة</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-ar="رمز اللغة" data-en="Language Code" data-fr="Code langue">رمز اللغة</span></label>
+                            <input type="text" id="langCode" required placeholder="ar / en / fr" style="text-transform:lowercase;">
+                        </div>
+                        <div class="form-group">
+                            <label><span data-ar="العلم (رابط URL)" data-en="Flag URL" data-fr="URL drapeau">العلم (رابط URL)</span></label>
+                            <input type="url" id="langFlagUrl" placeholder="https://cdn.jsdelivr.net/gh/lipis/flag-icons@main/flags/1x1/eg.svg">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-ar="العلم (إيموجي اختياري)" data-en="Flag Emoji (opt)" data-fr="Emoji drapeau (opt)">العلم (إيموجي اختياري)</span></label>
+                            <input type="text" id="langFlagEmoji" placeholder="🇪🇬" style="font-size:1.5em;">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الاسم <span style="color:#a78bfa;">(العربية)</span></label>
+                            <input type="text" id="langLabelAr" required placeholder="العربية">
+                        </div>
+                        <div class="form-group">
+                            <label>الاسم <span style="color:#a78bfa;">(English)</span></label>
+                            <input type="text" id="langLabelEn" required placeholder="Arabic">
+                        </div>
+                        <div class="form-group">
+                            <label>الاسم <span style="color:#a78bfa;">(Français)</span></label>
+                            <input type="text" id="langLabelFr" required placeholder="Arabe">
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-form-actions">
+                    <button type="submit" class="admin-form-btn primary" id="langSubmitBtn">
+                        <i class="fas fa-save"></i>
+                        <span data-ar="حفظ" data-en="Save" data-fr="Enregistrer">حفظ</span>
+                    </button>
+                    <button type="button" class="admin-form-btn danger" onclick="closeLangModal()">
+                        <i class="fas fa-times"></i>
+                        <span data-ar="إلغاء" data-en="Cancel" data-fr="Annuler">إلغاء</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== CATEGORY MODAL ==================== -->
+    <div class="edit-product-modal" id="catModal" style="display:none;">
+        <div class="edit-product-content" style="max-width:600px;">
+            <div class="edit-order-header">
+                <h2>
+                    <i class="fas fa-layer-group"></i>
+                    <span id="catModalTitle" data-ar="إضافة تصنيف" data-en="Add Category" data-fr="Ajouter une catégorie">إضافة تصنيف</span>
+                </h2>
+            </div>
+            <form id="catForm" class="admin-product-form" onsubmit="saveCat(event)">
+                <input type="hidden" id="catEditIndex" value="-1">
+                <div class="admin-form-card">
+                    <div class="admin-form-card-title">
+                        <i class="fas fa-info-circle"></i>
+                        <span data-ar="بيانات التصنيف" data-en="Category Info" data-fr="Infos catégorie">بيانات التصنيف</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-ar="المفتاح" data-en="Key" data-fr="Clé">المفتاح</span></label>
+                            <input type="text" id="catKey" required placeholder="books / software / formulas / courses">
+                        </div>
+                        <div class="form-group">
+                            <label><span data-ar="الترتيب" data-en="Order" data-fr="Ordre">الترتيب</span></label>
+                            <input type="number" id="catOrder" value="1" min="1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><span data-ar="الأيقونة (إيموجي)" data-en="Icon (Emoji)" data-fr="Icône (Emoji)">الأيقونة (إيموجي)</span></label>
+                            <input type="text" id="catIcon" value="📚" style="font-size:1.8em;">
+                        </div>
+                        <div class="form-group">
+                            <label><span data-ar="صورة (رابط URL)" data-en="Image URL" data-fr="URL image">صورة (رابط URL)</span></label>
+                            <input type="url" id="catImage" placeholder="https://example.com/cat.jpg">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الاسم <span style="color:#fbbf24;">(العربية)</span></label>
+                            <input type="text" id="catLabelAr" required placeholder="كتب">
+                        </div>
+                        <div class="form-group">
+                            <label>الاسم <span style="color:#fbbf24;">(English)</span></label>
+                            <input type="text" id="catLabelEn" required placeholder="Books">
+                        </div>
+                        <div class="form-group">
+                            <label>الاسم <span style="color:#fbbf24;">(Français)</span></label>
+                            <input type="text" id="catLabelFr" required placeholder="Livres">
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-form-actions">
+                    <button type="submit" class="admin-form-btn primary" id="catSubmitBtn">
+                        <i class="fas fa-save"></i>
+                        <span data-ar="حفظ" data-en="Save" data-fr="Enregistrer">حفظ</span>
+                    </button>
+                    <button type="button" class="admin-form-btn danger" onclick="closeCatModal()">
+                        <i class="fas fa-times"></i>
+                        <span data-ar="إلغاء" data-en="Cancel" data-fr="Annuler">إلغاء</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main JavaScript -->
+    <script src="js/app.js?v=20260722u"></script>
+    <script>
+        document.querySelector('.admin-main')?.addEventListener('click', function(e) {
+            var s = document.getElementById('adminSidebar');
+            if (s && s.classList.contains('active') && window.innerWidth <= 1200) {
+                s.classList.remove('active');
+            }
+        });
+        /* Patch toggleLanguage to update sidebar lang text */
+        (function() {
+            var _origLang = window.toggleLanguage;
+            window.toggleLanguage = function() {
+                if (typeof _origLang === 'function') _origLang();
+                var st = document.getElementById('sidebarLangText');
+                var ht = document.getElementById('langText');
+                if (st && ht) st.innerHTML = ht.innerHTML;
+            };
+        })();
+        /* Patch switchTab to also save to sessionStorage + window.name */
+        (function() {
+            var _orig = window.switchTab;
+            window.switchTab = function(tab) {
+                try { sessionStorage.setItem('adminActiveTab', tab); localStorage.setItem('adminActiveTab', tab); window.name = 'adminTab=' + tab; } catch(e) {}
+                if (typeof _orig === 'function') _orig(tab);
+            };
+        })();
+        function closeAddProductForm() {
+            var section = document.getElementById('addProductFormSection');
+            if (section) section.classList.remove('active');
+            var actions = document.querySelector('.admin-products-actions');
+            if (actions) actions.style.display = 'flex';
+        }
+        /* Click-outside-to-close for all modals */
+        document.addEventListener('click', function(e) {
+            /* Add Product form overlay — click outside closes */
+            var afs = document.getElementById('addProductFormSection');
+            if (afs && afs.classList.contains('active') && e.target === afs) closeAddProductForm();
+            /* Edit Product modal */
+            var epm = document.getElementById('editProductModal');
+            if (epm && epm.style.display !== 'none' && e.target === epm) closeEditProductModal();
+            /* Edit Order modal */
+            var eom = document.getElementById('editOrderModal');
+            if (eom && eom.style.display !== 'none' && e.target === eom) closeEditOrderModal();
+            /* Add Page modal */
+            var apm = document.getElementById('addPageModal');
+            if (apm && apm.style.display !== 'none' && e.target === apm) closeAddPageModal();
+            /* Edit Page modal */
+            var ep = document.getElementById('editPageModal');
+            if (ep && ep.style.display !== 'none' && e.target === ep) closePageSettingsModal();
+            /* Add Payment modal */
+            var apym = document.getElementById('addPaymentModal');
+            if (apym && apym.style.display !== 'none' && e.target === apym) closeAddPaymentModal();
+            /* Edit Payment modal */
+            var epym = document.getElementById('editPaymentModal');
+            if (epym && epym.style.display !== 'none' && e.target === epym) closeEditPaymentModal();
+            /* Language modal */
+            var lgm = document.getElementById('langModal');
+            if (lgm && lgm.classList.contains('active') && e.target === lgm) closeLangModal();
+            /* Category modal */
+            var ctm = document.getElementById('catModal');
+            if (ctm && ctm.classList.contains('active') && e.target === ctm) closeCatModal();
+        });
+
+/* ====================== LANGUAGES CRUD ====================== */
+function getDefaultLangs() {
+    return [
+        {code:'ar',flagEmoji:'🇪🇬',flagUrl:'https://cdn.jsdelivr.net/gh/lipis/flag-icons@main/flags/1x1/eg.svg',label:{ar:'العربية',en:'Arabic',fr:'Arabe'},enabled:true},
+        {code:'en',flagEmoji:'🇬🇧',flagUrl:'https://cdn.jsdelivr.net/gh/lipis/flag-icons@main/flags/1x1/gb.svg',label:{ar:'الإنجليزية',en:'English',fr:'Anglais'},enabled:true},
+        {code:'fr',flagEmoji:'🇫🇷',flagUrl:'https://cdn.jsdelivr.net/gh/lipis/flag-icons@main/flags/1x1/fr.svg',label:{ar:'الفرنسية',en:'French',fr:'Français'},enabled:true}
+    ];
+}
+function getLangs() {
+    try {
+        var d = localStorage.getItem('admin_languages');
+        if (d) return JSON.parse(d);
+    } catch(e){}
+    var def = getDefaultLangs();
+    setLangs(def);
+    return def;
+}
+function setLangs(arr) {
+    try { localStorage.setItem('admin_languages', JSON.stringify(arr)); } catch(e){}
+    syncLangsToConfig(arr);
+}
+function renderLangsTable() {
+    var tbody = document.getElementById('langsTableBody');
+    if (!tbody) return;
+    var langs = getLangs();
+    var cur = (typeof langCode !== 'undefined') ? langCode : 'ar';
+    tbody.innerHTML = langs.map(function(l,i){
+        var flagHtml = l.flagUrl ? '<img src="'+l.flagUrl+'" style="width:40px;height:28px;border-radius:4px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.3);">' : (l.flagEmoji || '🏳️');
+        var enabledHtml = '<span style="color:'+(l.enabled!==false?'#4ade80':'#ef4444')+';font-weight:900;">'+(l.enabled!==false?'✓':'✕')+'</span>';
+        return '<tr style="border-bottom:1px solid rgba(147,51,234,0.1);">'+
+            '<td style="padding:12px 16px;font-weight:900;color:#fff;text-transform:uppercase;">'+escHtml(l.code)+'</td>'+
+            '<td style="padding:12px 16px;">'+flagHtml+'</td>'+
+            '<td style="padding:12px 16px;color:#c4b5fd;">'+escHtml(l.label.ar)+'</td>'+
+            '<td style="padding:12px 16px;color:#c4b5fd;">'+escHtml(l.label.en)+'</td>'+
+            '<td style="padding:12px 16px;color:#c4b5fd;">'+escHtml(l.label.fr)+'</td>'+
+            '<td style="padding:12px 16px;">'+enabledHtml+'</td>'+
+            '<td style="padding:12px 16px;"><div style="display:flex;gap:8px;">'+
+                '<button onclick="editLang('+i+')" class="btn-sm" style="background:rgba(59,130,246,0.2);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;"><i class="fas fa-edit"></i></button>'+
+                '<button onclick="toggleLang('+i+')" class="btn-sm" style="background:'+(l.enabled!==false?'rgba(239,68,68,0.2);color:#ef4444;':'rgba(74,222,128,0.2);color:#4ade80;')+'border:1px solid '+(l.enabled!==false?'rgba(239,68,68,0.3)':'rgba(74,222,128,0.3)')+';padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;"><i class="fas '+(l.enabled!==false?'fa-eye-slash':'fa-eye')+'"></i></button>'+
+                '<button onclick="deleteLang('+i+')" class="btn-sm" style="background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid rgba(239,68,68,0.3);padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;"><i class="fas fa-trash"></i></button>'+
+            '</div></td>'+
+        '</tr>';
+    }).join('');
+}
+function openLangModal(index) {
+    var modal = document.getElementById('langModal');
+    var title = document.getElementById('langModalTitle');
+    var submitBtn = document.getElementById('langSubmitBtn');
+    var editIdx = document.getElementById('langEditIndex');
+    if (index !== undefined && index >= 0) {
+        var langs = getLangs();
+        var l = langs[index];
+        document.getElementById('langCode').value = l.code;
+        document.getElementById('langFlagUrl').value = l.flagUrl || '';
+        document.getElementById('langFlagEmoji').value = l.flagEmoji || '';
+        document.getElementById('langLabelAr').value = l.label.ar || '';
+        document.getElementById('langLabelEn').value = l.label.en || '';
+        document.getElementById('langLabelFr').value = l.label.fr || '';
+        editIdx.value = index;
+        title.textContent = (window.langCode === 'en') ? 'Edit Language' : (window.langCode === 'fr' ? 'Modifier la langue' : 'تعديل اللغة');
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> تحديث';
+    } else {
+        document.getElementById('langCode').value = '';
+        document.getElementById('langFlagUrl').value = '';
+        document.getElementById('langFlagEmoji').value = '';
+        document.getElementById('langLabelAr').value = '';
+        document.getElementById('langLabelEn').value = '';
+        document.getElementById('langLabelFr').value = '';
+        editIdx.value = -1;
+        title.textContent = (window.langCode === 'en') ? 'Add Language' : (window.langCode === 'fr' ? 'Ajouter une langue' : 'إضافة لغة');
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> حفظ';
+    }
+    modal.classList.add('active');
+}
+function closeLangModal() {
+    document.getElementById('langModal').classList.remove('active');
+}
+function saveLang(e) {
+    e.preventDefault();
+    var langs = getLangs();
+    var editIdx = parseInt(document.getElementById('langEditIndex').value) || -1;
+    var code = document.getElementById('langCode').value.trim().toLowerCase();
+    var flagUrl = document.getElementById('langFlagUrl').value.trim();
+    var flagEmoji = document.getElementById('langFlagEmoji').value.trim();
+    var labelAr = document.getElementById('langLabelAr').value.trim();
+    var labelEn = document.getElementById('langLabelEn').value.trim();
+    var labelFr = document.getElementById('langLabelFr').value.trim();
+    if (!code || !labelAr || !labelEn || !labelFr) { showToast('املأ جميع الحقول المطلوبة','error'); return; }
+    var obj = { code:code, flagEmoji:flagEmoji||'', flagUrl:flagUrl||'', label:{ar:labelAr,en:labelEn,fr:labelFr}, enabled:true };
+    if (editIdx >= 0) {
+        langs[editIdx] = obj;
+    } else {
+        var exists = langs.some(function(l){return l.code === code;});
+        if (exists) { showToast('هذه اللغة موجودة بالفعل','error'); return; }
+        langs.push(obj);
+    }
+    setLangs(langs);
+    renderLangsTable();
+    closeLangModal();
+    showToast(editIdx>=0?'تم تحديث اللغة':'تمت إضافة اللغة','success');
+}
+function editLang(index) {
+    openLangModal(index);
+}
+function deleteLang(index) {
+    if (!confirm('هل تريد حذف هذه اللغة؟')) return;
+    var langs = getLangs();
+    langs.splice(index, 1);
+    if (langs.length === 0) langs = getDefaultLangs();
+    setLangs(langs);
+    renderLangsTable();
+    showToast('تم حذف اللغة','success');
+}
+function toggleLang(index) {
+    var langs = getLangs();
+    langs[index].enabled = !(langs[index].enabled !== false);
+    setLangs(langs);
+    renderLangsTable();
+}
+var LANG_DISPLAY_NAMES = { ar:'العربية', en:'English', fr:'French' };
+
+function syncLangsToConfig(langs) {
+    if (typeof APP_CONFIG === 'undefined') return;
+    if (!langs) langs = getLangs();
+    var cur = window.langCode || 'ar';
+    var content = document.getElementById('languageContent');
+    if (content) {
+        content.innerHTML = '';
+        langs.forEach(function(l){
+            if (l.enabled === false) return;
+            var flagHtml = l.flagUrl ? '<img src="'+l.flagUrl+'" style="display:inline-block;width:30px;height:22px;border-radius:3px;object-fit:cover;vertical-align:middle;box-shadow:0 2px 8px rgba(0,0,0,0.3);">' : '<span class="flag-icon" style="font-size:1.4em;">'+(l.flagEmoji||'🏳️')+'</span>';
+            var label = LANG_DISPLAY_NAMES[l.code] || l.code.toUpperCase();
+            var code = l.code.toUpperCase();
+            var btn = document.createElement('button');
+            btn.className = 'lang-option' + (l.code === cur ? ' active' : '');
+            btn.setAttribute('onclick', "switchLanguage('"+l.code+"')");
+            btn.innerHTML = flagHtml + ' <strong style="font-size:0.82em;opacity:0.7;letter-spacing:0.5px;font-family:Poppins,sans-serif;">' + code + '</strong> ' + escHtml(label);
+            content.appendChild(btn);
+        });
+    }
+    var lt = document.getElementById('langText');
+    if (lt) lt.innerHTML = getLangFlagHtml(cur);
+}
+
+/* ====================== CATEGORIES CRUD ====================== */
+function getDefaultCats() {
+    return [
+        {key:'books',icon:'📚',image:'',label:{ar:'كتب',en:'Books',fr:'Livres'},enabled:true,order:1},
+        {key:'software',icon:'💻',image:'',label:{ar:'برامج',en:'Software',fr:'Logiciels'},enabled:true,order:2},
+        {key:'formulas',icon:'🧪',image:'',label:{ar:'تركيبات',en:'Formulas',fr:'Formules'},enabled:true,order:3},
+        {key:'courses',icon:'🎓',image:'',label:{ar:'كورسات',en:'Courses',fr:'Cours'},enabled:true,order:4}
+    ];
+}
+function getCats() {
+    try {
+        var d = localStorage.getItem('admin_categories');
+        if (d) return JSON.parse(d);
+    } catch(e){}
+    var def = getDefaultCats();
+    setCats(def);
+    return def;
+}
+function setCats(arr) {
+    try { localStorage.setItem('admin_categories', JSON.stringify(arr)); } catch(e){}
+    syncCatsToConfig(arr);
+}
+function renderCatsTable() {
+    var tbody = document.getElementById('catsTableBody');
+    if (!tbody) return;
+    var cats = getCats();
+    cats.sort(function(a,b){return (a.order||99)-(b.order||99);});
+    tbody.innerHTML = cats.map(function(c,i){
+        var imgHtml = c.image ? '<img src="'+c.image+'" style="width:36px;height:36px;border-radius:8px;object-fit:cover;" onerror="this.style.display=\'none\'">' : '<span style="color:#666;font-size:11px;">—</span>';
+        var enabledHtml = '<span style="color:'+(c.enabled!==false?'#4ade80':'#ef4444')+';font-weight:900;">'+(c.enabled!==false?'✓':'✕')+'</span>';
+        return '<tr style="border-bottom:1px solid rgba(147,51,234,0.15);">'+
+            '<td style="padding:12px 16px;font-weight:900;color:#fff;">'+(c.order||i+1)+'</td>'+
+            '<td style="padding:12px 16px;font-weight:700;color:#a78bfa;">'+escHtml(c.key)+'</td>'+
+            '<td style="padding:12px 16px;font-size:1.4em;">'+(c.icon||'📦')+'</td>'+
+            '<td style="padding:12px 16px;">'+imgHtml+'</td>'+
+            '<td style="padding:12px 16px;color:#e0d4f5;">'+escHtml(c.label.ar)+'</td>'+
+            '<td style="padding:12px 16px;color:#e0d4f5;">'+escHtml(c.label.en)+'</td>'+
+            '<td style="padding:12px 16px;color:#e0d4f5;">'+escHtml(c.label.fr)+'</td>'+
+            '<td style="padding:12px 16px;">'+enabledHtml+'</td>'+
+            '<td style="padding:12px 16px;text-align:center;"><div style="display:flex;gap:8px;justify-content:center;">'+
+                '<button onclick="editCat('+i+')" class="btn-sm" style="background:rgba(147,51,234,0.2);color:#a78bfa;border:1px solid rgba(147,51,234,0.3);padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:5px;"><i class="fas fa-edit"></i> تعديل</button>'+
+                '<button onclick="toggleCat('+i+')" class="btn-sm" style="background:'+(c.enabled!==false?'rgba(239,68,68,0.2);color:#ef4444;':'rgba(74,222,128,0.2);color:#4ade80;')+'border:1px solid '+(c.enabled!==false?'rgba(239,68,68,0.3)':'rgba(74,222,128,0.3)')+';padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:5px;"><i class="fas '+(c.enabled!==false?'fa-eye-slash':'fa-eye')+'"></i> '+(c.enabled!==false?'إخفاء':'إظهار')+'</button>'+
+                '<button onclick="deleteCat('+i+')" class="btn-sm" style="background:rgba(239,68,68,0.2);color:#ef4444;border:1px solid rgba(239,68,68,0.3);padding:6px 12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:5px;"><i class="fas fa-trash"></i> حذف</button>'+
+            '</div></td>'+
+        '</tr>';
+    }).join('');
+}
+function openCatModal(index) {
+    var modal = document.getElementById('catModal');
+    var title = document.getElementById('catModalTitle');
+    var editIdx = document.getElementById('catEditIndex');
+    var cats = getCats();
+    if (index !== undefined && index >= 0) {
+        var c = cats[index];
+        document.getElementById('catKey').value = c.key;
+        document.getElementById('catOrder').value = c.order || (index+1);
+        document.getElementById('catIcon').value = c.icon || '';
+        document.getElementById('catImage').value = c.image || '';
+        document.getElementById('catLabelAr').value = c.label.ar || '';
+        document.getElementById('catLabelEn').value = c.label.en || '';
+        document.getElementById('catLabelFr').value = c.label.fr || '';
+        editIdx.value = index;
+        title.textContent = (window.langCode === 'en') ? 'Edit Category' : (window.langCode === 'fr' ? 'Modifier la catégorie' : 'تعديل تصنيف');
+        document.getElementById('catSubmitBtn').innerHTML = '<i class="fas fa-save"></i> تحديث';
+    } else {
+        document.getElementById('catKey').value = '';
+        document.getElementById('catOrder').value = cats.length + 1;
+        document.getElementById('catIcon').value = '📦';
+        document.getElementById('catImage').value = '';
+        document.getElementById('catLabelAr').value = '';
+        document.getElementById('catLabelEn').value = '';
+        document.getElementById('catLabelFr').value = '';
+        editIdx.value = -1;
+        title.textContent = (window.langCode === 'en') ? 'Add Category' : (window.langCode === 'fr' ? 'Ajouter une catégorie' : 'إضافة تصنيف');
+        document.getElementById('catSubmitBtn').innerHTML = '<i class="fas fa-save"></i> حفظ';
+    }
+    modal.classList.add('active');
+}
+function closeCatModal() {
+    document.getElementById('catModal').classList.remove('active');
+}
+function saveCat(e) {
+    e.preventDefault();
+    var cats = getCats();
+    var editIdx = parseInt(document.getElementById('catEditIndex').value) || -1;
+    var key = document.getElementById('catKey').value.trim().toLowerCase().replace(/\s+/g,'_');
+    var order = parseInt(document.getElementById('catOrder').value) || 99;
+    var icon = document.getElementById('catIcon').value.trim() || '📦';
+    var image = document.getElementById('catImage').value.trim();
+    var labelAr = document.getElementById('catLabelAr').value.trim();
+    var labelEn = document.getElementById('catLabelEn').value.trim();
+    var labelFr = document.getElementById('catLabelFr').value.trim();
+    if (!key || !labelAr || !labelEn || !labelFr) { showToast('املأ جميع الحقول المطلوبة','error'); return; }
+    var obj = { key:key, icon:icon, image:image||'', label:{ar:labelAr,en:labelEn,fr:labelFr}, enabled:true, order:order };
+    if (editIdx >= 0) {
+        cats[editIdx] = obj;
+    } else {
+        var exists = cats.some(function(c){return c.key === key;});
+        if (exists) { showToast('هذا التصنيف موجود بالفعل','error'); return; }
+        cats.push(obj);
+    }
+    setCats(cats);
+    renderCatsTable();
+    closeCatModal();
+    showToast(editIdx>=0?'تم تحديث التصنيف':'تمت إضافة التصنيف','success');
+}
+function editCat(index) {
+    openCatModal(index);
+}
+function deleteCat(index) {
+    if (!confirm('هل تريد حذف هذا التصنيف؟')) return;
+    var cats = getCats();
+    cats.splice(index, 1);
+    if (cats.length === 0) cats = getDefaultCats();
+    setCats(cats);
+    renderCatsTable();
+    showToast('تم حذف التصنيف','success');
+}
+function toggleCat(index) {
+    var cats = getCats();
+    cats[index].enabled = !(cats[index].enabled !== false);
+    setCats(cats);
+    renderCatsTable();
+}
+function syncCatsToConfig(cats) {
+    if (typeof APP_CONFIG === 'undefined') return;
+    if (!cats) cats = getCats();
+    var langs = ['ar','en','fr'];
+    langs.forEach(function(l){
+        if (!APP_CONFIG.categories[l]) APP_CONFIG.categories[l] = {};
+        cats.forEach(function(c){
+            if (c.enabled === false) return;
+            APP_CONFIG.categories[l][c.key] = c.label[l] || c.label.ar;
+        });
+    });
+    /* refresh category selectors if any */
+    var catSelectors = document.querySelectorAll('.admin-cat-selector');
+    if (catSelectors.length) {
+        /* rebuild the product category selector */
+        var catSel = document.getElementById('productCategorySelector');
+        if (catSel) {
+            catSel.innerHTML = '';
+            cats.filter(function(c){return c.enabled !== false;}).sort(function(a,b){return (a.order||99)-(b.order||99);}).forEach(function(c){
+                var label = document.createElement('label');
+                label.className = 'admin-cat-option' + (catSel.children.length === 0 ? ' selected' : '');
+                label.style.setProperty('--cat-clr','#f59e0b');
+                label.setAttribute('data-value',c.key);
+                label.setAttribute('onclick','selectAdminCat(this,\'productCategory\')');
+                var radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = 'adminCat';
+                radio.value = c.key;
+                radio.hidden = true;
+                if (catSel.children.length === 0) radio.checked = true;
+                var iconSpan = document.createElement('span');
+                iconSpan.className = 'admin-cat-icon';
+                iconSpan.textContent = c.icon || '📦';
+                var labelSpan = document.createElement('span');
+                labelSpan.className = 'admin-cat-label';
+                labelSpan.setAttribute('data-ar',c.label.ar);
+                labelSpan.setAttribute('data-en',c.label.en);
+                labelSpan.setAttribute('data-fr',c.label.fr);
+                labelSpan.textContent = c.label[window.langCode||'ar'] || c.label.ar;
+                label.appendChild(radio);
+                label.appendChild(iconSpan);
+                label.appendChild(labelSpan);
+                catSel.appendChild(label);
+            });
+        }
+        var catSelect = document.getElementById('productCategory');
+        if (catSelect) {
+            catSelect.innerHTML = '';
+            cats.filter(function(c){return c.enabled !== false;}).sort(function(a,b){return (a.order||99)-(b.order||99);}).forEach(function(c){
+                var opt = document.createElement('option');
+                opt.value = c.key;
+                opt.textContent = (c.icon||'')+' '+c.label[window.langCode||'ar'];
+                catSelect.appendChild(opt);
+            });
+        }
+    }
+}
+/* Override switchTab to render tables */
+(function(){
+    var _origSwitchTab = window.switchTab;
+    window.switchTab = function(tab){
+        if (tab === 'languages') renderLangsTable();
+        if (tab === 'categoriesmgt') renderCatsTable();
+        if (typeof _origSwitchTab === 'function') _origSwitchTab(tab);
+    };
+})();
+/* Expose all functions globally */
+window.getDefaultLangs = getDefaultLangs; window.getLangs = getLangs; window.setLangs = setLangs;
+window.renderLangsTable = renderLangsTable; window.openLangModal = openLangModal;
+window.closeLangModal = closeLangModal; window.saveLang = saveLang; window.editLang = editLang;
+window.deleteLang = deleteLang; window.toggleLang = toggleLang; window.syncLangsToConfig = syncLangsToConfig;
+window.getDefaultCats = getDefaultCats; window.getCats = getCats; window.setCats = setCats;
+window.renderCatsTable = renderCatsTable; window.openCatModal = openCatModal;
+window.closeCatModal = closeCatModal; window.saveCat = saveCat; window.editCat = editCat;
+window.deleteCat = deleteCat; window.toggleCat = toggleCat; window.syncCatsToConfig = syncCatsToConfig;
+/* Initialize on load */
+(function(){
+    /* Sync languages to header dropdown */
+    var langs = getLangs();
+    syncLangsToConfig(langs);
+    /* Update sidebar lang text */
+    var st = document.getElementById('sidebarLangText');
+    var ht = document.getElementById('langText');
+    if (st && ht) st.innerHTML = ht.innerHTML;
+    /* Sync categories to selectors */
+    var cats = getCats();
+    syncCatsToConfig(cats);
+    /* Also update edit order category selector */
+    var editCat = document.getElementById('editOrderCategory');
+    if (editCat) {
+        editCat.innerHTML = '';
+        cats.filter(function(c){return c.enabled !== false;}).sort(function(a,b){return (a.order||99)-(b.order||99);}).forEach(function(c){
+            var opt = document.createElement('option');
+            opt.value = c.key;
+            opt.textContent = (c.icon||'')+' '+c.label[window.langCode||'ar'];
+            editCat.appendChild(opt);
+        });
+    }
+})();
+    </script>
+
+<!-- ═══ فورم إضافة منتج مطور ═══ -->
+<div class="edit-product-modal" id="addProductFormSection" style="display:none;">
+    <div class="edit-product-content" style="max-width:780px;">
+        <div class="edit-order-header">
+            <h2>
+                <i class="fas fa-plus-circle"></i>
+                <span data-ar="إضافة منتج جديد" data-en="Add New Product" data-fr="Ajouter un nouveau produit">إضافة منتج جديد</span>
+            </h2>
+        </div>
+        <form id="addProductForm" class="admin-product-form">
+
+        <!-- Images & Video Upload -->
+        <div class="admin-form-card">
+            <div class="admin-form-card-title">
+                <i class="fas fa-images"></i>
+                <span data-ar="صور المنتج والفيديو" data-en="Product Images & Video" data-fr="Images et vidéo du produit">صور المنتج والفيديو</span>
+            </div>
+            <div class="multi-image-upload-container">
+                <div class="add-images-row">
+                    <button type="button" class="add-more-image-btn" onclick="document.getElementById('productImageInput').click()">
+                        <i class="fas fa-plus-circle"></i>
+                        <span data-ar="إضافة صورة" data-en="Add Image" data-fr="Ajouter une image">إضافة صورة</span>
+                    </button>
+                    <input type="file" id="productImageInput" accept="image/*" style="display: none;">
+                </div>
+                <div class="image-previews-grid" id="productImagePreviews"></div>
+                <div class="form-group" style="margin-top:16px;">
+                    <label>
+                        <i class="fas fa-video" style="color:var(--primary)"></i>
+                        <span data-ar="فيديو المنتج" data-en="Product Video" data-fr="Vidéo du produit">فيديو المنتج</span>
+                    </label>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                        <input type="url" id="productVideoUrl" style="flex:2;min-width:200px;" data-ar-placeholder="رابط YouTube (اختياري)" data-en-placeholder="YouTube URL (optional)" placeholder="https://www.youtube.com/watch?v=...">
+                        <button type="button" class="add-more-image-btn" style="flex-shrink:0;padding:10px 16px;font-size:13px;" onclick="document.getElementById('productVideoFileInput').click()">
+                            <i class="fas fa-upload"></i>
+                            <span data-ar="رفع فيديو" data-en="Upload Video" data-fr="Téléverser une vidéo">رفع فيديو</span>
+                        </button>
+                        <input type="file" id="productVideoFileInput" accept="video/*" style="display:none;">
+                    </div>
+                    <small style="color:var(--text-secondary);display:block;margin-top:4px;font-size:12px;" data-ar="يمكنك إما لصق رابط YouTube أو رفع ملف فيديو من جهازك" data-en="Either paste a YouTube link or upload a video file" data-fr="Collez un lien YouTube ou téléversez une vidéo">يمكنك إما لصق رابط YouTube أو رفع ملف فيديو من جهازك</small>
+                </div>
+                <input type="hidden" id="productImagesData" value="[]">
+            </div>
+        </div>
+
+        <!-- Basic Info -->
+        <div class="admin-form-card">
+            <div class="admin-form-card-title">
+                <i class="fas fa-info-circle"></i>
+                <span data-ar="معلومات أساسية" data-en="Basic Info" data-fr="Infos de base">معلومات أساسية</span>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-heading" style="color: var(--primary)"></i>
+                        <span data-ar="اسم المنتج" data-en="Product Name" data-fr="Nom du produit">اسم المنتج</span>
+                    </label>
+                    <div class="lang-field-group">
+                        <div class="lang-field-row">
+                            <span class="lang-badge ar">AR</span>
+                            <input type="text" id="productTitleAr" required placeholder="مثال: كتاب صناعة المنظفات الاحترافية">
+                        </div>
+                        <div class="lang-field-row">
+                            <span class="lang-badge en">EN</span>
+                            <input type="text" id="productTitleEn" required placeholder="e.g: Professional Detergent Book">
+                        </div>
+                        <div class="lang-field-row">
+                            <span class="lang-badge fr">FR</span>
+                            <input type="text" id="productTitleFr" required placeholder="Ex: Livre de détergents professionnels">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-layer-group" style="color: var(--primary)"></i>
+                        <span data-ar="التصنيف" data-en="Category" data-fr="Catégorie">التصنيف</span>
+                    </label>
+                    <div class="admin-cat-selector" id="productCategorySelector">
+                        <label class="admin-cat-option selected" data-value="books" style="--cat-clr:#f59e0b;" onclick="selectAdminCat(this,'productCategory')">
+                            <input type="radio" name="adminCat" value="books" checked hidden>
+                            <span class="admin-cat-icon">📚</span>
+                            <span class="admin-cat-label" data-ar="كتب" data-en="Books" data-fr="Livres">كتب</span>
+                        </label>
+                        <label class="admin-cat-option" data-value="software" style="--cat-clr:#f59e0b;" onclick="selectAdminCat(this,'productCategory')">
+                            <input type="radio" name="adminCat" value="software" hidden>
+                            <span class="admin-cat-icon">💻</span>
+                            <span class="admin-cat-label" data-ar="برامج" data-en="Software" data-fr="Logiciels">برامج</span>
+                        </label>
+                        <label class="admin-cat-option" data-value="formulas" style="--cat-clr:#f59e0b;" onclick="selectAdminCat(this,'productCategory')">
+                            <input type="radio" name="adminCat" value="formulas" hidden>
+                            <span class="admin-cat-icon">🧪</span>
+                            <span class="admin-cat-label" data-ar="تركيبات" data-en="Formulas" data-fr="Formules">تركيبات</span>
+                        </label>
+                        <label class="admin-cat-option" data-value="courses" style="--cat-clr:#f59e0b;" onclick="selectAdminCat(this,'productCategory')">
+                            <input type="radio" name="adminCat" value="courses" hidden>
+                            <span class="admin-cat-icon">🎓</span>
+                            <span class="admin-cat-label" data-ar="كورسات" data-en="Courses" data-fr="Cours">كورسات</span>
+                        </label>
+                    </div>
+                    <select id="productCategory" style="display:none;">
+                        <option value="books">📖 كتب</option>
+                        <option value="software">💻 برامج</option>
+                        <option value="formulas">🧪 تركيبات</option>
+                        <option value="courses">🎓 كورسات تعليمية</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing -->
+        <div class="admin-form-card">
+            <div class="admin-form-card-title">
+                <i class="fas fa-tags"></i>
+                <span data-ar="التسعير" data-en="Pricing" data-fr="Tarification">التسعير</span>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-coins" style="color: #10b981"></i>
+                        <span data-ar="السعر بالجنيه (EGP)" data-en="Price (EGP)" data-fr="Prix (EGP)">السعر بالجنيه (EGP)</span>
+                    </label>
+                    <input type="number" id="productPriceEGP" required min="0" step="0.01" placeholder="500">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-dollar-sign" style="color: #10b981"></i>
+                        <span data-ar="السعر بالدولار (USD)" data-en="Price (USD)" data-fr="Prix (USD)">السعر بالدولار (USD)</span>
+                    </label>
+                    <input type="number" id="productPriceUSD" required min="0" step="0.01" placeholder="15">
+                </div>
+            </div>
+            <div class="admin-old-price-note">
+                <i class="fas fa-info-circle"></i>
+                <span data-ar="إذا كان هناك خصم، املأ السعر القديم أدناه:" data-en="If there's a discount, fill old price below:" data-fr="S'il y a une réduction, indiquez l'ancien prix ci-dessous :">إذا كان هناك خصم، املأ السعر القديم أدناه:</span>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-tag" style="color: #ef4444"></i>
+                        <span data-ar="السعر القديم بالجنيه" data-en="Old Price EGP" data-fr="Ancien prix EGP">السعر القديم بالجنيه</span>
+                    </label>
+                    <input type="number" id="productOldPriceEGP" min="0" step="0.01"
+                           data-ar-placeholder="اتركه فارغاً إذا لا يوجد خصم"
+                           data-en-placeholder="Leave empty if no discount"
+                           placeholder="اتركه فارغاً إذا لا يوجد خصم">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <i class="fas fa-tag" style="color: #ef4444"></i>
+                        <span data-ar="السعر القديم بالدولار" data-en="Old Price USD" data-fr="Ancien prix USD">السعر القديم بالدولار</span>
+                    </label>
+                    <input type="number" id="productOldPriceUSD" min="0" step="0.01"
+                           data-ar-placeholder="اتركه فارغاً إذا لا يوجد خصم"
+                           data-en-placeholder="Leave empty if no discount"
+                           placeholder="اتركه فارغاً إذا لا يوجد خصم">
+                </div>
+            </div>
+        </div>
+
+        <!-- Badge -->
+        <div class="admin-form-card">
+            <div class="admin-form-card-title">
+                <i class="fas fa-fire" style="color: #f59e0b"></i>
+                <span data-ar="الوسم" data-en="Badge" data-fr="Badge">الوسم</span>
+            </div>
+            <div class="admin-badge-selector">
+                <label class="admin-badge-opt selected" data-value="none" onclick="selectAdminBadge(this,'productBadge')">
+                    <input type="radio" name="adminBadge" value="none" checked hidden>
+                    <span>❌</span><span data-ar="بدون" data-en="None" data-fr="Aucun">بدون</span>
+                </label>
+                <label class="admin-badge-opt" data-value="hot" onclick="selectAdminBadge(this,'productBadge')">
+                    <input type="radio" name="adminBadge" value="hot" hidden>
+                    <span>🔥</span><span data-ar="الأكثر مبيعاً" data-en="Best Seller" data-fr="Meilleure vente">الأكثر مبيعاً</span>
+                </label>
+                <label class="admin-badge-opt" data-value="new" onclick="selectAdminBadge(this,'productBadge')">
+                    <input type="radio" name="adminBadge" value="new" hidden>
+                    <span>🆕</span><span data-ar="جديد" data-en="New" data-fr="Nouveau">جديد</span>
+                </label>
+                <label class="admin-badge-opt" data-value="featured" onclick="selectAdminBadge(this,'productBadge')">
+                    <input type="radio" name="adminBadge" value="featured" hidden>
+                    <span>⭐</span><span data-ar="مميز" data-en="Featured" data-fr="En vedette">مميز</span>
+                </label>
+            </div>
+            <select id="productBadge" style="display:none;">
+                <option value="none">❌ بدون بادج</option>
+                <option value="hot">🔥 الأكثر مبيعاً</option>
+                <option value="new">🆕 جديد</option>
+                <option value="featured">⭐ مميز</option>
+            </select>
+        </div>
+
+        <!-- Download & Description -->
+        <div class="admin-form-card">
+            <div class="admin-form-card-title">
+                <i class="fas fa-download"></i>
+                <span data-ar="التحميل والوصف" data-en="Download & Description" data-fr="Téléchargement et description">التحميل والوصف</span>
+            </div>
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-link" style="color: var(--primary)"></i>
+                    <span data-ar="رابط التحميل" data-en="Download Link" data-fr="Lien de téléchargement">رابط التحميل</span>
+                </label>
+                <input type="url" id="productDownloadLink" required
+                       data-ar-placeholder="رابط الملف أو Google Drive"
+                       data-en-placeholder="File URL or Google Drive link"
+                       placeholder="https://drive.google.com/...">
+            </div>
+            <div class="form-group" style="margin-top:20px;">
+                <label>
+                    <i class="fas fa-align-right" style="color: var(--primary)"></i>
+                    <span data-ar="وصف المنتج" data-en="Description" data-fr="Description">وصف المنتج</span>
+                </label>
+                <div class="lang-field-group">
+                    <div class="lang-field-row">
+                        <span class="lang-badge ar">AR</span>
+                        <textarea id="productDescriptionAr" required placeholder="اكتب وصفاً تفصيلياً للمنتج..."></textarea>
+                    </div>
+                    <div class="lang-field-row">
+                        <span class="lang-badge en">EN</span>
+                        <textarea id="productDescriptionEn" required placeholder="Write a detailed product description..."></textarea>
+                    </div>
+                    <div class="lang-field-row">
+                        <span class="lang-badge fr">FR</span>
+                        <textarea id="productDescriptionFr" required placeholder="Écrivez une description détaillée..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Extra Content: Features, Requirements, FAQ -->
+        <div class="admin-form-card">
+            <div class="admin-form-card-title">
+                <i class="fas fa-puzzle-piece"></i>
+                <span data-ar="محتوى إضافي" data-en="Extra Content" data-fr="Contenu supplémentaire">محتوى إضافي</span>
+            </div>
+
+            <!-- Visibility Toggles -->
+            <div class="form-group" style="margin-bottom:20px;">
+                <label style="margin-bottom:12px;display:block;">
+                    <i class="fas fa-eye" style="color:var(--primary)"></i>
+                    <span data-ar="إظهار/إخفاء الأقسام" data-en="Show/Hide Sections" data-fr="Afficher/Masquer les sections">إظهار/إخفاء الأقسام</span>
+                </label>
+                <div style="display:flex;gap:15px;flex-wrap:wrap;">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg-card);padding:8px 16px;border-radius:10px;border:1px solid var(--border-color);">
+                        <input type="checkbox" id="productShowFullDesc" checked>
+                        <span data-ar="الوصف الكامل" data-en="Full Description" data-fr="Description complète">الوصف الكامل</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg-card);padding:8px 16px;border-radius:10px;border:1px solid var(--border-color);">
+                        <input type="checkbox" id="productShowFeatures" checked>
+                        <span data-ar="المميزات" data-en="Features" data-fr="Caractéristiques">المميزات</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg-card);padding:8px 16px;border-radius:10px;border:1px solid var(--border-color);">
+                        <input type="checkbox" id="productShowRequirements" checked>
+                        <span data-ar="المتطلبات" data-en="Requirements" data-fr="Prérequis">المتطلبات</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg-card);padding:8px 16px;border-radius:10px;border:1px solid var(--border-color);">
+                        <input type="checkbox" id="productShowFAQ" checked>
+                        <span data-ar="الأسئلة الشائعة" data-en="FAQ" data-fr="FAQ">الأسئلة الشائعة</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <i class="fas fa-list-check" style="color:var(--primary)"></i>
+                    <span data-ar="المميزات (واحد في كل سطر)" data-en="Features (one per line)" data-fr="Caractéristiques (une par ligne)">المميزات (واحد في كل سطر)</span>
+                </label>
+                <div class="lang-field-group">
+                    <div class="lang-field-row">
+                        <span class="lang-badge ar">AR</span>
+                        <textarea id="productFeaturesAr" rows="4" placeholder="اكتب المميزات هنا، كل سطر = ميزة واحدة"></textarea>
+                    </div>
+                    <div class="lang-field-row">
+                        <span class="lang-badge en">EN</span>
+                        <textarea id="productFeaturesEn" rows="4" placeholder="Write features here, one per line"></textarea>
+                    </div>
+                    <div class="lang-field-row">
+                        <span class="lang-badge fr">FR</span>
+                        <textarea id="productFeaturesFr" rows="4" placeholder="Caractéristiques, une par ligne"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:16px;">
+                <label>
+                    <i class="fas fa-gear" style="color:var(--primary)"></i>
+                    <span data-ar="المتطلبات (واحد في كل سطر)" data-en="Requirements (one per line)" data-fr="Prérequis (un par ligne)">المتطلبات (واحد في كل سطر)</span>
+                </label>
+                <div class="lang-field-group">
+                    <div class="lang-field-row">
+                        <span class="lang-badge ar">AR</span>
+                        <textarea id="productRequirementsAr" rows="3" placeholder="اكتب المتطلبات هنا، كل سطر = متطلب واحد"></textarea>
+                    </div>
+                    <div class="lang-field-row">
+                        <span class="lang-badge en">EN</span>
+                        <textarea id="productRequirementsEn" rows="3" placeholder="Write requirements here, one per line"></textarea>
+                    </div>
+                    <div class="lang-field-row">
+                        <span class="lang-badge fr">FR</span>
+                        <textarea id="productRequirementsFr" rows="3" placeholder="Prérequis, un par ligne"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:16px;">
+                <label>
+                    <i class="fas fa-question-circle" style="color:var(--primary)"></i>
+                    <span data-ar="الأسئلة الشائعة (Q | A في كل سطر)" data-en="FAQ (Q | A per line)" data-fr="FAQ (Q | R par ligne)">الأسئلة الشائعة (سؤال | جواب في كل سطر)</span>
+                </label>
+                <div class="lang-field-group">
+                    <div class="lang-field-row">
+                        <span class="lang-badge ar">AR</span>
+                        <textarea id="productFAQAr" rows="3" placeholder="اكتب الأسئلة الشائعة هنا، كل سطر = سؤال | جواب"></textarea>
+                    </div>
+                    <div class="lang-field-row">
+                        <span class="lang-badge en">EN</span>
+                        <textarea id="productFAQEn" rows="3" placeholder="Write FAQ here, each line = question | answer"></textarea>
+                    </div>
+                    <div class="lang-field-row">
+                        <span class="lang-badge fr">FR</span>
+                        <textarea id="productFAQFr" rows="3" placeholder="FAQ : question | réponse par ligne"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="admin-form-actions">
+            <button type="submit" class="admin-form-btn primary" id="submitProductBtn">
+                <i class="fas fa-plus-circle"></i>
+                <span data-ar="إضافة المنتج" data-en="Add Product" data-fr="Ajouter un produit">إضافة المنتج</span>
+            </button>
+            <button type="button" class="admin-form-btn danger" onclick="closeAddProductForm();">
+                <i class="fas fa-times"></i>
+                <span data-ar="إلغاء" data-en="Cancel" data-fr="Annuler">إلغاء</span>
+            </button>
+        </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+

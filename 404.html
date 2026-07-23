@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>404 - الصفحة غير موجودة | BRAVO</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <meta name="theme-color" content="#9333ea">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <link rel="stylesheet" href="shared/css/global.css?v=3">
+    <link rel="stylesheet" href="shared/css/toast.css?v=5">
+    <link rel="stylesheet" href="shared/css/header.css?v=22">
+    <link rel="stylesheet" href="shared/css/footer.css?v=10">
+    <link rel="stylesheet" href="shared/css/responsive.css?v=15">
+    <link rel="stylesheet" href="css/404.css?v=12">
+</head>
+<body style="display: flex !important; flex-direction: column !important; min-height: 100vh !important; margin: 0 !important;">
+
+    <canvas id="particles" aria-hidden="true"></canvas>
+
+    <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    <header role="banner">
+        <nav role="navigation" aria-label="Main Navigation">
+            <a href="index.html" class="logo" aria-label="BRAVO Home">
+                <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO Logo" class="logo-img" width="55" height="55">
+                <span class="logo-text">BRAVO</span>
+            </a>
+            <ul class="nav-menu" id="navMenu" role="menubar">
+                <!-- Mobile: divider -->
+                <li class="nav-menu-divider" role="separator"><span data-ar="الحساب" data-en="Account" data-fr="Compte">الحساب</span></li>
+                <!-- Mobile: حسابي -->
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="Profile.html">
+                        <i class="fas fa-user"></i>
+                        <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
+                    </a>
+                </li>
+                <!-- Mobile: طلباتي -->
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="orders.html">
+                        <i class="fas fa-box"></i>
+                        <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+                    </a>
+                </li>
+                <!-- Mobile: divider -->
+                <li class="nav-menu-divider" role="separator"><span data-ar="الصفحات" data-en="Pages" data-fr="Pages">الصفحات</span></li>
+                <!-- الرئيسية -->
+                <li role="none">
+                    <a href="index.html" role="menuitem">
+                        <i class="fas fa-house-chimney" aria-hidden="true"></i>
+                        <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span>
+                    </a>
+                </li>
+                <!-- Conditional -->
+                <li class="conditional-nav-item nav-item-wishlist" data-page="wishlist.html" style="display:none;">
+                    <a href="Wishlist.html" role="menuitem">
+                        <i class="fas fa-heart"></i>
+                        <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                        <span class="action-badge" id="wishlistBadge">0</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-cart" data-page="cart.html" style="display:none;">
+                    <a href="cart.html" role="menuitem">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                        <span class="action-badge" id="cartBadge">0</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-checkout" data-page="checkout.html" style="display:none;">
+                    <a href="checkout.html" role="menuitem">
+                        <i class="fas fa-credit-card"></i>
+                        <span data-ar="الدفع" data-en="Checkout" data-fr="Paiement">الدفع</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-profile" data-page="profile.html" style="display:none;">
+                    <a href="Profile.html" role="menuitem">
+                        <i class="fas fa-user"></i>
+                        <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-orders" data-page="orders.html" style="display:none;">
+                    <a href="orders.html" role="menuitem">
+                        <i class="fas fa-box"></i>
+                        <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+                    </a>
+                </li>
+                <!-- المنتجات -->
+                <li role="none">
+                    <a href="products.html" role="menuitem">
+                        <i class="fas fa-store" aria-hidden="true"></i>
+                        <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span>
+                    </a>
+                </li>
+                <!-- من نحن -->
+                <li role="none">
+                    <a href="about.html" role="menuitem">
+                        <i class="fas fa-users-gear" aria-hidden="true"></i>
+                        <span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span>
+                    </a>
+                </li>
+                <!-- تواصل معنا -->
+                <li role="none">
+                    <a href="contact.html" role="menuitem">
+                        <i class="fas fa-headset" aria-hidden="true"></i>
+                        <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span>
+                    </a>
+                </li>
+                <!-- Mobile: divider -->
+                <li class="nav-menu-divider" role="separator"><span data-ar="التسوق" data-en="Shopping" data-fr="Achats">التسوق</span></li>
+                <!-- Mobile: wishlist -->
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="Wishlist.html">
+                        <i class="fas fa-heart"></i>
+                        <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                        <span class="action-badge" id="wishlistBadgeMobile">0</span>
+                    </a>
+                </li>
+                <!-- Mobile: cart -->
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="cart.html">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                        <span class="action-badge" id="cartBadgeMobile">0</span>
+                    </a>
+                </li>
+                <!-- Mobile: notifications -->
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="javascript:toggleDropdown('notificationsDropdown')">
+                        <i class="fas fa-bell"></i>
+                        <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                        <span class="action-badge" id="notificationsBadgeMobile">0</span>
+                    </a>
+                </li>
+                <!-- Mobile: language -->
+                <li class="nav-menu-divider" role="separator"><span data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span></li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="javascript:toggleLanguage()">
+                        <i class="fas fa-globe"></i>
+                        <span id="mobileLangText"><span class="flag-icon">🇪🇬</span> <span data-ar="العربية" data-en="English" data-fr="Français">العربية</span></span>
+                    </a>
+                </li>
+            </ul>
+            <div class="nav-actions">
+                
+                <div class="action-btn-wrapper">
+                    <button class="action-btn lang-switch" onclick="toggleLanguage()" aria-label="تبديل اللغة">
+                        <span id="langText">EN</span>
+                    </button>
+                    <span class="action-label" data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span>
+                </div>
+                <div class="action-btn-wrapper mobile-menu-toggle">
+                    <button class="action-btn" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
+                        <i class="fas fa-bars" id="mobileMenuIcon" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main style="margin-top: 80px !important;">
+        <section class="error-section">
+            <div class="error-bg">
+                <div class="error-orb orb-1"></div>
+                <div class="error-orb orb-2"></div>
+                <div class="error-orb orb-3"></div>
+            </div>
+
+            <div class="error-content">
+                <div class="error-badge">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>خطأ 404</span>
+                </div>
+
+                <div class="error-code">
+                    <span data-digit="4">4</span>
+                    <span data-digit="0">0</span>
+                    <span data-digit="4">4</span>
+                </div>
+
+                <h1 data-ar="عذراً، الصفحة غير موجودة" data-en="Oops, Page Not Found" data-fr="Oups, page non trouvée">
+                    <span class="highlight">عذراً، الصفحة غير موجودة</span>
+                </h1>
+
+                <p data-ar="الصفحة التي تبحث عنها غير متاحة أو تم نقلها أو حذفها. تأكد من الرابط أو عد إلى الرئيسية."
+                   data-en="The page you're looking for is unavailable, moved, or deleted. Check the URL or go back home." data-fr="La page que vous cherchez est indisponible, déplacée ou supprimée. Vérifiez l'URL ou retournez à l'accueil.">
+                    الصفحة التي تبحث عنها غير متاحة أو تم نقلها أو حذفها. تأكد من الرابط أو عد إلى الرئيسية.
+                </p>
+
+                <div class="error-actions">
+                    <a href="index.html" class="btn-primary-404">
+                        <i class="fas fa-house"></i>
+                        <span data-ar="العودة للرئيسية" data-en="Back to Home" data-fr="Retour à l'accueil">العودة للرئيسية</span>
+                    </a>
+                    <button onclick="history.back()" class="btn-secondary-404">
+                        <i class="fas fa-arrow-right"></i>
+                        <span data-ar="الصفحة السابقة" data-en="Previous Page" data-fr="Page précédente">الصفحة السابقة</span>
+                    </button>
+                </div>
+
+                <div class="error-help">
+                    <span data-ar="أو جرب الروابط التالية:" data-en="Or try these links:" data-fr="Ou essayez ces liens :">أو جرب الروابط التالية:</span>
+                    <div class="help-links">
+                        <a href="index.html"><i class="fas fa-home"></i> الرئيسية</a>
+                        <a href="products.html"><i class="fas fa-box"></i> المنتجات</a>
+                        <a href="contact.html"><i class="fas fa-headset"></i> الدعم</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO">
+                        <span>BRAVO</span>
+                    </div>
+                    <p data-ar="متجر BRAVO لتعليم صناعة المنظفات ومستحضرات التجميل والعطور" data-en="The #1 Digital Store" data-fr="La boutique numérique n°1">متجر BRAVO لتعليم صناعة المنظفات ومستحضرات التجميل والعطور</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="روابط سريعة" data-en="Quick Links" data-fr="Liens rapides">روابط سريعة</h4>
+                    <ul>
+                        <li><a href="index.html"><i class="fas fa-angle-left"></i> <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span></a></li>
+                        <li><a href="products.html"><i class="fas fa-angle-left"></i> <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span></a></li>
+                        <li><a href="about.html"><i class="fas fa-angle-left"></i> <span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span></a></li>
+                        <li><a href="contact.html"><i class="fas fa-angle-left"></i> <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span></a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="أقسام المتجر" data-en="Categories" data-fr="Catégories">أقسام المتجر</h4>
+                    <ul>
+                        <li><a href="products.html?cat=books"><span class="emoji">📚</span> <span data-ar="كتب" data-en="Books" data-fr="Livres">كتب</span></a></li>
+                        <li><a href="products.html?cat=software"><span class="emoji">💻</span> <span data-ar="برامج" data-en="Software" data-fr="Logiciels">برامج</span></a></li>
+                        <li><a href="products.html?cat=formulas"><span class="emoji">🧪</span> <span data-ar="تركيبات" data-en="Formulas" data-fr="Formules">تركيبات</span></a></li>
+                        <li><a href="products.html?cat=courses"><span class="emoji">🎓</span> <span data-ar="كورسات" data-en="Courses" data-fr="Cours">كورسات</span></a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="تواصل" data-en="Contact" data-fr="Contact">تواصل</h4>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-phone"></i> <span dir="ltr">+20 101 285 3829</span></li>
+                        <li><i class="fas fa-envelope"></i> info@bravo.com</li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span data-ar="الجيزة، مصر" data-en="Cairo, Egypt" data-fr="Le Caire, Égypte">الجيزة، مصر</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 BRAVO Store. <span data-ar="جميع الحقوق محفوظة" data-en="All rights reserved" data-fr="Tous droits réservés">جميع الحقوق محفوظة</span>.</p>
+                <div class="payment-methods">
+                    <i class="fas fa-credit-card"></i>
+                    <i class="fab fa-cc-paypal"></i>
+                    <i class="fab fa-bitcoin"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <a href="https://wa.me/+201012853829?text=مرحباً%20BRAVO!%20أواجه%20مشكلة%20في%20الصفحة" class="whatsapp-float" target="_blank" rel="noopener" aria-label="WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script src="js/include.js?v=20"></script>
+    <script src="js/app.js?v=20260722t"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({ duration: 800, once: true });
+        });
+    </script>
+
+    <div id="quickViewModal" class="quick-view-modal-overlay"></div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

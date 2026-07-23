@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <title>قيد المراجعة - BRAVO Store ⏳</title>
+    <meta name="description" content="طلبك قيد المراجعة - BRAVO Store">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <link rel="apple-touch-icon" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="shared/css/global.css?v=14">
+    <link rel="stylesheet" href="shared/css/toast.css?v=5">
+    <link rel="stylesheet" href="shared/css/header.css?v=22">
+    <link rel="stylesheet" href="shared/css/footer.css?v=14">
+    <link rel="stylesheet" href="shared/css/responsive.css?v=15">
+    <link rel="stylesheet" href="shared/css/components.css?v=14">
+    <link rel="stylesheet" href="css/pending.css?v=20260722g">
+</head>
+<body class="page-pending">
+    <canvas id="particles" aria-hidden="true"></canvas>
+    <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    <header role="banner">
+        <nav role="navigation" aria-label="Main Navigation">
+            <a href="index.html" class="logo" aria-label="BRAVO Home">
+                <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO Logo" class="logo-img" width="55" height="55">
+                <span class="logo-text">BRAVO</span>
+            </a>
+            <ul class="nav-menu" id="navMenu" role="menubar">
+                <li class="nav-menu-divider" role="separator"><span data-ar="الحساب" data-en="Account">الحساب</span></li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="Profile.html">
+                        <i class="fas fa-user"></i>
+                        <span data-ar="حسابي" data-en="My Account">حسابي</span>
+                    </a>
+                </li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="orders.html">
+                        <i class="fas fa-box"></i>
+                        <span data-ar="طلباتي" data-en="My Orders">طلباتي</span>
+                    </a>
+                </li>
+                <li class="nav-menu-divider" role="separator"><span data-ar="الصفحات" data-en="Pages">الصفحات</span></li>
+                <li role="none">
+                    <a href="index.html" role="menuitem">
+                        <i class="fas fa-house-chimney" aria-hidden="true"></i>
+                        <span data-ar="الرئيسية" data-en="Home">الرئيسية</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-wishlist" data-page="wishlist.html" style="display:none;">
+                    <a href="Wishlist.html" role="menuitem">
+                        <i class="fas fa-heart"></i>
+                        <span data-ar="المفضلة" data-en="Wishlist">المفضلة</span>
+                        <span class="action-badge" id="wishlistBadge">0</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-cart" data-page="cart.html" style="display:none;">
+                    <a href="cart.html" role="menuitem">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span data-ar="السلة" data-en="Cart">السلة</span>
+                        <span class="action-badge" id="cartBadge">0</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-checkout" data-page="checkout.html" style="display:none;">
+                    <a href="checkout.html" role="menuitem">
+                        <i class="fas fa-credit-card"></i>
+                        <span data-ar="الدفع" data-en="Checkout">الدفع</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-profile" data-page="profile.html" style="display:none;">
+                    <a href="Profile.html" role="menuitem">
+                        <i class="fas fa-user"></i>
+                        <span data-ar="حسابي" data-en="My Account">حسابي</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-orders" data-page="orders.html" style="display:none;">
+                    <a href="orders.html" role="menuitem">
+                        <i class="fas fa-box"></i>
+                        <span data-ar="طلباتي" data-en="My Orders">طلباتي</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="products.html" role="menuitem">
+                        <i class="fas fa-store" aria-hidden="true"></i>
+                        <span data-ar="المنتجات" data-en="Products">المنتجات</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="about.html" role="menuitem">
+                        <i class="fas fa-users-gear" aria-hidden="true"></i>
+                        <span data-ar="من نحن" data-en="About">من نحن</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="contact.html" role="menuitem">
+                        <i class="fas fa-headset" aria-hidden="true"></i>
+                        <span data-ar="تواصل معنا" data-en="Contact">تواصل معنا</span>
+                    </a>
+                </li>
+                <li class="nav-menu-divider" role="separator"><span data-ar="التسوق" data-en="Shopping">التسوق</span></li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="Wishlist.html">
+                        <i class="fas fa-heart"></i>
+                        <span data-ar="المفضلة" data-en="Wishlist">المفضلة</span>
+                        <span class="action-badge" id="wishlistBadgeMobile">0</span>
+                    </a>
+                </li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="cart.html">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span data-ar="السلة" data-en="Cart">السلة</span>
+                        <span class="action-badge" id="cartBadgeMobile">0</span>
+                    </a>
+                </li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="javascript:toggleDropdown('notificationsDropdown')">
+                        <i class="fas fa-bell"></i>
+                        <span data-ar="الإشعارات" data-en="Notifications">الإشعارات</span>
+                        <span class="action-badge" id="notificationsBadgeMobile">0</span>
+                    </a>
+                </li>
+                <!-- Mobile: language -->
+                <li class="nav-menu-divider" role="separator"><span data-ar="اللغة" data-en="Language">اللغة</span></li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="javascript:toggleLanguage()">
+                        <i class="fas fa-globe"></i>
+                        <span id="mobileLangText"><span class="flag-icon">🇪🇬</span> <span data-ar="العربية" data-en="English">العربية</span></span>
+                    </a>
+                </li>
+            </ul>
+            <div class="nav-actions">
+                
+                <div class="action-btn-wrapper">
+                    <button class="action-btn lang-switch" onclick="toggleLanguage()" aria-label="تبديل اللغة">
+                        <span id="langText">EN</span>
+                    </button>
+                    <span class="action-label" data-ar="اللغة" data-en="Language">اللغة</span>
+                </div>
+                <div class="action-btn-wrapper dropdown" id="notificationsDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('notificationsDropdown')" aria-label="الإشعارات" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell" aria-hidden="true"></i>
+                        <span class="action-badge" id="notificationsBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="الإشعارات" data-en="Notifications">الإشعارات</span>
+                    <div class="dropdown-menu" id="notificationsMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4><i class="fas fa-bell" aria-hidden="true"></i> <span data-ar="الإشعارات" data-en="Notifications">الإشعارات</span></h4>
+                        </div>
+                        <div class="dropdown-content" id="notificationsContent"></div>
+                        <div class="dropdown-footer">
+                            <button class="dropdown-btn" onclick="markAllAsRead()">
+                                <span data-ar="تعليم الكل كمقروء" data-en="Mark all as read">تعليم الكل كمقروء</span>
+                                <span class="emoji">✅</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-btn-wrapper dropdown" id="wishlistDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('wishlistDropdown')" aria-label="المفضلة" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-heart" aria-hidden="true"></i>
+                        <span class="action-badge" id="wishlistBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="المفضلة" data-en="Wishlist">المفضلة</span>
+                    <div class="dropdown-menu" id="wishlistMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4><i class="fas fa-heart" aria-hidden="true"></i> <span data-ar="المفضلة" data-en="Wishlist">المفضلة</span></h4>
+                        </div>
+                        <div class="dropdown-content" id="wishlistContent"></div>
+                        <div class="dropdown-footer">
+                            <a href="wishlist.html" class="dropdown-btn">
+                                <span data-ar="عرض الكل" data-en="View All">عرض الكل</span>
+                                <span class="emoji">❤️</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-btn-wrapper dropdown" id="cartDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('cartDropdown')" aria-label="سلة التسوق" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        <span class="action-badge" id="cartBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="السلة" data-en="Cart">السلة</span>
+                    <div class="dropdown-menu" id="cartMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4><i class="fas fa-shopping-cart" aria-hidden="true"></i> <span data-ar="السلة" data-en="Cart">السلة</span></h4>
+                        </div>
+                        <div class="dropdown-content" id="cartContent"></div>
+                        <div class="dropdown-footer">
+                            <a href="checkout.html" class="dropdown-btn">
+                                <span data-ar="إتمام الشراء" data-en="Checkout">إتمام الشراء</span>
+                                <span class="emoji">💳</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-btn-wrapper dropdown" id="userDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('userDropdown')" aria-label="حسابي" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                    </button>
+                    <span class="action-label" data-ar="حسابي" data-en="Account">حسابي</span>
+                    <div class="dropdown-menu" id="userMenu" role="menu">
+                        <div class="user-info" id="userInfo">
+                            <div class="user-avatar" id="userAvatar"><i class="fas fa-user" aria-hidden="true"></i></div>
+                            <div class="user-details">
+                                <h4 id="userName" data-ar="زائر" data-en="Guest">زائر</h4>
+                                <p id="userEmail" data-ar="سجل الدخول للمتابعة" data-en="Login to continue">سجل الدخول للمتابعة</p>
+                            </div>
+                        </div>
+                        <div class="user-menu-content" id="guestMenuContent">
+                            <a href="auth.html" class="user-menu-item"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> <span data-ar="تسجيل الدخول" data-en="Login">تسجيل الدخول</span></a>
+                            <a href="auth.html?mode=register" class="user-menu-item"><i class="fas fa-user-plus" aria-hidden="true"></i> <span data-ar="إنشاء حساب جديد" data-en="Create Account">إنشاء حساب جديد</span></a>
+                        </div>
+                        <div class="user-menu-content" id="loggedInMenuContent" style="display: none;"></div>
+                        <div class="dropdown-footer" id="logoutSection" style="display: none;">
+                            <button class="dropdown-btn logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> <span data-ar="تسجيل الخروج" data-en="Logout">تسجيل الخروج</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-btn-wrapper">
+                    <button class="action-btn mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
+                        <i class="fas fa-bars" id="mobileMenuIcon" aria-hidden="true"></i>
+                    </button>
+                    <span class="action-label" data-ar="القائمة" data-en="Menu">القائمة</span>
+                </div>
+                <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;" aria-label="لوحة التحكم">
+                    <i class="fas fa-user-shield" aria-hidden="true"></i>
+                    <span data-ar="لوحة التحكم" data-en="Admin">لوحة التحكم</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="pending-breadcrumb breadcrumb reveal">
+        <a href="index.html"><i class="fas fa-home home-icon"></i> <span data-ar="الرئيسية" data-en="Home">الرئيسية</span></a>
+        <i class="fas fa-chevron-left chevron"></i>
+        <a href="orders.html"><span data-ar="طلباتي" data-en="My Orders">طلباتي</span></a>
+        <i class="fas fa-chevron-left chevron"></i>
+        <span class="current" data-ar="قيد المراجعة" data-en="Pending">قيد المراجعة</span>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="image-modal" id="imageModal" onclick="closeImageModal()">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content-img" id="modalImage">
+    </div>
+
+    <div class="pending-container" data-reveal="fadeInUp">
+        <div class="pending-icon">
+            <div class="spinner"></div>
+            <i class="fas fa-clock"></i>
+        </div>
+
+        <h1 id="mainTitle">طلبك قيد المراجعة <span class="pending-title-icon">⏳</span></h1>
+        <p class="message" id="mainMessage">
+            شكراً لك! تم استلام طلبك بنجاح. نحن نراجع معلومات الدفع الآن وسنقوم بتأكيد طلبك خلال دقائق.
+        </p>
+
+        <!-- Countdown Timer -->
+        <div class="pending-countdown" id="countdownTimer">
+            <span id="countdownText">خلال 24 ساعة اقصي وقت</span>
+            <i class="fas fa-hourglass-half"></i>
+        </div>
+
+        <div class="order-info" id="orderInfo">
+            <h3>معلومات الطلب <i class="fas fa-receipt"></i></h3>
+            <div id="orderDetails"></div>
+        </div>
+
+        <!-- Admin Note -->
+        <div class="pending-note" id="adminNoteBox" style="display:none;">
+            <i class="fas fa-sticky-note"></i>
+            <div>
+                <strong>ملاحظة المشرف:</strong>
+                <p id="adminNoteText"></p>
+            </div>
+        </div>
+
+        <!-- Rejection Contact Box (shown when rejected) -->
+        <div class="rejection-box" id="rejectionBox" style="display:none;">
+            <div class="rejection-icon">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <h2>تم رفض الطلب ❌</h2>
+            <p id="rejectionReason">يرجى التواصل مع الدعم الفني لمعرفة سبب الرفض</p>
+            <a href="https://wa.me/201012853829" class="btn btn-whatsapp rejection-wa-btn" target="_blank">
+                تواصل مع الدعم <i class="fab fa-whatsapp"></i>
+            </a>
+        </div>
+
+        <div class="status-steps" id="statusSteps">
+            <div class="status-progress-line" id="statusProgressLine"></div>
+            <div class="step completed" id="step1">
+                <div class="step-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="step-content">
+                    <div class="step-title">تم إرسال الطلب ✅</div>
+                    <div class="step-description">تم استلام طلبك وبياناتك بنجاح</div>
+                </div>
+            </div>
+            <div class="step active" id="step2">
+                <div class="step-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="step-content">
+                    <div class="step-title" id="step2Title">جاري التحقق من الدفع 🔍</div>
+                    <div class="step-description" id="step2Desc">نحن نراجع معلومات الدفع وإيصال التحويل الآن...</div>
+                </div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-icon" id="step3Icon">
+                    <i class="fas fa-download"></i>
+                </div>
+                <div class="step-content">
+                    <div class="step-title" id="step3Title">في انتظار التأكيد 📥</div>
+                    <div class="step-description" id="step3Desc">بعد تأكيد الدفع سيظهر رابط التحميل</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Section (shown when confirmed) -->
+        <div class="download-section" id="downloadSection" style="display:none;">
+            <div class="download-icon">
+                <i class="fas fa-download"></i>
+            </div>
+            <h2>تم تأكيد طلبك! ✅</h2>
+            <p>يمكنك الآن تحميل المنتج من الرابط أدناه</p>
+            <a href="#" id="downloadLink" class="btn btn-primary download-btn" target="_blank">
+                تحميل المنتج <i class="fas fa-download"></i>
+            </a>
+            <p class="download-hint">سيظل رابط التحميل متاحاً في صفحة <a href="orders.html">طلباتي</a> أيضاً</p>
+        </div>
+
+        <div class="estimated-time">
+            <strong>الوقت المتوقع للتأكيد:</strong> 5-15 دقيقة (حسب طريقة الدفع)
+            <i class="fas fa-hourglass-half"></i>
+        </div>
+
+        <div class="refresh-notice">
+            <strong>تحديث تلقائي كل 10 ثوانٍ</strong> أو اضغط "تحديث الحالة"
+            <i class="fas fa-sync-alt"></i>
+        </div>
+
+        <div class="action-buttons" data-reveal="fadeInUp">
+            <button class="btn btn-primary" onclick="checkStatus()" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> <span>تحديث الحالة</span>
+            </button>
+            <a href="https://wa.me/201012853829" class="btn btn-whatsapp" target="_blank">
+                <i class="fab fa-whatsapp"></i> <span>الواتساب</span>
+            </a>
+            <a href="orders.html" class="btn btn-primary">
+                <i class="fas fa-box"></i> <span>كل طلباتي</span>
+            </a>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO">
+                        <span>BRAVO</span>
+                    </div>
+                    <p data-ar="متجر BRAVO لتعليم صناعة المنظفات ومستحضرات التجميل والعطور" data-en="The #1 Digital Store">متجر BRAVO لتعليم صناعة المنظفات ومستحضرات التجميل والعطور</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="روابط سريعة" data-en="Quick Links">روابط سريعة</h4>
+                    <ul>
+                        <li><a href="index.html"><i class="fas fa-angle-left"></i> <span data-ar="الرئيسية" data-en="Home">الرئيسية</span></a></li>
+                        <li><a href="products.html"><i class="fas fa-angle-left"></i> <span data-ar="المنتجات" data-en="Products">المنتجات</span></a></li>
+                        <li><a href="about.html"><i class="fas fa-angle-left"></i> <span data-ar="من نحن" data-en="About">من نحن</span></a></li>
+                        <li><a href="contact.html"><i class="fas fa-angle-left"></i> <span data-ar="تواصل معنا" data-en="Contact">تواصل معنا</span></a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="أقسام المتجر" data-en="Categories">أقسام المتجر</h4>
+                    <ul>
+                        <li><a href="products.html?cat=books"><span class="emoji">📚</span> <span data-ar="كتب" data-en="Books">كتب</span></a></li>
+                        <li><a href="products.html?cat=software"><span class="emoji">💻</span> <span data-ar="برامج" data-en="Software">برامج</span></a></li>
+                        <li><a href="products.html?cat=formulas"><span class="emoji">🧪</span> <span data-ar="تركيبات" data-en="Formulas">تركيبات</span></a></li>
+                        <li><a href="products.html?cat=courses"><span class="emoji">🎓</span> <span data-ar="كورسات" data-en="Courses">كورسات</span></a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="تواصل" data-en="Contact">تواصل</h4>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-phone"></i> <span dir="ltr">+20 101 285 3829</span></li>
+                        <li><i class="fas fa-envelope"></i> info@bravo.com</li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span data-ar="الجيزة، مصر" data-en="Cairo, Egypt">الجيزة، مصر</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 BRAVO Store. <span data-ar="جميع الحقوق محفوظة" data-en="All rights reserved">جميع الحقوق محفوظة</span>.</p>
+                <div class="payment-methods">
+                    <i class="fas fa-credit-card"></i>
+                    <i class="fab fa-cc-paypal"></i>
+                    <i class="fab fa-bitcoin"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="versionMarker" style="position:fixed;bottom:4px;right:4px;font-size:10px;color:rgba(255,255,255,0.2);z-index:99999;pointer-events:none;direction:ltr">pending_v20260722j</div>
+    <!-- Firebase + Order Logic (runs after app.js initializes) -->
+    <script>
+    console.log('[Pending] Script loaded, registering DOMContentLoaded');
+    // Wait for DOMContentLoaded + firebaseReady, then load order
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('[Pending] DOMContentLoaded fired');
+        var orderId = new URLSearchParams(window.location.search).get('order') || sessionStorage.getItem('lastOrderId');
+        console.log('[Pending] orderId =', orderId);
+        console.log('[Pending] window.location.search =', window.location.search);
+        console.log('[Pending] sessionStorage.lastOrderId =', sessionStorage.getItem('lastOrderId'));
+        console.log('[Pending] firebaseAuthReady =', window.firebaseAuthReady);
+        console.log('[Pending] window.database =', !!window.database);
+        window._pendingOrderId = orderId;
+        if (!orderId) {
+            document.querySelector('.pending-container').innerHTML =
+                '<div style="text-align:center;padding:60px 20px"><i class="fas fa-exclamation-triangle" style="font-size:5em;color:var(--warning);margin-bottom:30px"></i><h2 style="font-size:2.5em;margin-bottom:20px">⚠️ لا يوجد طلب</h2><p style="font-size:1.3em;opacity:0.8;margin-bottom:40px">لم نتمكن من العثور على رقم الطلب.</p><a href="index.html" class="btn btn-primary" style="display:inline-flex"><i class="fas fa-home"></i> العودة للمتجر</a></div>';
+            return;
+        }
+        var ov = document.getElementById('loadingOverlay');
+        if (ov) ov.style.display = 'none';
+        // Try localStorage immediately
+        var found = loadLocalOrder(orderId);
+        console.log('[Pending] loadLocalOrder result:', found);
+        // Then Firebase when ready
+        waitFirebase(function() {
+            console.log('[Pending] Firebase ready, calling loadFirebaseOrder');
+            loadFirebaseOrder(orderId);
+            setupRealtimeOrder(orderId);
+        });
+        setInterval(function() { var f = loadLocalOrder(orderId); }, 10000);
+    });
+    window.addEventListener('error', function(e) {
+        console.error('[Pending GLOBAL ERROR]', e.message, e.filename, e.lineno);
+    });
+
+    function waitFirebase(cb) {
+        if (window.firebaseAuthReady && window.database) { cb(); return; }
+        var check = function() { if (window.firebaseAuthReady && window.database) { cb(); return; } setTimeout(check, 200); };
+        setTimeout(check, 200);
+    }
+
+    function getFromLocalStorage(path) {
+        try {
+            var data = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+            var parts = path.split('/');
+            for (var i = 0; i < parts.length; i++) { if (data && data[parts[i]] !== undefined) data = data[parts[i]]; else { /*console.log('[Pending] LS miss at', parts[i]);*/ return null; } }
+            return data;
+        } catch(e) { console.warn('[Pending] LS read error:', e); return null; }
+    }
+
+    function loadLocalOrder(orderId) {
+        console.log('[Pending] loadLocalOrder for', orderId);
+        var order = getFromLocalStorage('orders/' + orderId);
+        console.log('[Pending] localStorage order found:', !!order);
+        if (order) { console.log('[Pending] displaying from localStorage'); displayOrderDetails(order); updateStatus(order); return true; }
+        return false;
+    }
+
+    async function loadFirebaseOrder(orderId) {
+        console.log('[Pending] loadFirebaseOrder for', orderId);
+        console.log('[Pending] window.firebaseGet:', typeof window.firebaseGet, 'window.firebaseRef:', typeof window.firebaseRef, 'window.database:', typeof window.database);
+        try {
+            var snap = await window.firebaseGet(window.firebaseRef(window.database, 'orders/' + orderId));
+            var exists = snap.exists();
+            console.log('[Pending] Firebase snapshot exists:', exists);
+            if (exists) { var order = snap.val(); console.log('[Pending] Firebase order loaded, status:', order.status); displayOrderDetails(order); updateStatus(order); return true; }
+        } catch(e) { console.warn('[Pending] Firebase read failed:', e); }
+        return false;
+    }
+
+    function setupRealtimeOrder(orderId) {
+        console.log('[Pending] setting up realtime listener for', orderId);
+        try {
+            window.firebaseOnValue(window.firebaseRef(window.database, 'orders/' + orderId), function(snapshot) {
+                if (snapshot.exists()) { var order = snapshot.val(); console.log('[Pending] realtime update, status:', order.status); displayOrderDetails(order); updateStatus(order); }
+            });
+        } catch(e) { console.warn('[Pending] realtime setup error:', e); }
+    }
+
+    window.checkStatus = function() {
+        var oid = window._pendingOrderId, btn = document.getElementById('refreshBtn');
+        console.log('[Pending] checkStatus clicked, oid:', oid);
+        var orig = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>جاري التحديث...</span>';
+        (async function() {
+            try {
+                var localOk = loadLocalOrder(oid);
+                console.log('[Pending] checkStatus localOk:', localOk);
+                if (!localOk) await loadFirebaseOrder(oid);
+                setTimeout(function() { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> <span>تم التحديث!</span>'; setTimeout(function() { btn.innerHTML = orig; }, 2000); }, 1000);
+            } catch(e) { console.warn('[Pending] checkStatus error:', e); btn.disabled = false; btn.innerHTML = '<i class="fas fa-times"></i> <span>فشل التحديث</span>'; setTimeout(function() { btn.innerHTML = orig; }, 2000); }
+        })();
+    };
+
+    window.copyOrderId = function(orderId) {
+        navigator.clipboard.writeText(orderId).then(function() {
+            var el = document.querySelector('.order-id');
+            if (el) { el.textContent = '✅ تم النسخ!'; el.style.background = 'linear-gradient(135deg, #10b981, #059669)'; setTimeout(function() { el.textContent = '#' + orderId; el.style.background = ''; }, 2000); }
+        });
+    };
+
+    function displayOrderDetails(order) {
+        var labels = { pending: 'قيد المراجعة', confirmed: 'مؤكد ✅', rejected: 'مرفوض ❌', suspended: 'معلق 🟣', trashed: 'معلق ⏸️' };
+        var sc = order.status || 'pending', st = labels[sc] || 'قيد المراجعة';
+        var html = '<div class="order-id" onclick="copyOrderId(\'' + (order.orderId||'') + '\')" title="اضغط للنسخ">#' + (order.orderId||'N/A') + '</div>' +
+            '<div class="info-row"><span class="info-label"><i class="fas fa-money-bill-wave"></i> المبلغ:</span><span class="info-value">' + (order.price||0) + ' ' + (order.currency||'') + '</span></div>' +
+            '<div class="info-row"><span class="info-label"><i class="fas fa-credit-card"></i> طريقة الدفع:</span><span class="info-value">' + (order.paymentMethodName||order.paymentMethod||'غير محدد') + '</span></div>' +
+            '<div class="info-row"><span class="info-label"><i class="fas fa-user"></i> الاسم:</span><span class="info-value">' + (order.customerName||'غير محدد') + '</span></div>' +
+            '<div class="info-row"><span class="info-label"><i class="fas fa-envelope"></i> البريد:</span><span class="info-value">' + (order.customerEmail||'غير محدد') + '</span></div>' +
+            '<div class="info-row"><span class="info-label"><i class="fas fa-phone"></i> الهاتف:</span><span class="info-value" dir="ltr">' + (order.customerPhone||'غير محدد') + '</span></div>' +
+            '<div class="info-row"><span class="info-label"><i class="fas fa-calendar"></i> التاريخ:</span><span class="info-value">' + (order.orderDateReadable||'غير محدد') + '</span></div>' +
+            '<div class="info-row"><span class="info-label"><i class="fas fa-info-circle"></i> الحالة:</span><span class="info-value"><span class="status-badge ' + sc + '">' + st + '</span></span></div>';
+
+        // Show ALL products
+        html += '<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1)">';
+        if (order.items && typeof order.items === 'object') {
+            var itemKeys = Object.keys(order.items).filter(function(k) { return order.items[k] && order.items[k].title; });
+            var itemsCount = itemKeys.length;
+            if (itemsCount > 0) {
+                var catEmojis = { books: '\u{1F4DA}', software: '\u{1F4BB}', formulas: '\u{1F9EA}', courses: '\u{1F393}' };
+                var pTotalQty = 0;
+                html += '<div class="info-row"><span class="info-label"><i class="fas fa-box"></i> المنتجات:</span><span class="info-value" style="white-space:normal;line-height:1.6">';
+                var lines = itemKeys.map(function(k) {
+                    var item = order.items[k];
+                    var qty = item.quantity || 1;
+                    pTotalQty += qty;
+                    var cat = item.category || '';
+                    var ce = catEmojis[cat] || '';
+                    return (item.title||'') + ' <span style="color:#9333ea;font-size:0.85em">\u00D7' + qty + '</span>' + (ce ? ' <span style="color:rgba(255,255,255,0.4);font-size:0.8em">' + ce + ' ' + cat + '</span>' : '');
+                });
+                html += lines.join('<br>');
+                html += '<br><span style="color:#9333ea;font-weight:900;font-size:0.85em">' + itemsCount + ' منتجات | الكمية: ' + pTotalQty + '</span>';
+                html += '</span></div>';
+            } else {
+                html += '<div class="info-row"><span class="info-label"><i class="fas fa-box"></i> المنتجات:</span><span class="info-value">' + (order.productTitle||'غير محدد') + '</span></div>';
+            }
+        } else {
+            html += '<div class="info-row"><span class="info-label"><i class="fas fa-box"></i> المنتجات:</span><span class="info-value">' + (order.productTitle||'غير محدد') + '</span></div>';
+        }
+        html += '</div>';
+
+        // Receipt image only
+        if (order.receiptImageUrl) {
+            html += '<div class="receipt-preview" style="margin-top:12px"><h4><i class="fas fa-image"></i> صورة الإيصال</h4><div class="preview-images-row">';
+            html += '<div class="preview-img-col"><img src="' + order.receiptImageUrl + '" alt="صورة الإيصال" class="receipt-image" onclick="openImageModal(\'' + order.receiptImageUrl.replace(/'/g, "\\'") + '\')"></div>';
+            html += '</div></div>';
+        }
+        document.getElementById('orderDetails').innerHTML = html;
+        if (order.adminNote) { document.getElementById('adminNoteText').textContent = order.adminNote; document.getElementById('adminNoteBox').style.display = 'flex'; }
+    }
+
+    function updateStatus(order) {
+        var status = order.status || 'pending';
+        var container = document.querySelector('.pending-container');
+        var step2 = document.getElementById('step2'), step3 = document.getElementById('step3');
+        var icon = document.querySelector('.pending-icon i'), iconContainer = document.querySelector('.pending-icon');
+        var step3Icon = document.getElementById('step3Icon'), step3Title = document.getElementById('step3Title'), step3Desc = document.getElementById('step3Desc');
+        var step2Title = document.getElementById('step2Title'), step2Desc = document.getElementById('step2Desc');
+        var progressLine = document.getElementById('statusProgressLine');
+        step2.className = 'step'; step3.className = 'step'; var prog = '';
+        if (container) { container.classList.remove('confirmed', 'rejected', 'suspended'); }
+        // Reset spinner fallback borders (will be overridden for confirmed)
+        var sp = document.querySelector('.spinner');
+        if (sp && status !== 'confirmed') { sp.style.borderColor = ''; sp.style.borderTopColor = ''; sp.style.borderRightColor = ''; sp.style.borderBottomColor = ''; }
+        document.getElementById('downloadSection').style.display = 'none';
+        document.getElementById('rejectionBox').style.display = 'none';
+
+        if (status === 'confirmed') {
+            if (container) container.classList.add('confirmed');
+            if (window._iconAnimId) { clearInterval(window._iconAnimId); window._iconAnimId = null; }
+            if (icon) icon.style.transform = '';
+            // Spinner JS rotation keeps running (never cleared) — just update colors
+            var sp = document.querySelector('.spinner');
+            if (sp) { sp.style.borderColor = 'rgba(16,185,129,0.2)'; sp.style.borderTopColor = '#10b981'; sp.style.borderRightColor = 'rgba(16,185,129,0.5)'; sp.style.borderBottomColor = 'rgba(16,185,129,0.4)'; }
+            step2.classList.add('completed'); step2Title.textContent = 'تمت المراجعة'; step2Desc.textContent = 'تم التحقق من الدفع';
+            step3.classList.add('completed');
+            if (step3Icon) { step3Icon.innerHTML = '<i class="fas fa-check-circle"></i>'; step3Icon.style.background = '#047857'; }
+            step3Title.textContent = 'تم تأكيد الطلب ✅'; step3Desc.textContent = 'طلبك مؤكد وجاهز للتحميل';
+            document.getElementById('mainTitle').innerHTML = 'تم تأكيد طلبك! <span class="pending-title-icon">✅</span>';
+            document.getElementById('mainMessage').textContent = 'رائع! تم تأكيد دفعتك بنجاح. يمكنك الآن تحميل المنتج.';
+            if (icon) icon.className = 'fas fa-check-circle';
+            if (iconContainer) iconContainer.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            var ds = document.getElementById('downloadSection');
+            if (ds) { ds.style.display = 'block'; var dl = document.getElementById('downloadLink'); if (dl && order.downloadLink) dl.href = order.downloadLink; }
+            document.getElementById('countdownTimer').style.display = 'none';
+            prog = 'confirmed';
+        } else if (status === 'rejected') {
+            if (container) container.classList.add('rejected');
+            step2.classList.add('completed'); step2Title.textContent = 'تمت المراجعة'; step2Desc.textContent = 'تم التحقق من الدفع';
+            step3.classList.add('rejected');
+            if (step3Icon) { step3Icon.innerHTML = '<i class="fas fa-times-circle"></i>'; step3Icon.style.background = '#dc2626'; }
+            step3Title.textContent = 'تم الرفض ❌'; step3Desc.textContent = 'يرجى التواصل مع الدعم';
+            document.getElementById('mainTitle').innerHTML = 'تم رفض الطلب <span class="pending-title-icon">❌</span>';
+            document.getElementById('mainMessage').textContent = 'عذراً، لم نتمكن من تأكيد الدفع. يرجى التواصل معنا للمزيد من التفاصيل.';
+            if (icon) icon.className = 'fas fa-times-circle';
+            if (iconContainer) iconContainer.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+            document.getElementById('countdownTimer').style.display = 'none';
+            document.getElementById('rejectionBox').style.display = 'block';
+            document.getElementById('rejectionReason').textContent = order.adminNote || 'لم يتم تحديد سبب الرفض. يرجى التواصل مع الدعم الفني.';
+            prog = 'rejected';
+        } else if (status === 'suspended' || status === 'trashed') {
+            if (container) container.classList.add('suspended');
+            step2.classList.add('completed'); step2Title.textContent = 'تمت المراجعة'; step2Desc.textContent = 'تم التحقق من الدفع';
+            step3.classList.add('suspended');
+            if (step3Icon) { step3Icon.innerHTML = '<i class="fas fa-pause-circle"></i>'; step3Icon.style.background = '#8b5cf6'; }
+            step3Title.textContent = 'الطلب معلق 🟣'; step3Desc.textContent = 'الطلب قيد المراجعة الإضافية. يرجى التواصل مع الدعم.';
+            document.getElementById('mainTitle').innerHTML = 'الطلب معلق <span class="pending-title-icon">⏸️</span>';
+            document.getElementById('mainMessage').textContent = 'طلبك معلق حالياً للمراجعة. يرجى التواصل معنا للمزيد من التفاصيل.';
+            if (icon) icon.className = 'fas fa-pause-circle';
+            if (iconContainer) iconContainer.style.background = 'linear-gradient(135deg, #8b5cf6, #6d28d9)';
+            document.getElementById('countdownTimer').style.display = 'none';
+            prog = 'suspended';
+        } else {
+            step2.classList.add('active');
+        }
+        progressLine.className = 'status-progress-line ' + prog;
+    }
+
+    function showErrorState() {
+        document.getElementById('mainTitle').textContent = '⚠️ تعذر تحميل بيانات الطلب';
+        document.getElementById('mainMessage').textContent = 'يرجى المحاولة مرة أخرى أو التواصل مع الدعم الفني';
+        document.getElementById('orderDetails').innerHTML =
+            '<div style="text-align:center;padding:30px 16px"><i class="fas fa-exclamation-triangle" style="font-size:3em;color:var(--warning);margin-bottom:14px"></i><h3 style="font-size:1.3em;margin-bottom:10px">⚠️ خطأ في تحميل البيانات</h3><p style="opacity:0.8;font-size:0.9em;margin-bottom:16px">لم نتمكن من تحميل تفاصيل الطلب. يرجى المحاولة مرة أخرى.</p><button onclick="checkStatus()" class="btn btn-primary" style="padding:10px 22px;font-size:0.9em;border-radius:12px"><i class="fas fa-sync-alt"></i> إعادة المحاولة</button></div>';
+    }
+    </script>
+
+    <script>
+        window.openImageModal = function(src) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.classList.add('active');
+            modalImg.src = src;
+        };
+        window.closeImageModal = function() {
+            document.getElementById('imageModal').classList.remove('active');
+        };
+
+        // Particles animation
+        const canvas = document.getElementById('particles');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const particles = [];
+            const particleCount = window.innerWidth < 768 ? 30 : 60;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 2 + 1,
+                    speedX: Math.random() * 0.5 - 0.25,
+                    speedY: Math.random() * 0.5 - 0.25,
+                    opacity: Math.random() * 0.5 + 0.2
+                });
+            }
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.speedX;
+                    p.y += p.speedY;
+                    if (p.x > canvas.width) p.x = 0;
+                    if (p.x < 0) p.x = canvas.width;
+                    if (p.y > canvas.height) p.y = 0;
+                    if (p.y < 0) p.y = canvas.height;
+                    ctx.fillStyle = `rgba(147, 51, 234, ${p.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+    </script>
+    <script src="js/include.js?v=20"></script>
+    <script src="js/app.js?v=20260722t"></script>
+    <script>
+        // JS spinner rotation (guaranteed — NEVER stops, even on confirmed)
+        try {
+            (function() {
+                var sp = document.querySelector('.spinner');
+                if (sp) {
+                    sp.style.transition = 'none';
+                    var rot = 0;
+                    setInterval(function() {
+                        rot = (rot + 6) % 360;
+                        sp.style.transform = 'rotate(' + rot + 'deg)';
+                    }, 16);
+                }
+            })();
+        } catch(e) {};
+        // JS-based icon bounce animation fallback (cleared on confirmed)
+        try {
+            (function() {
+                var icon = document.querySelector('.pending-icon i');
+                var container = document.querySelector('.pending-icon');
+                if (icon && container) {
+                    var direction = 1;
+                    icon.style.transition = 'none';
+                    var id = setInterval(function() {
+                        var y = parseFloat(icon.dataset.bounceY) || 0;
+                        if (y > 7) direction = -1;
+                        if (y < 0) direction = 1;
+                        y += direction * 0.6;
+                        icon.dataset.bounceY = y;
+                        icon.style.transform = 'translateY(' + y + 'px) scale(1.02)';
+                        container.style.boxShadow = '0 ' + (15 + y) + 'px ' + (40 + y * 3) + 'px rgba(245,158,11,0.' + Math.floor(4 + y * 0.5) + ')';
+                    }, 30);
+                    window._iconAnimId = id;
+                }
+            })();
+        } catch(e) {};
+    </script>
+</body>
+</html>

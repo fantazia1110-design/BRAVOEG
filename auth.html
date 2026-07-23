@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-ar="BRAVO | تسجيل الدخول" data-en="BRAVO | Login" data-fr="BRAVO | Connexion">BRAVO | تسجيل الدخول</title>
+    <meta name="title" data-ar="BRAVO | تسجيل الدخول" data-en="BRAVO | Login" data-fr="BRAVO | Connexion" content="BRAVO | تسجيل الدخول">
+    <meta name="description" data-ar="سجل دخولك في BRAVO Store بحساب Google أو Facebook بضغطة واحدة" data-en="Log in to BRAVO Store with Google or Facebook in one click" data-fr="Connectez-vous à BRAVO Store avec Google ou Facebook en un clic" content="سجل دخولك في BRAVO Store بحساب Google أو Facebook بضغطة واحدة">
+    <meta name="keywords" content="تسجيل دخول, BRAVO Store, Google, Facebook">
+    <meta name="author" content="BRAVO Team">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Arabic">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="BRAVO">
+    <meta property="og:url" content="https://yoursite.com/auth.html">
+    <meta property="og:title" content="BRAVO | تسجيل الدخول">
+    <meta property="og:description" content="سجل دخولك بضغطة واحدة عبر Google أو Facebook">
+    <meta property="og:image" content="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <meta property="og:locale" content="ar_AR">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <meta name="theme-color" content="#9333ea">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="shared/css/global.css?v=14">
+    <link rel="stylesheet" href="shared/css/toast.css?v=5">
+    <link rel="stylesheet" href="shared/css/header.css?v=22">
+    <link rel="stylesheet" href="shared/css/footer.css?v=14">
+    <link rel="stylesheet" href="shared/css/responsive.css?v=15">
+    <link rel="stylesheet" href="shared/css/components.css?v=14">
+    <link rel="stylesheet" href="css/auth.css?v=14">
+    <style>
+        @keyframes _logoPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.3; }
+            50% { transform: translate(-50%, -50%) scale(1.6); opacity: 1; }
+        }
+        @keyframes _logoFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-25px) rotate(-5deg); }
+            50% { transform: translateY(-8px) rotate(0deg); }
+            75% { transform: translateY(-25px) rotate(5deg); }
+        }
+        @keyframes _titleShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .auth-page .logo-section::before {
+            width: 200px !important;
+            height: 200px !important;
+            animation: _logoPulse 3s ease-in-out infinite !important;
+        }
+        .auth-page .logo-section img {
+            width: 160px !important;
+            height: 160px !important;
+            margin-bottom: 5px !important;
+            animation: _logoFloat 4s ease-in-out infinite !important;
+        }
+        .auth-page .logo-section h1 {
+            animation: _titleShift 4s ease-in-out infinite !important;
+            background-size: 300% 100% !important;
+        }
+    </style>
+</head>
+<body class="auth-page">
+
+    <canvas id="particles" aria-hidden="true"></canvas>
+    <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    <header role="banner">
+        <nav role="navigation" aria-label="Main Navigation">
+            <a href="index.html" class="logo" aria-label="BRAVO Home">
+                <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO Logo" class="logo-img" width="55" height="55">
+                <span class="logo-text">BRAVO</span>
+            </a>
+            <ul class="nav-menu" id="navMenu" role="menubar">
+                <li class="nav-menu-divider" role="separator"><span data-ar="الحساب" data-en="Account" data-fr="Compte">الحساب</span></li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="Profile.html">
+                        <i class="fas fa-user"></i>
+                        <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
+                    </a>
+                </li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="orders.html">
+                        <i class="fas fa-box"></i>
+                        <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+                    </a>
+                </li>
+                <li class="nav-menu-divider" role="separator"><span data-ar="الصفحات" data-en="Pages" data-fr="Pages">الصفحات</span></li>
+                <li role="none">
+                    <a href="index.html" role="menuitem">
+                        <i class="fas fa-house-chimney" aria-hidden="true"></i>
+                        <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-wishlist" data-page="wishlist.html" style="display:none;">
+                    <a href="Wishlist.html" role="menuitem">
+                        <i class="fas fa-heart"></i>
+                        <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                        <span class="action-badge" id="wishlistBadge">0</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-cart" data-page="cart.html" style="display:none;">
+                    <a href="cart.html" role="menuitem">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                        <span class="action-badge" id="cartBadge">0</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-checkout" data-page="checkout.html" style="display:none;">
+                    <a href="checkout.html" role="menuitem">
+                        <i class="fas fa-credit-card"></i>
+                        <span data-ar="الدفع" data-en="Checkout" data-fr="Paiement">الدفع</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-profile" data-page="profile.html" style="display:none;">
+                    <a href="Profile.html" role="menuitem">
+                        <i class="fas fa-user"></i>
+                        <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-orders" data-page="orders.html" style="display:none;">
+                    <a href="orders.html" role="menuitem">
+                        <i class="fas fa-box"></i>
+                        <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="products.html" role="menuitem">
+                        <i class="fas fa-store" aria-hidden="true"></i>
+                        <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="about.html" role="menuitem">
+                        <i class="fas fa-users-gear" aria-hidden="true"></i>
+                        <span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span>
+                    </a>
+                </li>
+                <li role="none">
+                    <a href="contact.html" role="menuitem">
+                        <i class="fas fa-headset" aria-hidden="true"></i>
+                        <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span>
+                    </a>
+                </li>
+                <li class="nav-menu-divider" role="separator"><span data-ar="التسوق" data-en="Shopping" data-fr="Achats">التسوق</span></li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="Wishlist.html">
+                        <i class="fas fa-heart"></i>
+                        <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                        <span class="action-badge" id="wishlistBadgeMobile">0</span>
+                    </a>
+                </li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="cart.html">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                        <span class="action-badge" id="cartBadgeMobile">0</span>
+                    </a>
+                </li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="javascript:toggleDropdown('notificationsDropdown')">
+                        <i class="fas fa-bell"></i>
+                        <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                        <span class="action-badge" id="notificationsBadgeMobile">0</span>
+                    </a>
+                </li>
+                <!-- Mobile: language -->
+                <li class="nav-menu-divider" role="separator"><span data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span></li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="javascript:toggleLanguage()">
+                        <i class="fas fa-globe"></i>
+                        <span id="mobileLangText"><span class="flag-icon">🇪🇬</span> <span data-ar="العربية" data-en="English" data-fr="Français">العربية</span></span>
+                    </a>
+                </li>
+            </ul>
+            <div class="nav-actions">
+                
+                <div class="action-btn-wrapper">
+                    <button class="action-btn lang-switch" onclick="toggleLanguage()" aria-label="تبديل اللغة">
+                        <span id="langText">EN</span>
+                    </button>
+                    <span class="action-label" data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span>
+                </div>
+                <div class="action-btn-wrapper dropdown" id="notificationsDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('notificationsDropdown')" aria-label="الإشعارات" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell" aria-hidden="true"></i>
+                        <span class="action-badge" id="notificationsBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                    <div class="dropdown-menu" id="notificationsMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4><i class="fas fa-bell" aria-hidden="true"></i> <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span></h4>
+                        </div>
+                        <div class="dropdown-content" id="notificationsContent"></div>
+                        <div class="dropdown-footer">
+                            <button class="dropdown-btn" onclick="markAllAsRead()">
+                                <span data-ar="تعليم الكل كمقروء" data-en="Mark all as read" data-fr="Tout lire">تعليم الكل كمقروء</span>
+                                <span class="emoji">✅</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-btn-wrapper dropdown" id="wishlistDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('wishlistDropdown')" aria-label="المفضلة" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-heart" aria-hidden="true"></i>
+                        <span class="action-badge" id="wishlistBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                    <div class="dropdown-menu" id="wishlistMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4><i class="fas fa-heart" aria-hidden="true"></i> <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span></h4>
+                        </div>
+                        <div class="dropdown-content" id="wishlistContent"></div>
+                        <div class="dropdown-footer">
+                            <a href="wishlist.html" class="dropdown-btn">
+                                <span data-ar="عرض الكل" data-en="View All" data-fr="Voir tout">عرض الكل</span>
+                                <span class="emoji">❤️</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-btn-wrapper dropdown" id="cartDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('cartDropdown')" aria-label="سلة التسوق" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        <span class="action-badge" id="cartBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                    <div class="dropdown-menu" id="cartMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4><i class="fas fa-shopping-cart" aria-hidden="true"></i> <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span></h4>
+                        </div>
+                        <div class="dropdown-content" id="cartContent"></div>
+                        <div class="dropdown-footer">
+                            <a href="checkout.html" class="dropdown-btn">
+                                <span data-ar="إتمام الشراء" data-en="Checkout" data-fr="Paiement">إتمام الشراء</span>
+                                <span class="emoji">💳</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-btn-wrapper dropdown" id="userDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('userDropdown')" aria-label="حسابي" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                    </button>
+                    <span class="action-label" data-ar="حسابي" data-en="Account" data-fr="Compte">حسابي</span>
+                    <div class="dropdown-menu" id="userMenu" role="menu">
+                        <div class="user-info" id="userInfo">
+                            <div class="user-avatar" id="userAvatar"><i class="fas fa-user" aria-hidden="true"></i></div>
+                            <div class="user-details">
+                                <h4 id="userName" data-ar="زائر" data-en="Guest" data-fr="Invité">زائر</h4>
+                                <p id="userEmail" data-ar="سجل الدخول للمتابعة" data-en="Login to continue" data-fr="Connectez-vous">سجل الدخول للمتابعة</p>
+                            </div>
+                        </div>
+                        <div class="user-menu-content" id="guestMenuContent">
+                            <a href="auth.html" class="user-menu-item"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> <span data-ar="تسجيل الدخول" data-en="Login" data-fr="Connexion">تسجيل الدخول</span></a>
+                        </div>
+                        <div class="user-menu-content" id="loggedInMenuContent" style="display: none;"></div>
+                        <div class="dropdown-footer" id="logoutSection" style="display: none;">
+                            <button class="dropdown-btn logout-btn" onclick="handleLogout()"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> <span data-ar="تسجيل الخروج" data-en="Logout" data-fr="Déconnexion">تسجيل الخروج</span></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="action-btn-wrapper">
+                    <button class="action-btn mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
+                        <i class="fas fa-bars" id="mobileMenuIcon" aria-hidden="true"></i>
+                    </button>
+                    <span class="action-label" data-ar="القائمة" data-en="Menu" data-fr="Menu">القائمة</span>
+                </div>
+                <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;" aria-label="لوحة التحكم">
+                    <i class="fas fa-user-shield" aria-hidden="true"></i>
+                    <span data-ar="لوحة التحكم" data-en="Admin" data-fr="Admin">لوحة التحكم</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="breadcrumb reveal">
+            <a href="index.html"><i class="fas fa-home home-icon"></i> <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span></a>
+            <i class="fas fa-chevron-left chevron"></i>
+            <span class="current" data-ar="تسجيل الدخول" data-en="Login" data-fr="Connexion">تسجيل الدخول</span>
+        </div>
+
+        <div class="page-hero-wrapper reveal">
+            <h1>
+                <span class="hero-headline typing-done"><span data-ar="تسجيل الدخول" data-en="Login" data-fr="Connexion">تسجيل الدخول</span> <span class="emoji">🔐</span></span>
+            </h1>
+            <p class="page-subtitle" data-ar="سجل دخولك لبدء تجربة تسوق مميزة" data-en="Log in to start a unique shopping experience" data-fr="Connectez-vous pour commencer une expérience de shopping unique">سجل دخولك لبدء تجربة تسوق مميزة</p>
+        </div>
+    </div>
+
+    <section class="auth-section">
+        <div class="auth-container">
+            <div class="logo-section">
+                <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO Logo">
+                <h1>BRAVO Store</h1>
+                <p data-ar="مرحباً بك!" data-en="Welcome!" data-fr="Bienvenue !">مرحباً بك!</p>
+            </div>
+
+            <div class="alert" id="alertMessage">
+                <i class="fas fa-check-circle"></i>
+                <span id="alertText"></span>
+            </div>
+
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchAuthTab('login')">🔑 <span data-ar="تسجيل الدخول" data-en="Login" data-fr="Connexion">تسجيل الدخول</span></button>
+                <button class="tab-btn" onclick="switchAuthTab('register')">📝 <span data-ar="إنشاء حساب" data-en="Register" data-fr="S'inscrire">إنشاء حساب</span></button>
+            </div>
+
+            <div id="errorMessage" class="input-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="errorText"></span>
+            </div>
+
+            <!-- Login Form -->
+            <div class="form-section active" id="loginForm">
+                <form onsubmit="handleUserLogin(event)">
+                    <div class="input-group">
+                        <label data-ar="البريد الإلكتروني" data-en="Email" data-fr="Email">البريد الإلكتروني</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="loginEmail" placeholder="example@email.com" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label data-ar="كلمة المرور" data-en="Password" data-fr="Mot de passe">كلمة المرور</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="loginPassword" placeholder="********" required>
+                            <button type="button" class="password-toggle" onclick="toggleAuthPassword('loginPassword')"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="rememberMe">
+                        <label for="rememberMe" data-ar="تذكرني" data-en="Remember Me" data-fr="Se souvenir de moi">تذكرني</label>
+                    </div>
+                    <div class="forgot-password">
+                        <a href="javascript:openForgotPassword()"><span data-ar="نسيت كلمة المرور؟" data-en="Forgot password?" data-fr="Mot de passe oublié ?">نسيت كلمة المرور؟</span></a>
+                    </div>
+                    <button type="submit" class="submit-btn" id="loginBtn"><i class="fas fa-sign-in-alt"></i> <span data-ar="تسجيل الدخول" data-en="Login" data-fr="Connexion">تسجيل الدخول</span></button>
+                </form>
+
+                <div class="divider"><span data-ar="أو" data-en="OR" data-fr="OU">أو</span></div>
+
+                <div class="social-login-main">
+                    <button class="social-login-btn google" onclick="loginWithGoogle()" id="googleBtn">
+                        <div class="social-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                        </div>
+                        <span data-ar="متابعة بحساب Google" data-en="Continue with Google" data-fr="Continuer avec Google">Google</span>
+                    </button>
+                    <button class="social-login-btn facebook" onclick="loginWithFacebook()" id="facebookBtn">
+                        <div class="social-icon">
+                            <i class="fab fa-facebook-f"></i>
+                        </div>
+                        <span data-ar="متابعة بحساب Facebook" data-en="Continue with Facebook" data-fr="Continuer avec Facebook">Facebook</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div class="form-section" id="registerForm">
+                <form onsubmit="handleUserRegister(event)">
+                    <div class="input-group">
+                        <label data-ar="اسم المستخدم" data-en="Username" data-fr="Nom d'utilisateur">اسم المستخدم</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="registerName" placeholder="الاسم الكامل" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label data-ar="البريد الإلكتروني" data-en="Email" data-fr="Email">البريد الإلكتروني</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="registerEmail" placeholder="example@email.com" required>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label data-ar="رقم الهاتف" data-en="Phone" data-fr="Téléphone">رقم الهاتف</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel" id="registerPhone" placeholder="+20 101 234 5678">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label data-ar="كلمة المرور" data-en="Password" data-fr="Mot de passe">كلمة المرور</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="registerPassword" placeholder="********" required>
+                            <button type="button" class="password-toggle" onclick="toggleAuthPassword('registerPassword')"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label data-ar="تأكيد كلمة المرور" data-en="Confirm Password" data-fr="Confirmer mot de passe">تأكيد كلمة المرور</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-check-circle"></i>
+                            <input type="password" id="registerConfirmPassword" placeholder="********" required>
+                            <button type="button" class="password-toggle" onclick="toggleAuthPassword('registerConfirmPassword')"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+                    <button type="submit" class="submit-btn" id="registerBtn"><i class="fas fa-user-plus"></i> <span data-ar="إنشاء حساب" data-en="Create Account" data-fr="Créer un compte">إنشاء حساب</span></button>
+                </form>
+
+                <div class="divider"><span data-ar="أو" data-en="OR" data-fr="OU">أو</span></div>
+
+                <div class="social-login-main">
+                    <button class="social-login-btn google" onclick="loginWithGoogle()">
+                        <div class="social-icon">
+                            <svg viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                            </svg>
+                        </div>
+                        <span data-ar="متابعة بحساب Google" data-en="Continue with Google" data-fr="Continuer avec Google">Google</span>
+                    </button>
+                    <button class="social-login-btn facebook" onclick="loginWithFacebook()">
+                        <div class="social-icon">
+                            <i class="fab fa-facebook-f"></i>
+                        </div>
+                        <span data-ar="متابعة بحساب Facebook" data-en="Continue with Facebook" data-fr="Continuer avec Facebook">Facebook</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="back-home" id="backHome">
+                <a href="index.html">
+                    <i class="fas fa-arrow-right"></i>
+                    <span data-ar="العودة للرئيسية" data-en="Back to Home" data-fr="Retour à l'accueil">العودة للرئيسية</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Forgot Password Modal -->
+    <div class="forgot-modal" id="forgotModal">
+        <div class="forgot-modal-content">
+            <button class="forgot-close" onclick="closeForgotPassword()">&times;</button>
+            <!-- Step 1: Send -->
+            <div id="forgotStepSend">
+                <div class="forgot-modal-icon"><i class="fas fa-key"></i></div>
+                <h3 data-ar="استعادة كلمة المرور" data-en="Reset Password" data-fr="Réinitialiser mot de passe">استعادة كلمة المرور</h3>
+                <p data-ar="أدخل بريدك الإلكتروني وسنرسل لك رابط التعيين" data-en="Enter your email and we'll send you a reset link" data-fr="Entrez votre email pour recevoir un lien de réinitialisation">أدخل بريدك الإلكتروني وسنرسل لك رابط التعيين</p>
+                <div class="input-group">
+                    <label data-ar="البريد الإلكتروني" data-en="Email" data-fr="Email">البريد الإلكتروني</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="resetEmail" placeholder="example@email.com" required>
+                    </div>
+                </div>
+                <div id="forgotError" class="forgot-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="forgotErrorText"></span>
+                </div>
+                <button class="submit-btn" id="resetBtn" onclick="handleForgotPassword()">
+                    <i class="fas fa-paper-plane"></i>
+                    <span data-ar="إرسال الرابط" data-en="Send Reset Link" data-fr="Envoyer le lien">إرسال الرابط</span>
+                </button>
+                <button class="forgot-cancel" onclick="closeForgotPassword()" data-ar="رجوع" data-en="Back" data-fr="Retour">رجوع</button>
+            </div>
+            <!-- Step 2: Success -->
+            <div id="forgotStepSuccess" style="display:none;">
+                <div class="forgot-modal-icon success"><i class="fas fa-check-circle"></i></div>
+                <h3 data-ar="تم الإرسال" data-en="Email Sent" data-fr="Email envoyé">تم الإرسال</h3>
+                <p data-ar="تم إرسال رابط تعيين كلمة المرور إلى بريدك الإلكتروني" data-en="A password reset link has been sent to your email" data-fr="Un lien de réinitialisation a été envoyé à votre email">تم إرسال رابط تعيين كلمة المرور إلى بريدك الإلكتروني</p>
+                <div class="forgot-spam-note">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div>
+                        <strong data-ar="لم يصلك الرابط؟" data-en="Didn't get the email?" data-fr="Vous n'avez pas reçu l'email ?">لم يصلك الرابط؟</strong>
+                        <span data-ar="تحقق من صندوق الوارد أو البريد غير المرغوب (Spam/Junk)" data-en="Check your inbox or spam/junk folder" data-fr="Vérifiez votre boîte de réception ou spam">تحقق من صندوق الوارد أو البريد غير المرغوب (Spam/Junk)</span>
+                    </div>
+                </div>
+                <div class="forgot-actions">
+                    <button class="submit-btn spam-btn" onclick="window.open('https://mail.google.com/mail/u/0/#spam','_blank')">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span data-ar="فتح البريد غير المرغوب" data-en="Open Spam" data-fr="Ouvrir les spams">فتح البريد غير المرغوب</span>
+                    </button>
+                </div>
+                <button class="forgot-cancel" onclick="closeForgotPassword()" data-ar="تم" data-en="Done" data-fr="Terminé">تم</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO">
+                        <span>BRAVO</span>
+                    </div>
+                    <p data-ar="متجر BRAVO لتعليم صناعة المنظفات ومستحضرات التجميل والعطور" data-en="The #1 Digital Store" data-fr="La boutique numérique n°1">متجر BRAVO لتعليم صناعة المنظفات ومستحضرات التجميل والعطور</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="روابط سريعة" data-en="Quick Links" data-fr="Liens rapides">روابط سريعة</h4>
+                    <ul>
+                        <li><a href="index.html"><i class="fas fa-angle-left"></i> <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span></a></li>
+                        <li><a href="products.html"><i class="fas fa-angle-left"></i> <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span></a></li>
+                        <li><a href="about.html"><i class="fas fa-angle-left"></i> <span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span></a></li>
+                        <li><a href="contact.html"><i class="fas fa-angle-left"></i> <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span></a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="أقسام المتجر" data-en="Categories" data-fr="Catégories">أقسام المتجر</h4>
+                    <ul>
+                        <li><a href="products.html?cat=books"><span class="emoji">📚</span> <span data-ar="كتب" data-en="Books" data-fr="Livres">كتب</span></a></li>
+                        <li><a href="products.html?cat=software"><span class="emoji">💻</span> <span data-ar="برامج" data-en="Software" data-fr="Logiciels">برامج</span></a></li>
+                        <li><a href="products.html?cat=formulas"><span class="emoji">🧪</span> <span data-ar="تركيبات" data-en="Formulas" data-fr="Formules">تركيبات</span></a></li>
+                        <li><a href="products.html?cat=courses"><span class="emoji">🎓</span> <span data-ar="كورسات" data-en="Courses" data-fr="Cours">كورسات</span></a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="تواصل" data-en="Contact" data-fr="Contact">تواصل</h4>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-phone"></i> <span dir="ltr">+20 101 285 3829</span></li>
+                        <li><i class="fas fa-envelope"></i> info@bravo.com</li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span data-ar="الجيزة، مصر" data-en="Cairo, Egypt" data-fr="Le Caire, Égypte">الجيزة، مصر</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 BRAVO Store. <span data-ar="جميع الحقوق محفوظة" data-en="All rights reserved" data-fr="Tous droits réservés">جميع الحقوق محفوظة</span>.</p>
+                <div class="payment-methods">
+                    <i class="fas fa-credit-card"></i>
+                    <i class="fab fa-cc-paypal"></i>
+                    <i class="fab fa-bitcoin"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <a href="https://wa.me/+201012853829?text=مرحباً، أريد الاستفسار" class="whatsapp-float" target="_blank" title="تواصل معنا عبر واتساب">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <script src="js/include.js?v=20"></script>
+    <script src="js/app.js?v=20260722t"></script>
+    <script type="module" src="firebase-config.js"></script>
+    <script>initPageHero();</script>
+
+    <script>
+    function revealElement(el) {
+        if (el.classList.contains('animate-in')) return;
+        el.classList.add('animate-in');
+        var from, to = { opacity: 1, transform: 'none' };
+        var duration = 1100, easing = 'cubic-bezier(0.16, 1, 0.3, 1)';
+        if (el.classList.contains('filters')) {
+            from = { opacity: 0, transform: 'perspective(800px) translateY(40px) rotateX(15deg)' };
+            duration = 1000;
+        } else if (el.classList.contains('product-card')) {
+            var pi = parseInt(el.dataset.revealIndex || '0', 10) % 4;
+            var pAnims = [
+                { transform: 'perspective(800px) translateY(60px) rotateX(15deg)' },
+                { transform: 'perspective(800px) translateX(60px) rotateY(-15deg)' },
+                { transform: 'perspective(800px) translateY(60px) rotateX(15deg)' },
+                { transform: 'perspective(800px) translateX(-60px) rotateY(15deg)' }
+            ];
+            from = { opacity: 0, transform: pAnims[pi].transform };
+            duration = 1000;
+            easing = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+        } else {
+            from = { opacity: 0, transform: 'perspective(800px) translateY(30px)' };
+        }
+        if (el.animate) {
+            el.animate([from, to], { duration: duration, fill: 'forwards', easing: easing });
+        }
+    }
+    function checkReveals() {
+        document.querySelectorAll('.reveal:not(.animate-in)').forEach(function(el) {
+            var rect = el.getBoundingClientRect();
+            var vh = window.innerHeight;
+            if (rect.top < vh && rect.bottom > 0) {
+                revealElement(el);
+            }
+        });
+    }
+    window.addEventListener('scroll', checkReveals, { passive: true });
+    setInterval(checkReveals, 500);
+    checkReveals();
+    setTimeout(checkReveals, 500);
+    setTimeout(checkReveals, 2000);
+    setTimeout(checkReveals, 5000);
+    </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
