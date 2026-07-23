@@ -2757,8 +2757,9 @@ function getLangFlagHtml(langCode) {
             }
         }
     } catch(e){}
-    var emojis = { ar:'🇪🇬', en:'🇬🇧', fr:'🇫🇷' };
-    return '<span class="flag-icon">'+(emojis[langCode]||'🏳️')+'</span>';
+    var _flagSvgs = { ar:'https://cdn.jsdelivr.net/gh/lipis/flag-icons@main/flags/1x1/eg.svg', en:'https://cdn.jsdelivr.net/gh/lipis/flag-icons@main/flags/1x1/gb.svg', fr:'https://cdn.jsdelivr.net/gh/lipis/flag-icons@main/flags/1x1/fr.svg' };
+    var url = _flagSvgs[langCode] || _flagSvgs['ar'];
+    return '<img src="'+url+'" alt="'+langCode+'" style="display:inline-block;width:40px;height:28px;border-radius:4px;object-fit:cover;box-shadow:0 2px 8px rgba(0,0,0,0.3);vertical-align:middle;">';
 }
 
 var LANG_DISPLAY_NAMES = { ar:'العربية', en:'English', fr:'French' };
@@ -3078,10 +3079,12 @@ function initializeThemeAndLanguage() {
     document.documentElement.lang = currentLang;
     document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
     document.body.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
-    const lt = document.getElementById('langText');
+    var lt = document.getElementById('langText');
     if (lt) lt.innerHTML = getLangFlagHtml(currentLang);
+    var mobileLt = document.getElementById('mobileLangText');
+    if (mobileLt) mobileLt.innerHTML = getLangFlagHtml(currentLang) + ' <span data-ar="العربية" data-en="English" data-fr="Français">' + (currentLang === 'ar' ? 'العربية' : currentLang === 'en' ? 'English' : 'Français') + '</span>';
     if (currentLang !== 'ar') {
-        setTimeout(() => translatePage(currentLang), 100);
+        setTimeout(function() { translatePage(currentLang); }, 100);
     }
 }
 
@@ -3093,7 +3096,7 @@ function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 window.addEventListener('scroll', () => { const b = document.getElementById('scrollTop'); if (b) b.classList.toggle('show', window.pageYOffset > 300); });
 document.addEventListener('click', e => { if (e.target.matches('a[href^="#"]')) { const h = e.target.getAttribute('href'); if (h === '#') return; e.preventDefault(); const t = document.querySelector(h); if (t) t.scrollIntoView({ behavior: 'smooth' }); } });
 
-function setActiveMenuItem() { const p = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase(); document.querySelectorAll('.nav-menu a:not(.tab-link)').forEach(l => { const h = l.getAttribute('href'); if (!h && l.hasAttribute('aria-current')) return; l.classList.remove('active'); if (h && (h.toLowerCase() === p || (h === 'index.html' && p === ''))) l.classList.add('active'); }); }
+function setActiveMenuItem() { var rawPath = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase(); var p = rawPath.replace(/\.html$/, ''); if (!p) p = 'index.html'; document.querySelectorAll('.nav-menu a:not(.tab-link)').forEach(function(l) { var h = l.getAttribute('href'); if (!h && l.hasAttribute('aria-current')) return; l.classList.remove('active'); if (!h) return; var hClean = h.replace(/\.html$/, '').toLowerCase(); if (hClean === p || h.toLowerCase() === rawPath || (hClean === 'index' && (p === 'index.html' || p === '' || p === '/'))) l.classList.add('active'); }); }
 
 function checkAdmin() { const p = new URLSearchParams(window.location.search); if (p.get('admin') === APP_CONFIG.adminPasscode) { sessionStorage.setItem(STORAGE_KEYS.adminSession, 'active'); window.history.replaceState({}, '', window.location.pathname); } if (sessionStorage.getItem(STORAGE_KEYS.adminSession) === 'active') { const b = document.getElementById('adminBtn'); if (b) b.style.display = 'flex'; } }
 
