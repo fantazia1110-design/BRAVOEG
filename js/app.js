@@ -1250,8 +1250,10 @@ function updateUIWithUser(user) {
         <a href="javascript:void(0)" class="user-menu-item" onclick="handleSwitchAccount()"><i class="fas fa-exchange-alt"></i><span>${lang === 'ar' ? 'تبديل الحساب' : lang === 'en' ? 'Switch Account' : 'Changer de compte'}</span></a>
     `; }
     if (ls) ls.style.display = 'block';
-    const sm = document.getElementById('switchAccountMobile'), lmob = document.getElementById('logoutMobile');
-    if (sm) sm.style.display = ''; if (lmob) lmob.style.display = '';
+    const sm = document.getElementById('switchAccountMobile'), lmob = document.getElementById('logoutMobile'), amob = document.getElementById('accountMobile');
+    if (sm) sm.style.display = ''; if (lmob) lmob.style.display = ''; if (amob) amob.style.display = '';
+    const loginM = document.getElementById('loginMobile'), regM = document.getElementById('registerMobile');
+    if (loginM) loginM.style.display = 'none'; if (regM) regM.style.display = 'none';
 }
 
 function updateUIForGuest() {
@@ -1261,8 +1263,10 @@ function updateUIForGuest() {
     const ue = document.getElementById('userEmail'); if (ue) ue.textContent = lang === 'ar' ? 'سجل الدخول للمتابعة' : lang === 'en' ? 'Login to continue' : 'Connectez-vous pour continuer';
     const gm = document.getElementById('guestMenuContent'), lm = document.getElementById('loggedInMenuContent'), ls = document.getElementById('logoutSection');
     if (gm) gm.style.display = 'block'; if (lm) lm.style.display = 'none'; if (ls) ls.style.display = 'none';
-    const sm = document.getElementById('switchAccountMobile'), lmob = document.getElementById('logoutMobile');
-    if (sm) sm.style.display = 'none'; if (lmob) lmob.style.display = 'none';
+    const sm = document.getElementById('switchAccountMobile'), lmob = document.getElementById('logoutMobile'), amob = document.getElementById('accountMobile');
+    if (sm) sm.style.display = 'none'; if (lmob) lmob.style.display = 'none'; if (amob) amob.style.display = 'none';
+    const loginM = document.getElementById('loginMobile'), regM = document.getElementById('registerMobile');
+    if (loginM) loginM.style.display = ''; if (regM) regM.style.display = '';
 }
 
 async function handleLogout() { if (confirm(currentLang === 'ar' ? 'هل تريد تسجيل الخروج؟' : currentLang === 'en' ? 'Logout?' : 'Déconnexion ?')) { try { if (window.firebaseSignOut && auth) { await window.firebaseSignOut(auth); } localStorage.removeItem(STORAGE_KEYS.user); currentUser = null; window.currentUser = null; window.location.reload(); } catch (e) { console.error('Logout error:', e); } } }

@@ -250,14 +250,6 @@
                         <span class="action-badge" id="cartBadgeMobile">0</span>
                     </a>
                 </li>
-                <!-- Mobile: notifications -->
-                <li class="mobile-action-item" role="none">
-                    <a class="mobile-action-btn" href="javascript:toggleDropdown('notificationsDropdown')">
-                        <i class="fas fa-bell"></i>
-                        <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
-                        <span class="action-badge" id="notificationsBadgeMobile">0</span>
-                    </a>
-                </li>
             </ul>
             <!-- Action Buttons -->
             <div class="nav-actions">
@@ -270,159 +262,6 @@
                     </button>
                     <span class="action-label" data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span>
                 </div>
-                <!-- Notifications -->
-                <div class="action-btn-wrapper dropdown" id="notificationsDropdown">
-                    <button class="action-btn" onclick="toggleDropdown('notificationsDropdown')" aria-label="الإشعارات" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-bell" aria-hidden="true"></i>
-                        <span class="action-badge" id="notificationsBadge" style="display: none;">0</span>
-                    </button>
-                    <span class="action-label" data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
-                    <div class="dropdown-menu" id="notificationsMenu" role="menu">
-                        <div class="dropdown-header">
-                            <h4>
-                                <i class="fas fa-bell" aria-hidden="true"></i> 
-                                <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
-                            </h4>
-                        </div>
-                        <div class="dropdown-content" id="notificationsContent"></div>
-                        <div class="dropdown-footer">
-                            <button class="dropdown-btn" onclick="markAllAsRead()">
-                                <span data-ar="تعليم الكل كمقروء" data-en="Mark all as read" data-fr="Tout lire">تعليم الكل كمقروء</span>
-                                <span class="emoji">✅</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <!-- Wishlist -->
-                <div class="action-btn-wrapper dropdown" id="wishlistDropdown">
-                    <button class="action-btn" onclick="toggleDropdown('wishlistDropdown')" aria-label="المفضلة" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-heart" aria-hidden="true"></i>
-                        <span class="action-badge" id="wishlistBadge" style="display: none;">0</span>
-                    </button>
-                    <span class="action-label" data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
-                    <div class="dropdown-menu" id="wishlistMenu" role="menu">
-                        <div class="dropdown-header">
-                            <h4>
-                                <i class="fas fa-heart" aria-hidden="true"></i> 
-                                <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
-                            </h4>
-                        </div>
-                        <div class="dropdown-content" id="wishlistContent"></div>
-                        <div class="dropdown-footer">
-                            <a href="wishlist.html" class="dropdown-btn">
-                                <span data-ar="عرض الكل" data-en="View All" data-fr="Voir tout">عرض الكل</span>
-                                <span class="emoji">❤️</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Cart -->
-                <div class="action-btn-wrapper dropdown" id="cartDropdown">
-                    <button class="action-btn" onclick="toggleDropdown('cartDropdown')" aria-label="سلة التسوق" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
-                        <span class="action-badge" id="cartBadge" style="display: none;">0</span>
-                    </button>
-                    <span class="action-label" data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
-                    <div class="dropdown-menu" id="cartMenu" role="menu">
-                        <div class="dropdown-header">
-                            <h4>
-                                <i class="fas fa-shopping-cart" aria-hidden="true"></i> 
-                                <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
-                            </h4>
-                        </div>
-                        <div class="dropdown-content" id="cartContent"></div>
-                        <div class="dropdown-footer">
-                            <a href="checkout.html" class="dropdown-btn">
-                                <span data-ar="إتمام الشراء" data-en="Checkout" data-fr="Paiement">إتمام الشراء</span>
-                                <span class="emoji">💳</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <!-- User Menu -->
-                <div class="action-btn-wrapper dropdown" id="userDropdown">
-                    <button class="action-btn" onclick="toggleDropdown('userDropdown')" aria-label="حسابي" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-user" aria-hidden="true"></i>
-                    </button>
-                    <span class="action-label" data-ar="حسابي" data-en="Account" data-fr="Compte">حسابي</span>
-                    <div class="dropdown-menu" id="userMenu" role="menu">
-                        <div class="user-info" id="userInfo">
-                            <div class="user-avatar" id="userAvatar">
-                                <i class="fas fa-user" aria-hidden="true"></i>
-                            </div>
-                            <div class="user-details">
-                                <h4 id="userName" data-ar="زائر" data-en="Guest" data-fr="Invité">زائر</h4>
-                                <p id="userEmail" data-ar="سجل الدخول للمتابعة" data-en="Login to continue" data-fr="Connectez-vous">سجل الدخول للمتابعة</p>
-                            </div>
-                        </div>
-                        <div class="user-menu-content" id="guestMenuContent">
-                            <a href="auth.html?redirect=checkout.html" class="user-menu-item">
-                                <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
-                                <span data-ar="تسجيل الدخول" data-en="Login" data-fr="Connexion">تسجيل الدخول</span>
-                            </a>
-                            <a href="auth.html?mode=register&redirect=checkout.html" class="user-menu-item">
-                                <i class="fas fa-user-plus" aria-hidden="true"></i>
-                                <span data-ar="إنشاء حساب جديد" data-en="Create Account" data-fr="Créer un compte">إنشاء حساب جديد</span>
-                            </a>
-                        </div>
-                        <div class="user-menu-content" id="loggedInMenuContent" style="display: none;"></div>
-                        <div class="dropdown-footer" id="logoutSection" style="display: none;">
-                            <button class="dropdown-btn logout-btn" onclick="handleLogout()">
-                                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-                                <span data-ar="تسجيل الخروج" data-en="Logout" data-fr="Déconnexion">تسجيل الخروج</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <!-- Mobile Menu Toggle -->
-                <div class="action-btn-wrapper">
-                    <button class="action-btn mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
-                        <i class="fas fa-bars" id="mobileMenuIcon" aria-hidden="true"></i>
-                    </button>
-                    <span class="action-label" data-ar="القائمة" data-en="Menu" data-fr="Menu">القائمة</span>
-                </div>
-                <!-- Admin Button -->
-                <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;" aria-label="لوحة التحكم">
-                    <i class="fas fa-user-shield" aria-hidden="true"></i>
-                    <span data-ar="لوحة التحكم" data-en="Admin" data-fr="Admin">لوحة التحكم</span>
-                </a>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Success Modal -->
-    <div class="success-modal" id="successModal" onclick="if(event.target===this)goToPending()" data-reveal="bounceIn">
-        <div class="success-border-wrapper">
-            <div class="success-content">
-                <i class="fas fa-check-circle success-icon"></i>
-                <h2 class="success-title">
-                    <span class="section-title-text" data-ar="تم إرسال طلبك بنجاح!" data-en="Order Sent Successfully!" data-fr="Commande envoyée avec succès !">تم إرسال طلبك بنجاح!</span>
-                </h2>
-                <p class="success-message">
-                    <span data-ar="تم حفظ طلبك وسيتم مراجعته في أقرب وقت" data-en="Your order has been saved and will be reviewed soon" data-fr="Votre commande a été enregistrée et sera examinée sous peu">تم حفظ طلبك وسيتم مراجعته في أقرب وقت</span>
-                </p>
-                <div class="order-id-display">
-                    <span data-ar="رقم الطلب:" data-en="Order ID:" data-fr="ID de commande :">رقم الطلب:</span>
-                    <span id="displayOrderId">#---</span>
-                    <button class="copy-id-btn" onclick="copyToClipboard(document.getElementById('displayOrderId').textContent.replace('#',''), this)" title="نسخ رقم الطلب"><i class="fas fa-copy"></i></button>
-                </div>
-                <p class="success-hint">
-                    <i class="fas fa-arrow-left"></i>
-                    <span data-ar="اضغط على زر متابعة الطلب لمعرفة حالة طلبك" data-en="Click Track Order to check your order status" data-fr="Cliquez sur Suivi pour vérifier votre commande">اضغط على زر متابعة الطلب لمعرفة حالة طلبك</span>
-                </p>
-                <div class="success-buttons">
-                    <button class="success-btn primary" onclick="goToPending()">
-                        <span data-ar="متابعة الطلب" data-en="Track Order" data-fr="Suivre commande">متابعة الطلب</span>
-                        <i class="fas fa-clock"></i>
-                    </button>
-                    <button class="success-btn secondary" onclick="openWhatsAppOptional()">
-                        <span data-ar="تواصل عبر واتساب" data-en="WhatsApp" data-fr="WhatsApp">تواصل عبر واتساب</span>
-                        <i class="fab fa-whatsapp"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Main Content -->
     <div class="container">
@@ -717,7 +556,7 @@
         '</div>';
     })();
     </script>
-    <script src="js/app.js?v=20260722v"></script>
+    <script src="js/app.js?v=20260722x"></script>
     <script>initPageHero();</script>
 
     <!-- Scroll Reveal -->
