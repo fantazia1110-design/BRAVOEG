@@ -2125,8 +2125,20 @@ body[dir="ltr"] .mobile-lang-indicator {
         display: block;
     }
 
-    .nav-menu .mobile-action-item {
+    .nav-menu .mobile-action-item:not(.logged-in-only):not(.guest-only) {
         display: block;
+    }
+    .nav-menu .mobile-action-item.guest-only {
+        display: block;
+    }
+    .nav-menu .mobile-action-item.logged-in-only {
+        display: none !important;
+    }
+    .nav-menu .mobile-action-item.logged-in-only.is-visible {
+        display: block !important;
+    }
+    .nav-menu .mobile-action-item.guest-only.is-hidden {
+        display: none !important;
     }
 
     .nav-actions>.action-btn-wrapper.dropdown {

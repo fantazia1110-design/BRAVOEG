@@ -64,14 +64,38 @@
     
     <!-- Mobile: divider -->
     <li class="nav-menu-divider" role="separator"><span data-ar="الحساب" data-en="Account" data-fr="Compte">الحساب</span></li>
-
-    <!-- Mobile: حسابي -->
-    <li class="mobile-action-item" role="none">
-        <a class="mobile-action-btn" href="Profile.html">
-            <i class="fas fa-user"></i>
-            <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
-        </a>
-    </li>
+                <!-- Mobile: حسابي (logged in only) -->
+                <li class="mobile-action-item logged-in-only" id="accountMobile" style="display:none;" role="none">
+                    <a class="mobile-action-btn" href="Profile.html">
+                        <i class="fas fa-user"></i>
+                        <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
+                    </a>
+                </li>
+                <li class="mobile-action-item logged-in-only" id="switchAccountMobile" style="display:none;" role="none">
+                    <a class="mobile-action-btn" href="javascript:handleSwitchAccount()">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span data-ar="تبديل الحساب" data-en="Switch Account" data-fr="Changer de compte">تبديل الحساب</span>
+                    </a>
+                </li>
+                <li class="mobile-action-item logged-in-only" id="logoutMobile" style="display:none;" role="none">
+                    <a class="mobile-action-btn" href="javascript:handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span data-ar="تسجيل الخروج" data-en="Logout" data-fr="D&#233;connexion">تسجيل الخروج</span>
+                    </a>
+                </li>
+                <!-- Mobile: تسجيل الدخول (guest only) -->
+                <li class="mobile-action-item guest-only" id="loginMobile" role="none">
+                    <a class="mobile-action-btn" href="auth.html">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span data-ar="تسجيل الدخول" data-en="Login" data-fr="Connexion">تسجيل الدخول</span>
+                    </a>
+                </li>
+                <li class="mobile-action-item guest-only" id="registerMobile" role="none">
+                    <a class="mobile-action-btn" href="auth.html#register">
+                        <i class="fas fa-user-plus"></i>
+                        <span data-ar="إنشاء حساب" data-en="Register" data-fr="S'inscrire">إنشاء حساب</span>
+                    </a>
+                </li>
 
     <!-- Mobile: طلباتي -->
     <li class="mobile-action-item" role="none">
@@ -360,7 +384,7 @@
 
     <!-- ==================== MAIN JAVASCRIPT ==================== -->
     <script src="js/include.js?v=24"></script>
-    <script src="js/app.js?v=20260722x"></script>
+    <script src="js/app.js?v=20260723a"></script>
     <script src="js/product-details.js?v=49"></script>
     <script>initPageHero();</script>
     <script>

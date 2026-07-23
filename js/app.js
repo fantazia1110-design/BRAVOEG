@@ -1251,9 +1251,9 @@ function updateUIWithUser(user) {
     `; }
     if (ls) ls.style.display = 'block';
     const sm = document.getElementById('switchAccountMobile'), lmob = document.getElementById('logoutMobile'), amob = document.getElementById('accountMobile');
-    if (sm) sm.style.display = ''; if (lmob) lmob.style.display = ''; if (amob) amob.style.display = '';
+    if (sm) sm.classList.add('is-visible'); if (lmob) lmob.classList.add('is-visible'); if (amob) amob.classList.add('is-visible');
     const loginM = document.getElementById('loginMobile'), regM = document.getElementById('registerMobile');
-    if (loginM) loginM.style.display = 'none'; if (regM) regM.style.display = 'none';
+    if (loginM) loginM.classList.add('is-hidden'); if (regM) regM.classList.add('is-hidden');
 }
 
 function updateUIForGuest() {
@@ -1264,9 +1264,9 @@ function updateUIForGuest() {
     const gm = document.getElementById('guestMenuContent'), lm = document.getElementById('loggedInMenuContent'), ls = document.getElementById('logoutSection');
     if (gm) gm.style.display = 'block'; if (lm) lm.style.display = 'none'; if (ls) ls.style.display = 'none';
     const sm = document.getElementById('switchAccountMobile'), lmob = document.getElementById('logoutMobile'), amob = document.getElementById('accountMobile');
-    if (sm) sm.style.display = 'none'; if (lmob) lmob.style.display = 'none'; if (amob) amob.style.display = 'none';
+    if (sm) sm.classList.remove('is-visible'); if (lmob) lmob.classList.remove('is-visible'); if (amob) amob.classList.remove('is-visible');
     const loginM = document.getElementById('loginMobile'), regM = document.getElementById('registerMobile');
-    if (loginM) loginM.style.display = ''; if (regM) regM.style.display = '';
+    if (loginM) loginM.classList.remove('is-hidden'); if (regM) regM.classList.remove('is-hidden');
 }
 
 async function handleLogout() { if (confirm(currentLang === 'ar' ? 'هل تريد تسجيل الخروج؟' : currentLang === 'en' ? 'Logout?' : 'Déconnexion ?')) { try { if (window.firebaseSignOut && auth) { await window.firebaseSignOut(auth); } localStorage.removeItem(STORAGE_KEYS.user); currentUser = null; window.currentUser = null; window.location.reload(); } catch (e) { console.error('Logout error:', e); } } }
@@ -6694,7 +6694,6 @@ async function initializeApp() {
                     currentUser = { uid: userId, email: u.email || '', displayName: u.displayName || '', photoURL: u.photoURL || '', emailVerified: !!u.emailVerified, isLocal: true, provider: u.provider || 'local' };
                     window.currentUser = currentUser;
                     loadUserData(userId);
-                    updateUIWithUser(currentUser);
                 }
             } catch(e) { console.warn('Failed to restore user from localStorage', e); }
         }
