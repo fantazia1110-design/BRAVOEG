@@ -200,7 +200,7 @@ function populatePaymentMethodFilters() {
         const sel = document.getElementById(id);
         if (sel) {
             const current = sel.value;
-            sel.innerHTML = `<option value="all">💳 طريقة الدفع (الكل)</option>${opts}`;
+            sel.innerHTML = `<option value="all">${document.documentElement.lang === 'ar' ? '💳 طريقة الدفع (الكل)' : document.documentElement.lang === 'en' ? '💳 Payment Method (All)' : '💳 Mode de paiement (Tous)'}</option>${opts}`;
             if (current !== 'all' && methods.some(([mid]) => mid === current)) sel.value = current;
         }
     });
@@ -212,9 +212,12 @@ window.renderPaymentMethodsAdmin = function() {
     if (!container) return;
     const methods = Object.entries(window.paymentMethods).sort((a, b) => (a[1].order || 0) - (b[1].order || 0));
     if (!methods.length) {
-        container.innerHTML = '<p style="color:var(--text-secondary);text-align:center;padding:40px;">لا توجد بوابات دفع. أضف بوابة جديدة.</p>';
+        container.innerHTML = `<p style="color:var(--text-secondary);text-align:center;padding:40px;">${document.documentElement.lang === 'ar' ? 'لا توجد بوابات دفع. أضف بوابة جديدة.' : document.documentElement.lang === 'en' ? 'No payment gateways. Add a new one.' : 'Aucune passerelle de paiement. Ajoutez-en une nouvelle.'}</p>`;
         return;
     }
+    const _pmtLang = document.documentElement.lang || 'ar';
+    const _pmtEdit = _pmtLang === 'ar' ? 'تعديل' : _pmtLang === 'en' ? 'Edit' : 'Modifier';
+    const _pmtDel = _pmtLang === 'ar' ? 'حذف' : _pmtLang === 'en' ? 'Delete' : 'Supprimer';
     let html = '<div class="wp-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:16px;">';
     methods.forEach(([id, m]) => {
         const active = m.active !== false;
@@ -232,8 +235,8 @@ window.renderPaymentMethodsAdmin = function() {
                 '<div class="toggle-switch ' + (active ? 'active' : '') + '" style="flex-shrink:0;transform:scale(1.2);" onclick="togglePaymentStatus(\'' + id + '\')"></div>' +
             '</div>' +
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
-                '<button onclick="openEditPaymentModal(\'' + id + '\')" style="padding:14px 10px;border-radius:12px;background:linear-gradient(135deg,rgba(147,51,234,0.25),rgba(147,51,234,0.15));color:#fff;border:2px solid rgba(147,51,234,0.4);cursor:pointer;font-weight:900;font-size:15px;transition:all 0.3s ease;" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(147,51,234,0.4),rgba(147,51,234,0.25))\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 20px rgba(147,51,234,0.3)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(147,51,234,0.25),rgba(147,51,234,0.15))\';this.style.transform=\'none\';this.style.boxShadow=\'none\'"><i class="fas fa-edit"></i> تعديل</button>' +
-                '<button onclick="deletePaymentMethod(\'' + id + '\')" style="padding:14px 10px;border-radius:12px;background:linear-gradient(135deg,rgba(239,68,68,0.2),rgba(239,68,68,0.1));color:#fff;border:2px solid rgba(239,68,68,0.35);cursor:pointer;font-weight:900;font-size:15px;transition:all 0.3s ease;" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(239,68,68,0.35),rgba(239,68,68,0.2))\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 20px rgba(239,68,68,0.25)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(239,68,68,0.2),rgba(239,68,68,0.1))\';this.style.transform=\'none\';this.style.boxShadow=\'none\'"><i class="fas fa-trash"></i> حذف</button>' +
+                '<button onclick="openEditPaymentModal(\'' + id + '\')" style="padding:14px 10px;border-radius:12px;background:linear-gradient(135deg,rgba(147,51,234,0.25),rgba(147,51,234,0.15));color:#fff;border:2px solid rgba(147,51,234,0.4);cursor:pointer;font-weight:900;font-size:15px;transition:all 0.3s ease;" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(147,51,234,0.4),rgba(147,51,234,0.25))\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 20px rgba(147,51,234,0.3)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(147,51,234,0.25),rgba(147,51,234,0.15))\';this.style.transform=\'none\';this.style.boxShadow=\'none\'"><i class="fas fa-edit"></i> ' + _pmtEdit + '</button>' +
+                '<button onclick="deletePaymentMethod(\'' + id + '\')" style="padding:14px 10px;border-radius:12px;background:linear-gradient(135deg,rgba(239,68,68,0.2),rgba(239,68,68,0.1));color:#fff;border:2px solid rgba(239,68,68,0.35);cursor:pointer;font-weight:900;font-size:15px;transition:all 0.3s ease;" onmouseover="this.style.background=\'linear-gradient(135deg,rgba(239,68,68,0.35),rgba(239,68,68,0.2))\';this.style.transform=\'translateY(-1px)\';this.style.boxShadow=\'0 6px 20px rgba(239,68,68,0.25)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(239,68,68,0.2),rgba(239,68,68,0.1))\';this.style.transform=\'none\';this.style.boxShadow=\'none\'"><i class="fas fa-trash"></i> ' + _pmtDel + '</button>' +
             '</div>' +
         '</div>';
     });
@@ -290,8 +293,8 @@ window.uploadPaymentLogo = function(fileInputId, hiddenInputId, previewId) {
     const hidden = document.getElementById(hiddenInputId);
     if (!input || !input.files || !input.files[0]) return;
     const file = input.files[0];
-    if (file.size > 2 * 1024 * 1024) { showToast('❌', 'الحد الأقصى 2 ميجابايت', 'error'); input.value = ''; return; }
-    if (!file.type.startsWith('image/')) { showToast('❌', 'يُسمح بالصور فقط', 'error'); input.value = ''; return; }
+    if (file.size > 2 * 1024 * 1024) { showToast('❌', (document.documentElement.lang === 'ar' ? 'الحد الأقصى 2 ميجابايت' : document.documentElement.lang === 'en' ? 'Max 2 MB' : 'Max 2 Mo'), 'error'); input.value = ''; return; }
+    if (!file.type.startsWith('image/')) { showToast('❌', (document.documentElement.lang === 'ar' ? 'يُسمح بالصور فقط' : document.documentElement.lang === 'en' ? 'Images only' : 'Images uniquement'), 'error'); input.value = ''; return; }
     if (preview) { preview.src = URL.createObjectURL(file); preview.style.display = 'block'; }
     const reader = new FileReader();
     reader.onload = function() {
@@ -341,7 +344,7 @@ window.addAddFieldRow = function(key, labelAr, value, active) {
     row.style.cssText = 'display:flex;align-items:center;gap:14px;padding:14px 18px;background:' + (isActive ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.015)') + ';border:1px solid ' + (isActive ? 'rgba(147,51,234,0.2)' : 'rgba(100,100,100,0.1)') + ';border-radius:14px;opacity:' + (isActive ? '1' : '0.55') + ';';
     row.innerHTML = '<div class="toggle-switch ' + (isActive ? 'active' : '') + '" onclick="this.classList.toggle(\'active\');var p=this.parentElement;if(this.classList.contains(\'active\')){p.style.opacity=\'1\';p.style.background=\'rgba(255,255,255,0.04)\';p.style.borderColor=\'rgba(147,51,234,0.2)\'}else{p.style.opacity=\'0.55\';p.style.background=\'rgba(255,255,255,0.015)\';p.style.borderColor=\'rgba(100,100,100,0.1)\'}" style="flex-shrink:0;transform:scale(0.9);" data-field-active></div>' +
         '<span style="flex:0 0 130px;font-weight:900;font-size:15px;color:#e2e8f0;">' + (labelAr || '') + '</span>' +
-        '<input type="text" placeholder="القيمة" value="' + (value || '') + '" style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid rgba(147,51,234,0.25);background:rgba(0,0,0,0.25);color:#fff;font-weight:700;font-size:14px;min-width:0;" data-field-value>' +
+        '<input type="text" placeholder="' + (document.documentElement.lang === 'ar' ? 'القيمة' : document.documentElement.lang === 'en' ? 'Value' : 'Valeur') + '" value="' + (value || '') + '" style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid rgba(147,51,234,0.25);background:rgba(0,0,0,0.25);color:#fff;font-weight:700;font-size:14px;min-width:0;" data-field-value>' +
         '<input type="hidden" data-field-key value="' + (key || '') + '">' +
         '<input type="hidden" data-field-labelar value="' + (labelAr || '') + '">';
     container.appendChild(row);
@@ -353,12 +356,12 @@ window.closeAddPaymentModal = function() {
 
 window.submitAddPaymentForm = async function() {
     const id = document.getElementById('addPaymentId').value.trim();
-    if (!id) return showToast('❌', 'يرجى إدخال المعرف', 'error');
-    if (window.paymentMethods[id]) return showToast('❌', 'هذا المعرف موجود بالفعل', 'error');
+    if (!id) return showToast('❌', (document.documentElement.lang === 'ar' ? 'يرجى إدخال المعرف' : document.documentElement.lang === 'en' ? 'Please enter an ID' : 'Veuillez entrer un identifiant'), 'error');
+    if (window.paymentMethods[id]) return showToast('❌', (document.documentElement.lang === 'ar' ? 'هذا المعرف موجود بالفعل' : document.documentElement.lang === 'en' ? 'This ID already exists' : 'Cet identifiant existe déjà'), 'error');
     const nameAr = document.getElementById('addPaymentNameAr').value.trim();
-    if (!nameAr) return showToast('❌', 'يرجى إدخال اسم طريقة الدفع', 'error');
+    if (!nameAr) return showToast('❌', (document.documentElement.lang === 'ar' ? 'يرجى إدخال اسم طريقة الدفع' : document.documentElement.lang === 'en' ? 'Please enter payment method name' : 'Veuillez entrer le nom du mode de paiement'), 'error');
     const logo = document.getElementById('addPaymentLogo').value.trim();
-    if (!logo) return showToast('❌', 'يرجى رفع صورة طريقة الدفع', 'error');
+    if (!logo) return showToast('❌', (document.documentElement.lang === 'ar' ? 'يرجى رفع صورة طريقة الدفع' : document.documentElement.lang === 'en' ? 'Please upload a payment logo' : 'Veuillez télécharger un logo de paiement'), 'error');
     const instAr = document.getElementById('addPaymentInstructionsAr').value.trim().split('\n').filter(s => s.trim());
     const container = document.getElementById('addPaymentFieldsContainer');
     const details = [];
@@ -382,7 +385,7 @@ window.submitAddPaymentForm = async function() {
             });
         });
     }
-    if (!details.some(d => d.value)) return showToast('❌', 'يرجى إدخال قيمة واحدة على الأقل', 'error');
+    if (!details.some(d => d.value)) return showToast('❌', (document.documentElement.lang === 'ar' ? 'يرجى إدخال قيمة واحدة على الأقل' : document.documentElement.lang === 'en' ? 'Please enter at least one value' : 'Veuillez entrer au moins une valeur'), 'error');
     const qrCode = document.getElementById('addPaymentQr')?.value.trim() || '';
     const qrToggle = document.getElementById('addPaymentQrToggle');
     const qrActive = qrToggle ? qrToggle.classList.contains('active') : true;
@@ -391,7 +394,7 @@ window.submitAddPaymentForm = async function() {
         logo: logo,
         qrCode: qrCode,
         qrActive: qrActive,
-        instructions: { ar: instAr.length ? instAr : ['اتبع التعليمات'], en: instAr, fr: instAr },
+        instructions: { ar: instAr.length ? instAr : ['اتبع التعليمات'], en: instAr.length ? instAr : ['Follow Instructions'], fr: instAr.length ? instAr : ['Suivez les instructions'] },
         details: details,
         active: true,
         order: Object.keys(window.paymentMethods).length
@@ -400,7 +403,7 @@ window.submitAddPaymentForm = async function() {
     await DB.set(`settings/paymentMethods/${id}`, paymentMethod);
     closeAddPaymentModal();
     renderPaymentMethodsAdmin();
-    showToast('✅', 'تم إضافة البوابة بنجاح', 'success');
+    showToast('✅', (document.documentElement.lang === 'ar' ? 'تم إضافة البوابة بنجاح' : document.documentElement.lang === 'en' ? 'Gateway added successfully' : 'Passerelle ajoutée avec succès'), 'success');
 };
 
 window.openEditPaymentModal = function(id) {
@@ -458,7 +461,7 @@ window.addEditFieldRow = function(key, labelAr, value, active) {
     row.style.cssText = 'display:flex;align-items:center;gap:14px;padding:14px 18px;background:' + (isActive ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.015)') + ';border:1px solid ' + (isActive ? 'rgba(147,51,234,0.2)' : 'rgba(100,100,100,0.1)') + ';border-radius:14px;opacity:' + (isActive ? '1' : '0.55') + ';';
     row.innerHTML = '<div class="toggle-switch ' + (isActive ? 'active' : '') + '" onclick="this.classList.toggle(\'active\');var p=this.parentElement;if(this.classList.contains(\'active\')){p.style.opacity=\'1\';p.style.background=\'rgba(255,255,255,0.04)\';p.style.borderColor=\'rgba(147,51,234,0.2)\'}else{p.style.opacity=\'0.55\';p.style.background=\'rgba(255,255,255,0.015)\';p.style.borderColor=\'rgba(100,100,100,0.1)\'}" style="flex-shrink:0;transform:scale(0.9);" data-field-active></div>' +
         '<span style="flex:0 0 130px;font-weight:900;font-size:15px;color:#e2e8f0;">' + (labelAr || '') + '</span>' +
-        '<input type="text" placeholder="القيمة" value="' + (value || '') + '" style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid rgba(147,51,234,0.25);background:rgba(0,0,0,0.25);color:#fff;font-weight:700;font-size:14px;min-width:0;" data-field-value>' +
+        '<input type="text" placeholder="' + (document.documentElement.lang === 'ar' ? 'القيمة' : document.documentElement.lang === 'en' ? 'Value' : 'Valeur') + '" value="' + (value || '') + '" style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid rgba(147,51,234,0.25);background:rgba(0,0,0,0.25);color:#fff;font-weight:700;font-size:14px;min-width:0;" data-field-value>' +
         '<input type="hidden" data-field-key value="' + (key || '') + '">' +
         '<input type="hidden" data-field-labelar value="' + (labelAr || '') + '">';
     container.appendChild(row);
@@ -470,9 +473,9 @@ window.closeEditPaymentModal = function() {
 
 window.submitEditPaymentForm = async function() {
     const id = document.getElementById('editPaymentId').value;
-    if (!id || !window.paymentMethods[id]) return showToast('❌', 'خطأ', 'error');
+    if (!id || !window.paymentMethods[id]) return showToast('❌', (document.documentElement.lang === 'ar' ? 'خطأ' : document.documentElement.lang === 'en' ? 'Error' : 'Erreur'), 'error');
     const nameAr = document.getElementById('editPaymentNameAr').value.trim();
-    if (!nameAr) return showToast('❌', 'يرجى إدخال اسم طريقة الدفع', 'error');
+    if (!nameAr) return showToast('❌', (document.documentElement.lang === 'ar' ? 'يرجى إدخال اسم طريقة الدفع' : document.documentElement.lang === 'en' ? 'Please enter payment method name' : 'Veuillez entrer le nom du mode de paiement'), 'error');
     const logo = document.getElementById('editPaymentLogo').value.trim();
     const instAr = document.getElementById('editPaymentInstructionsAr').value.trim().split('\n').filter(s => s.trim());
     const container = document.getElementById('editPaymentFieldsContainer');
@@ -505,23 +508,23 @@ window.submitEditPaymentForm = async function() {
         logo: logo,
         qrCode: qrCode,
         qrActive: qrActive,
-        instructions: { ar: instAr.length ? instAr : ['اتبع التعليمات'], en: instAr, fr: instAr },
+        instructions: { ar: instAr.length ? instAr : ['اتبع التعليمات'], en: instAr.length ? instAr : ['Follow Instructions'], fr: instAr.length ? instAr : ['Suivez les instructions'] },
         details: details
     };
     window.paymentMethods[id] = { ...window.paymentMethods[id], ...update };
     await DB.update(`settings/paymentMethods/${id}`, update);
     closeEditPaymentModal();
     renderPaymentMethodsAdmin();
-    showToast('✅', 'تم حفظ التغييرات', 'success');
+    showToast('✅', (document.documentElement.lang === 'ar' ? 'تم حفظ التغييرات' : document.documentElement.lang === 'en' ? 'Changes saved' : 'Modifications sauvegardées'), 'success');
 };
 
 window.deletePaymentMethod = async function(id) {
     if (!window.paymentMethods[id]) return;
-    if (!confirm(`هل أنت متأكد من حذف "${window.paymentMethods[id].name?.ar || id}"؟`)) return;
+    if (!confirm(`${document.documentElement.lang === 'ar' ? 'هل أنت متأكد من حذف' : document.documentElement.lang === 'en' ? 'Are you sure you want to delete' : 'Êtes-vous sûr de vouloir supprimer'} "${window.paymentMethods[id].name?.ar || id}"?`)) return;
     delete window.paymentMethods[id];
     try { await DB.remove(`settings/paymentMethods/${id}`); } catch(e) {}
     renderPaymentMethodsAdmin();
-    showToast('🗑️', 'تم الحذف', 'info');
+    showToast('🗑️', (document.documentElement.lang === 'ar' ? 'تم الحذف' : document.documentElement.lang === 'en' ? 'Deleted' : 'Supprimé'), 'info');
 };
 
 const SYSTEM_PAGES = [
@@ -1101,16 +1104,22 @@ window.loadStoreSettings = async function() {
 };
 
 window.saveStoreSettings = async function() {
+    var _sssLang = document.documentElement.lang || 'ar';
+    var _sssI18n = {
+        enterStoreName: _sssLang === 'ar' ? 'يرجى إدخال اسم المتجر' : _sssLang === 'en' ? 'Please enter store name' : 'Veuillez entrer le nom du magasin',
+        saved: _sssLang === 'ar' ? 'تم حفظ إعدادات المتجر' : _sssLang === 'en' ? 'Store settings saved' : 'Paramètres du magasin enregistrés',
+        failed: _sssLang === 'ar' ? 'فشل الحفظ' : _sssLang === 'en' ? 'Save failed' : 'Échec de l\'enregistrement'
+    };
     const name = document.getElementById('storeName').value.trim();
     const email = document.getElementById('storeEmail').value.trim();
     const phone = document.getElementById('storePhone').value.trim();
-    if (!name) return showToast('❌', 'يرجى إدخال اسم المتجر', 'error');
+    if (!name) return showToast('❌', _sssI18n.enterStoreName, 'error');
     const data = { name, email, phone };
     try {
         await DB.set('settings/store', data);
-        showToast('✅', 'تم حفظ إعدادات المتجر', 'success');
+        showToast('✅', _sssI18n.saved, 'success');
     } catch (e) {
-        showToast('❌', 'فشل الحفظ', 'error');
+        showToast('❌', _sssI18n.failed, 'error');
     }
 };
 
@@ -1126,30 +1135,49 @@ window.savePayment = async function(provider) {
 };
 
 window.saveAdminCredentials = async function() {
+    var _sacLang = document.documentElement.lang || 'ar';
+    var _sacI18n = {
+        enterCredentials: _sacLang === 'ar' ? 'يرجى إدخال اسم المستخدم وكلمة المرور' : _sacLang === 'en' ? 'Please enter username and password' : 'Veuillez entrer le nom d\'utilisateur et le mot de passe',
+        minPassword: _sacLang === 'ar' ? 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' : _sacLang === 'en' ? 'Password must be at least 6 characters' : 'Le mot de passe doit contenir au moins 6 caractères',
+        updated: _sacLang === 'ar' ? 'تم تحديث بيانات الدخول بنجاح' : _sacLang === 'en' ? 'Login credentials updated' : 'Identifiants mis à jour'
+    };
     const u = document.getElementById('newAdminUsername').value.trim(), p = document.getElementById('newAdminPassword').value.trim();
-    if (!u || !p) return showToast('❌', 'يرجى إدخال اسم المستخدم وكلمة المرور', 'error');
-    if (p.length < 6) return showToast('❌', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+    if (!u || !p) return showToast('❌', _sacI18n.enterCredentials, 'error');
+    if (p.length < 6) return showToast('❌', _sacI18n.minPassword, 'error');
     if (await DB.update('settings/admin', { username: u, password: p })) {
         ADMIN_CREDENTIALS.username = u; ADMIN_CREDENTIALS.password = p;
         document.getElementById('newAdminPassword').value = '';
-        showToast('✅', 'تم تحديث بيانات الدخول بنجاح', 'success');
+        showToast('✅', _sacI18n.updated, 'success');
     }
 };
 
 window.exportDatabaseBackup = async function() {
-    showToast('⏳', 'جاري إنشاء النسخة الاحتياطية...', 'info');
+    var _edbLang = document.documentElement.lang || 'ar';
+    var _edbI18n = {
+        creating: _edbLang === 'ar' ? 'جاري إنشاء النسخة الاحتياطية...' : _edbLang === 'en' ? 'Creating backup...' : 'Création de la sauvegarde...',
+        downloaded: _edbLang === 'ar' ? 'تم التحميل بنجاح' : _edbLang === 'en' ? 'Downloaded successfully' : 'Téléchargé avec succès',
+        failed: _edbLang === 'ar' ? 'فشل النسخ الاحتياطي' : _edbLang === 'en' ? 'Backup failed' : 'Échec de la sauvegarde'
+    };
+    showToast('⏳', _edbI18n.creating, 'info');
     try {
         const data = await DB.get('/');
         const a = document.createElement('a');
         a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
         a.download = `bravo_backup_${Date.now()}.json`;
         a.click();
-        showToast('✅', 'تم التحميل بنجاح', 'success');
-    } catch (e) { showToast('❌', 'فشل النسخ الاحتياطي', 'error'); }
+        showToast('✅', _edbI18n.downloaded, 'success');
+    } catch (e) { showToast('❌', _edbI18n.failed, 'error'); }
 };
 
 window.clearSystemCache = function() {
-    showConfirmDialog('تنبيه خطير', 'هل تريد مسح الكاش المحلي وتسجيل الخروج؟', 'نعم، امسح', 'إلغاء').then(r => {
+    var _cscLang = document.documentElement.lang || 'ar';
+    var _cscI18n = {
+        title: _cscLang === 'ar' ? 'تنبيه خطير' : _cscLang === 'en' ? 'Warning' : 'Attention',
+        msg: _cscLang === 'ar' ? 'هل تريد مسح الكاش المحلي وتسجيل الخروج؟' : _cscLang === 'en' ? 'Clear local cache and logout?' : 'Effacer le cache local et se déconnecter ?',
+        confirm: _cscLang === 'ar' ? 'نعم، امسح' : _cscLang === 'en' ? 'Yes, clear' : 'Oui, effacer',
+        cancel: _cscLang === 'ar' ? 'إلغاء' : _cscLang === 'en' ? 'Cancel' : 'Annuler'
+    };
+    showConfirmDialog(_cscI18n.title, _cscI18n.msg, _cscI18n.confirm, _cscI18n.cancel).then(r => {
         if (r) { localStorage.clear(); sessionStorage.clear(); window.location.reload(); }
     });
 };
@@ -1961,7 +1989,7 @@ function displayProducts() {
             priceMinEl.setAttribute('data-pmax', maxPrice);
         }
     }
-    if (priceVals) priceVals.textContent = (priceMinEl?.value || '0') + ' – ' + (priceMaxEl?.value || maxPrice) + ' ' + (currentLang === 'en' || currentLang === 'fr' ? 'EGP' : 'جنية');
+    if (priceVals) priceVals.textContent = (priceMinEl?.value || '0') + ' – ' + (priceMaxEl?.value || maxPrice) + ' ' + (currentLang === 'ar' ? 'جنية' : 'EGP');
 
     // Sync number inputs with sliders
     const inpMin = document.getElementById('priceInputMin');
@@ -2367,12 +2395,12 @@ async function handleCheckoutSubmit(e) {
             try { const p = await DB.get(`products/${checkoutOrderData.productId}`); if (p) { productExtra = { productImage: p.image || '', productCategory: p.category || '', productOldPriceEGP: p.oldPriceEGP || 0, productOldPriceUSD: p.oldPriceUSD || 0, downloadLink: p.downloadLink || '', productHot: p.hot || p.bestseller || p.badge === 'hot', productFeatured: p.featured || p.badge === 'featured', productBadge: p.badge || '' }; } } catch (e) {}
         }
         const pmName = window.paymentMethods?.[selectedPaymentMethod]?.name?.ar || PAYMENT_ACCOUNTS[selectedPaymentMethod]?.name?.ar || selectedPaymentMethod;
-        const order = { isMultipleItems: checkoutOrderData.isMultipleItems || false, items: checkoutOrderData.isMultipleItems ? checkoutOrderData.items : null, productId: checkoutOrderData.productId || 'N/A', productTitle: checkoutOrderData.productTitle || 'Product', price: parseFloat(checkoutOrderData.price) || 0, currency: checkoutOrderData.currency || 'جنيه', paymentMethod: selectedPaymentMethod, paymentMethodName: pmName, customerName: document.getElementById('customerName').value.trim(), customerEmail: document.getElementById('customerEmail').value.trim(), customerPhone: document.getElementById('customerPhone').value.trim(), fileName: uploadedFile.name, fileSize: `${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB`, receiptImageUrl: imgUrl, userId: currentUser?.uid || 'guest', userEmail: currentUser?.email || document.getElementById('customerEmail').value.trim(), userCountry: checkoutOrderData.userCountry || userCountry || 'EG', status: 'pending', orderDate: now.toISOString(), createdAt: ts, orderDateReadable: now.toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'en' ? 'en-US' : 'fr-FR'), orderTimeReadable: now.toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'en' ? 'en-US' : 'fr-FR'), ...productExtra };
+        const order = { isMultipleItems: checkoutOrderData.isMultipleItems || false, items: checkoutOrderData.isMultipleItems ? checkoutOrderData.items : null, productId: checkoutOrderData.productId || 'N/A', productTitle: checkoutOrderData.productTitle || 'Product', price: parseFloat(checkoutOrderData.price) || 0, currency: checkoutOrderData.currency || (document.documentElement.lang === 'ar' ? 'جنيه' : 'EGP'), paymentMethod: selectedPaymentMethod, paymentMethodName: pmName, customerName: document.getElementById('customerName').value.trim(), customerEmail: document.getElementById('customerEmail').value.trim(), customerPhone: document.getElementById('customerPhone').value.trim(), fileName: uploadedFile.name, fileSize: `${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB`, receiptImageUrl: imgUrl, userId: currentUser?.uid || 'guest', userEmail: currentUser?.email || document.getElementById('customerEmail').value.trim(), userCountry: checkoutOrderData.userCountry || userCountry || 'EG', status: 'pending', orderDate: now.toISOString(), createdAt: ts, orderDateReadable: now.toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'en' ? 'en-US' : 'fr-FR'), orderTimeReadable: now.toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'en' ? 'en-US' : 'fr-FR'), ...productExtra };
         let id = String(100000 + Math.floor(Math.random() * 900000));
         try { const cnt = await DB.get('meta/orderCounter'); if (cnt?.value) id = String(cnt.value + 1); await DB.set('meta/orderCounter', { value: parseInt(id) }); } catch(e) {}
         await DB.set(`orders/${id}`, { ...order, orderId: id });
         if (currentUser) { try { if (checkoutOrderData.isMultipleItems) { await DB.remove(`carts/${currentUser.uid}`); } else if (checkoutOrderData.productId) { await DB.set(`carts/${currentUser.uid}/${checkoutOrderData.productId}`, null); } sessionStorage.removeItem('cartCheckout'); } catch (ce) { } }
-        savedWhatsAppMessage = `🎉 طلب جديد\n📦 ${order.productTitle}\n💰 ${order.price} ${order.currency}\n👤 ${order.customerName}\n📧 ${order.customerEmail}\n📱 ${order.customerPhone}\n🔢 #${id}\n🖼️ ${imgUrl}`;
+        savedWhatsAppMessage = `${currentLang === 'ar' ? '🎉 طلب جديد' : currentLang === 'en' ? '🎉 New Order' : '🎉 Nouvelle commande'}\n📦 ${order.productTitle}\n💰 ${order.price} ${order.currency}\n👤 ${order.customerName}\n📧 ${order.customerEmail}\n📱 ${order.customerPhone}\n🔢 #${id}\n🖼️ ${imgUrl}`;
         sessionStorage.setItem('lastOrderId', id); sessionStorage.setItem('whatsappMessage', savedWhatsAppMessage);
         localStorage.setItem('currentOrder', JSON.stringify({ ...order, orderId: id }));
         btn.innerHTML = `<i class="fas fa-check-circle"></i>`; btn.style.background = 'linear-gradient(135deg,#10b981,#059669)';
@@ -3663,7 +3691,7 @@ function loadAdminProducts() {
             if(tableContainer) tableContainer.style.display = 'none';
             if(staticEmpty) {
                 staticEmpty.style.display = 'block';
-                staticEmpty.innerHTML = `<i class="fas fa-box-open" style="font-size: 4em; color: var(--primary); margin-bottom: 15px; display:inline-block;"></i><h3 style="font-size: 1.5em; font-weight: 900; color: var(--text-primary); margin-bottom: 10px;">لا توجد منتجات الآن</h3>`;
+                staticEmpty.innerHTML = `<i class="fas fa-box-open" style="font-size: 4em; color: var(--primary); margin-bottom: 15px; display:inline-block;"></i><h3 style="font-size: 1.5em; font-weight: 900; color: var(--text-primary); margin-bottom: 10px;">${document.documentElement.lang === 'ar' ? 'لا توجد منتجات الآن' : document.documentElement.lang === 'en' ? 'No products available' : 'Aucun produit disponible'}</h3>`;
             }
             container.innerHTML = '';
             if (countEl) countEl.textContent = '0';
@@ -3871,8 +3899,8 @@ function loadAdminOrders() {
             var newestPending = orders.filter(function(x){ return x[1].status === 'pending'; }).sort(function(a,b){ return (b[1].createdAt||0)-(a[1].createdAt||0); })[0];
             if (newestPending) {
                 var no = newestPending[1];
-                var nTitle = 'طلب جديد!';
-                var nBody = (no.customerName || 'عميل') + ' - ' + (no.productTitle || '') + ' - ' + (no.price || 0) + ' ' + (no.currency || 'جنيه');
+                var nTitle = document.documentElement.lang === 'ar' ? 'طلب جديد!' : document.documentElement.lang === 'en' ? 'New Order!' : 'Nouvelle commande!';
+                var nBody = (no.customerName || (document.documentElement.lang === 'ar' ? 'عميل' : document.documentElement.lang === 'en' ? 'Customer' : 'Client')) + ' - ' + (no.productTitle || '') + ' - ' + (no.price || 0) + ' ' + (no.currency || (document.documentElement.lang === 'ar' ? 'جنيه' : document.documentElement.lang === 'en' ? 'EGP' : 'EGP'));
                 if ('Notification' in window && Notification.permission === 'granted') {
                     try { new Notification(nTitle, { body: nBody, icon: 'https://i.ibb.co/7tKdRmfC/68-1.png', tag: 'new-order-' + newestPending[0], requireInteraction: true }); } catch(e) {}
                 }
@@ -3898,7 +3926,7 @@ function buildOrderItemsHtml(o, opts) {
     var lang = document.documentElement.lang || 'ar';
     var catEmojis = { books: '\u{1F4DA}', software: '\u{1F4BB}', formulas: '\u{1F9EA}', courses: '\u{1F393}' };
     var cats = APP_CONFIG ? APP_CONFIG.categories : null;
-    var cur = o.currency || '\u062C\u0646\u064A\u0647';
+    var cur = o.currency || (document.documentElement.lang === 'ar' ? 'جنيه' : 'EGP');
     var html = '';
     if (o.items && typeof o.items === 'object') {
         var keys = Object.keys(o.items).filter(function(k) { var v = o.items[k]; return v && v.title; });
@@ -3929,22 +3957,64 @@ function renderOrders(orders) {
         if(staticEmpty) {
             const hasActiveFilters = (window._adminSearchTerm && window._adminSearchTerm.trim()) || (window._adminCurrentFilter && window._adminCurrentFilter !== 'all') || (document.getElementById('ordersAdvPayment')?.value !== 'all') || (document.getElementById('ordersAdvCategory')?.value !== 'all') || (document.getElementById('ordersAdvDate')?.value !== 'all');
             staticEmpty.style.display = 'block';
+            var _emptyLang = document.documentElement.lang || 'ar';
             staticEmpty.innerHTML = hasActiveFilters
-                ? `<i class="fas fa-filter" style="font-size:4em; color:var(--text-secondary); margin-bottom:15px; display:inline-block;"></i><h3 style="font-size:1.5em; font-weight:900; color:var(--text-secondary); margin-bottom:10px;">لا توجد نتائج تطابق الفلاتر الحالية</h3>`
-                : `<i class="fas fa-shopping-cart" style="font-size:4em; color:var(--primary); margin-bottom:15px; display:inline-block;"></i><h3 style="font-size:1.5em; font-weight:900; color:var(--text-primary); margin-bottom:10px;">لا توجد طلبات</h3>`;
+                ? `<i class="fas fa-filter" style="font-size:4em; color:var(--text-secondary); margin-bottom:15px; display:inline-block;"></i><h3 style="font-size:1.5em; font-weight:900; color:var(--text-secondary); margin-bottom:10px;">${_emptyLang === 'ar' ? 'لا توجد نتائج تطابق الفلاتر الحالية' : _emptyLang === 'en' ? 'No results match current filters' : 'Aucun résultat ne correspond aux filtres'}</h3>`
+                : `<i class="fas fa-shopping-cart" style="font-size:4em; color:var(--primary); margin-bottom:15px; display:inline-block;"></i><h3 style="font-size:1.5em; font-weight:900; color:var(--text-primary); margin-bottom:10px;">${_emptyLang === 'ar' ? 'لا توجد طلبات' : _emptyLang === 'en' ? 'No orders' : 'Aucune commande'}</h3>`;
         }
         c.innerHTML = '';
         return; 
     }
     if(staticEmpty) staticEmpty.style.display = 'none';
 
-    const statusLabels = { pending: '⏳ قيد الانتظار', suspended: '🟣 معلق', confirmed: '✅ مؤكد', rejected: '❌ مرفوض' };
+    var _al = document.documentElement.lang || 'ar';
+    const statusLabels = { pending: _al === 'ar' ? '⏳ قيد الانتظار' : _al === 'en' ? '⏳ Pending' : '⏳ En attente', suspended: _al === 'ar' ? '🟣 معلق' : _al === 'en' ? '🟣 Suspended' : '🟣 Suspendue', confirmed: _al === 'ar' ? '✅ مؤكد' : _al === 'en' ? '✅ Confirmed' : '✅ Confirmée', rejected: _al === 'ar' ? '❌ مرفوض' : _al === 'en' ? '❌ Rejected' : '❌ Rejetée' };
     const statusClass = { pending: 'pending', suspended: 'suspended', confirmed: 'confirmed', rejected: 'rejected' };
     const catEmojis = { books: '📚', software: '💻', formulas: '🧪', courses: '🎓' };
     const catColors = { books:'#3b82f6', software:'#8b5cf6', formulas:'#f59e0b', courses:'#10b981' };
     const cats = APP_CONFIG ? APP_CONFIG.categories : null;
-    const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const dayNamesAr = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const dayNamesEn = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const dayNamesFr = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+    const _adminDayNames = _al === 'ar' ? dayNamesAr : _al === 'en' ? dayNamesEn : dayNamesFr;
+    const _adminDtLocale = _al === 'ar' ? 'ar-EG' : _al === 'en' ? 'en-US' : 'fr-FR';
     const lang = document.documentElement.lang || 'ar';
+    const _ai18n = {
+        products: lang === 'ar' ? 'المنتجات' : lang === 'en' ? 'Products' : 'Produits',
+        orderNum: lang === 'ar' ? 'رقم الطلب' : lang === 'en' ? 'Order #' : 'Commande #',
+        payment: lang === 'ar' ? 'طريقة الدفع' : lang === 'en' ? 'Payment' : 'Paiement',
+        date: lang === 'ar' ? 'التاريخ' : lang === 'en' ? 'Date' : 'Date',
+        email: lang === 'ar' ? 'البريد' : lang === 'en' ? 'Email' : 'Email',
+        phone: lang === 'ar' ? 'الهاتف' : lang === 'en' ? 'Phone' : 'Téléphone',
+        saved: lang === 'ar' ? 'وفر' : lang === 'en' ? 'Save' : 'Économisez',
+        adminNote: lang === 'ar' ? 'ملاحظة المشرف' : lang === 'en' ? 'Admin Note' : 'Note admin',
+        receipt: lang === 'ar' ? 'صورة الإيصال' : lang === 'en' ? 'Receipt' : 'Reçu',
+        invoice: lang === 'ar' ? 'فاتورة' : lang === 'en' ? 'Invoice' : 'Facture',
+        download: lang === 'ar' ? 'تحميل المنتج' : lang === 'en' ? 'Download' : 'Télécharger',
+        confirm: lang === 'ar' ? 'تأكيد' : lang === 'en' ? 'Confirm' : 'Confirmer',
+        reject: lang === 'ar' ? 'رفض' : lang === 'en' ? 'Reject' : 'Rejeter',
+        restore: lang === 'ar' ? 'استعادة' : lang === 'en' ? 'Restore' : 'Restaurer',
+        edit: lang === 'ar' ? 'تعديل' : lang === 'en' ? 'Edit' : 'Modifier',
+        delete: lang === 'ar' ? 'حذف' : lang === 'en' ? 'Delete' : 'Supprimer',
+        copyId: lang === 'ar' ? 'نسخ الرقم' : lang === 'en' ? 'Copy ID' : 'Copier ID',
+        noResults: lang === 'ar' ? 'لا توجد نتائج تطابق الفلاتر الحالية' : lang === 'en' ? 'No results match current filters' : 'Aucun résultat ne correspond aux filtres',
+        noOrders: lang === 'ar' ? 'لا توجد طلبات' : lang === 'en' ? 'No orders' : 'Aucune commande',
+        unclassified: lang === 'ar' ? 'غير مصنف' : lang === 'en' ? 'Uncategorized' : 'Non classé',
+        step1Title: lang === 'ar' ? 'تم إرسال الطلب' : lang === 'en' ? 'Order Placed' : 'Commande passée',
+        step1Sub: lang === 'ar' ? 'تم استلام طلبك' : lang === 'en' ? 'Order received' : 'Commande reçue',
+        step2Review: lang === 'ar' ? 'تمت المراجعة' : lang === 'en' ? 'Reviewed' : 'Examinée',
+        step2Reviewing: lang === 'ar' ? 'جاري المراجعة' : lang === 'en' ? 'Under Review' : 'En cours',
+        step2Pending: lang === 'ar' ? '⏳ في الانتظار' : lang === 'en' ? '⏳ Pending' : '⏳ En attente',
+        step2SubDone: lang === 'ar' ? 'تم التحقق من الدفع' : lang === 'en' ? 'Payment verified' : 'Paiement vérifié',
+        step2SubDoing: lang === 'ar' ? 'نراجع بيانات الدفع...' : lang === 'en' ? 'Reviewing payment...' : 'Vérification...',
+        step3Confirmed: lang === 'ar' ? '✅ تم التأكيد' : lang === 'en' ? '✅ Confirmed' : '✅ Confirmée',
+        step3Rejected: lang === 'ar' ? '❌ تم الرفض' : lang === 'en' ? '❌ Rejected' : '❌ Rejetée',
+        step3Suspended: lang === 'ar' ? '🟣 معلق' : lang === 'en' ? '🟣 Suspended' : '🟣 Suspendue',
+        step3Pending: lang === 'ar' ? '⏳ في الانتظار' : lang === 'en' ? '⏳ Pending' : '⏳ En attente',
+        step3SubDone: lang === 'ar' ? 'تم تأكيد طلبك بنجاح' : lang === 'en' ? 'Order confirmed successfully' : 'Commande confirmée',
+        step3SubRej: lang === 'ar' ? 'يرجى التواصل مع الدعم' : lang === 'en' ? 'Please contact support' : 'Veuillez contacter le support',
+        step3SubSus: lang === 'ar' ? 'الطلب معلق للمراجعة' : lang === 'en' ? 'Order suspended for review' : 'Commande suspendue'
+    };
 
     orders = orders.filter(([id, o]) => o && id);
 
@@ -3952,12 +4022,12 @@ function renderOrders(orders) {
         const eId = String(id).replace(/"/g, '&quot;');
         const imgUrl = o.productImage || o.image || '';
         const dt = o.createdAt ? new Date(o.createdAt) : null;
-        const fullDate = dt ? `${dayNames[dt.getDay()]} - ${dt.toLocaleDateString('ar-EG')} - الساعة ${dt.toLocaleTimeString('ar-EG', {hour:'2-digit',minute:'2-digit'})}` : '';
+        const fullDate = dt ? `${_adminDayNames[dt.getDay()]} - ${dt.toLocaleDateString(_adminDtLocale)} - ${lang === 'ar' ? 'الساعة' : lang === 'en' ? 'at' : 'à'} ${dt.toLocaleTimeString(_adminDtLocale, {hour:'2-digit',minute:'2-digit'})}` : '';
         const pmKey = o.paymentMethod || '';
-        const pmName = o.paymentMethodName || (window.PAYMENT_ACCOUNTS && PAYMENT_ACCOUNTS[pmKey] ? PAYMENT_ACCOUNTS[pmKey].name?.ar : '') || pmKey || '';
+        const pmName = o.paymentMethodName || (window.PAYMENT_ACCOUNTS && PAYMENT_ACCOUNTS[pmKey] ? PAYMENT_ACCOUNTS[pmKey].name?.[lang] || PAYMENT_ACCOUNTS[pmKey].name?.ar : '') || pmKey || '';
         const pmLogo = (window.PAYMENT_ACCOUNTS && PAYMENT_ACCOUNTS[pmKey]) ? PAYMENT_ACCOUNTS[pmKey].logo || '' : '';
         const cat = o.productCategory || o.category || '';
-        const catName = cats ? (cats.ar?.[cat] || cat || 'غير مصنف') : (cat || 'غير مصنف');
+        const catName = cats ? (cats[lang]?.[cat] || cats.ar?.[cat] || cat || _ai18n.unclassified) : (cat || _ai18n.unclassified);
         const catEmoji = catEmojis[cat] || '📦';
         const catColor = catColors[cat] || '#8b5cf6';
         const orderIdShort = String(id).length > 8 ? String(id).slice(-8).toUpperCase() : String(id).toUpperCase();
@@ -4038,7 +4108,7 @@ function renderOrders(orders) {
                         <span class="order-card-header-price">
                             <i class="fas fa-fire"></i>
                             <span class="hdr-price-value">${currentPrice}</span>
-                            <span class="hdr-price-currency">${o.currency || 'جنيه'}</span>
+                            <span class="hdr-price-currency">${o.currency || (lang === 'ar' ? 'جنيه' : lang === 'en' ? 'EGP' : 'EGP')}</span>
                         </span>
                         <span class="admin-order-status-badge ${statusClass[o.status] || ''}" style="color:#fff !important;">${statusLabels[o.status] || o.status}</span>
                         <i class="fas fa-chevron-down order-card-chevron"></i>
@@ -4050,82 +4120,82 @@ function renderOrders(orders) {
                         <div class="order-card-split">
                             <div class="order-card-img-col">
                                 ${itemsHtml}
-                                ${hasReceipt ? `<div class="order-receipt-box"><div class="receipt-header"><i class="fas fa-receipt"></i><div>صورة الإيصال</div></div><img src="${o.receiptImageUrl}" alt="صورة الإيصال" loading="lazy" onclick="event.stopPropagation();openImageModal('${o.receiptImageUrl}')"></div>` : ''}
+                                ${hasReceipt ? `<div class="order-receipt-box"><div class="receipt-header"><i class="fas fa-receipt"></i><div>${_ai18n.receipt}</div></div><img src="${o.receiptImageUrl}" alt="${_ai18n.receipt}" loading="lazy" onclick="event.stopPropagation();openImageModal('${o.receiptImageUrl}')"></div>` : ''}
                             </div>
 
                             <!-- Info + Admin extras -->
                             <div class="order-card-info-col">
                                 <div class="order-info-grid">
                                     <div class="info-row">
-                                        <span class="info-label">المنتجات</span>
+                                        <span class="info-label">${_ai18n.products}</span>
                                         <span class="info-value" style="white-space:normal;line-height:1.6">${(function(){if(o.items&&typeof o.items==='object'){var ks=Object.keys(o.items).filter(function(k){return o.items[k]&&o.items[k].title});if(ks.length>0){var catEmojis={books:'📚',software:'💻',formulas:'🧪',courses:'🎓'};var cats2=APP_CONFIG?APP_CONFIG.categories:null;var lang2=document.documentElement.lang||'ar';var lines=ks.map(function(k){var it=o.items[k];var qty=it.quantity||1;var cat=it.category||'';var ce=catEmojis[cat]||'';var cn=(cats2&&cats2[lang2]&&cats2[lang2][cat])||cat||'';return it.title+' <span style="color:#9333ea">\u00D7'+qty+'</span>'+(cn?' <span class="order-item-cat-badge">'+ce+' '+cn+'</span>':'')});return lines.join('<br>')}}return o.productTitle||'N/A';})()}</span>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">رقم الطلب</span>
-                                        <span class="info-value ord-id">#${orderIdShort} <button class="copy-id-btn" onclick="event.stopPropagation();copyToClipboard('${id}',this)" title="نسخ الرقم"><i class="fas fa-copy"></i></button></span>
+                                        <span class="info-label">${_ai18n.orderNum}</span>
+                                        <span class="info-value ord-id">#${orderIdShort} <button class="copy-id-btn" onclick="event.stopPropagation();copyToClipboard('${id}',this)" title="${_ai18n.copyId}"><i class="fas fa-copy"></i></button></span>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">طريقة الدفع</span>
+                                        <span class="info-label">${_ai18n.payment}</span>
                                         <span class="info-value pay-method">${pmName} ${pmLogo ? `<img src="${pmLogo}" class="pay-icon" alt="">` : ''}</span>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">التاريخ</span>
+                                        <span class="info-label">${_ai18n.date}</span>
                                         <span class="info-value">${fullDate}</span>
                                     </div>
                                 </div>
 
                                 <!-- Pricing block -->
                                 <div class="order-pricing-block">
-                                    ${hasDiscount ? `<div class="price-old-save-row"><div class="price-old"><span class="price-old-value">${oldPriceVal}</span> ${o.currency || 'جنيه'}</div><span class="price-save"><i class="fas fa-tag"></i> وفر ${savings}</span></div>` : ''}
+                                    ${hasDiscount ? `<div class="price-old-save-row"><div class="price-old"><span class="price-old-value">${oldPriceVal}</span> ${o.currency || 'EGP'}</div><span class="price-save"><i class="fas fa-tag"></i> ${_ai18n.saved} ${savings}</span></div>` : ''}
                                     <div class="price-final">
                                         <i class="fas fa-fire animated-fire"></i>
                                         <span class="price-value">${currentPrice}</span>
-                                        <span class="price-currency">${o.currency || 'جنيه'}</span>
+                                        <span class="price-currency">${o.currency || 'EGP'}</span>
                                     </div>
                                 </div>
 
                                 <!-- Admin extra fields -->
                                 <div class="order-info-grid" style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);">
                                     <div class="info-row">
-                                        <span class="info-label">البريد</span>
+                                        <span class="info-label">${_ai18n.email}</span>
                                         <span class="info-value" style="font-size:0.85em;color:var(--text-secondary)">${o.customerEmail || 'N/A'}</span>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">الهاتف</span>
+                                        <span class="info-label">${_ai18n.phone}</span>
                                         <span class="info-value" dir="ltr">${o.customerPhone || '-'}</span>
                                     </div>
                                 </div>
 
-                                ${o.adminNote ? `<div class="order-note"><i class="fas fa-sticky-note"></i> ملاحظة المشرف: ${o.adminNote}</div>` : ''}
+                                ${o.adminNote ? `<div class="order-note"><i class="fas fa-sticky-note"></i> ${_ai18n.adminNote}: ${o.adminNote}</div>` : ''}
 
                                 <!-- Admin action buttons -->
                                 <div class="order-action-row" style="flex-wrap:wrap;">
-                                    <button class="admin-order-action-btn print-order" onclick="printOrderInvoice('${eId}')" title="الفاتورة"><i class="fas fa-file-invoice"></i> فاتورة</button>
-                                    ${isConfirmed ? `<a href="${(o.downloadLink && o.downloadLink !== '#') ? o.downloadLink : (o._dlFallback || '#')}" class="admin-order-action-btn download-product" target="_blank" onclick="event.stopPropagation()"><i class="fas fa-download"></i> تحميل المنتج</a>` : ''}
-                                    ${isPending ? `<button class="admin-order-action-btn confirm" onclick="confirmOrder('${eId}')"><i class="fas fa-check"></i> تأكيد</button><button class="admin-order-action-btn reject" onclick="rejectOrder('${eId}')"><i class="fas fa-times"></i> رفض</button>` : ''}
-                                    ${isSuspended ? `<button class="admin-order-action-btn restore" onclick="restoreOrder('${eId}')"><i class="fas fa-undo"></i> استعادة</button><button class="admin-order-action-btn reject" onclick="rejectOrder('${eId}')"><i class="fas fa-times"></i> رفض</button>` : ''}
-                                    ${isConfirmed ? `<button class="admin-order-action-btn restore" onclick="restoreOrder('${eId}')"><i class="fas fa-undo"></i> استعادة</button><button class="admin-order-action-btn reject" onclick="rejectOrder('${eId}')"><i class="fas fa-times"></i> رفض</button>` : ''}
-                                    ${isRejected ? `<button class="admin-order-action-btn restore" onclick="restoreOrder('${eId}')"><i class="fas fa-undo"></i> استعادة</button>` : ''}
-                                    <button class="admin-order-action-btn edit-order" onclick="openEditOrderModal('${eId}')"><i class="fas fa-edit"></i> تعديل</button>
-                                    <button class="admin-order-action-btn delete-order" onclick="deleteOrder('${eId}')"><i class="fas fa-trash"></i> حذف</button>
+                                    <button class="admin-order-action-btn print-order" onclick="printOrderInvoice('${eId}')" title="${_ai18n.invoice}"><i class="fas fa-file-invoice"></i> ${_ai18n.invoice}</button>
+                                    ${isConfirmed ? `<a href="${(o.downloadLink && o.downloadLink !== '#') ? o.downloadLink : (o._dlFallback || '#')}" class="admin-order-action-btn download-product" target="_blank" onclick="event.stopPropagation()"><i class="fas fa-download"></i> ${_ai18n.download}</a>` : ''}
+                                    ${isPending ? `<button class="admin-order-action-btn confirm" onclick="confirmOrder('${eId}')"><i class="fas fa-check"></i> ${_ai18n.confirm}</button><button class="admin-order-action-btn reject" onclick="rejectOrder('${eId}')"><i class="fas fa-times"></i> ${_ai18n.reject}</button>` : ''}
+                                    ${isSuspended ? `<button class="admin-order-action-btn restore" onclick="restoreOrder('${eId}')"><i class="fas fa-undo"></i> ${_ai18n.restore}</button><button class="admin-order-action-btn reject" onclick="rejectOrder('${eId}')"><i class="fas fa-times"></i> ${_ai18n.reject}</button>` : ''}
+                                    ${isConfirmed ? `<button class="admin-order-action-btn restore" onclick="restoreOrder('${eId}')"><i class="fas fa-undo"></i> ${_ai18n.restore}</button><button class="admin-order-action-btn reject" onclick="rejectOrder('${eId}')"><i class="fas fa-times"></i> ${_ai18n.reject}</button>` : ''}
+                                    ${isRejected ? `<button class="admin-order-action-btn restore" onclick="restoreOrder('${eId}')"><i class="fas fa-undo"></i> ${_ai18n.restore}</button>` : ''}
+                                    <button class="admin-order-action-btn edit-order" onclick="openEditOrderModal('${eId}')"><i class="fas fa-edit"></i> ${_ai18n.edit}</button>
+                                    <button class="admin-order-action-btn delete-order" onclick="deleteOrder('${eId}')"><i class="fas fa-trash"></i> ${_ai18n.delete}</button>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Status steps — مثل renderOrdersList -->
+                        <!-- Status steps -->
                         <div class="order-steps">
                             <div class="order-progress-line ${o.status}"></div>
                             <div class="order-step completed">
                                 <div class="order-step-dot completed"></div>
-                                <div class="order-step-text"><span>تم إرسال الطلب</span><small>تم استلام طلبك</small></div>
+                                <div class="order-step-text"><span>${_ai18n.step1Title}</span><small>${_ai18n.step1Sub}</small></div>
                             </div>
                             <div class="order-step ${s2Done ? 'completed' : (s2Active ? 'active' : '')}">
                                 <div class="order-step-dot ${s2Done ? 'completed' : (s2Active ? 'active' : '')}"></div>
-                                <div class="order-step-text"><span>${s2Done ? 'تمت المراجعة' : (s2Active ? 'جاري المراجعة' : '⏳ في الانتظار')}</span><small>${s2Done ? 'تم التحقق من الدفع' : (s2Active ? 'نراجع بيانات الدفع...' : '')}</small></div>
+                                <div class="order-step-text"><span>${s2Done ? _ai18n.step2Review : (s2Active ? _ai18n.step2Reviewing : _ai18n.step2Pending)}</span><small>${s2Done ? _ai18n.step2SubDone : (s2Active ? _ai18n.step2SubDoing : '')}</small></div>
                             </div>
                             <div class="order-step ${s3Done ? 'completed' : (s3Rejected ? 'rejected' : (s3Suspended ? 'suspended' : ''))}">
                                 <div class="order-step-dot ${s3Done ? 'completed' : (s3Rejected ? 'rejected' : (s3Suspended ? 'suspended' : ''))}"></div>
-                                <div class="order-step-text"><span>${s3Done ? '✅ تم التأكيد' : (s3Rejected ? '❌ تم الرفض' : (s3Suspended ? '🟣 معلق' : '⏳ في الانتظار'))}</span><small>${s3Done ? 'تم تأكيد طلبك بنجاح' : (s3Rejected ? 'يرجى التواصل مع الدعم' : (s3Suspended ? 'الطلب معلق للمراجعة' : ''))}</small></div>
+                                <div class="order-step-text"><span>${s3Done ? _ai18n.step3Confirmed : (s3Rejected ? _ai18n.step3Rejected : (s3Suspended ? _ai18n.step3Suspended : _ai18n.step2Pending))}</span><small>${s3Done ? _ai18n.step3SubDone : (s3Rejected ? _ai18n.step3SubRej : (s3Suspended ? _ai18n.step3SubSus : ''))}</small></div>
                             </div>
                         </div>
                     </div>
@@ -4245,7 +4315,7 @@ function applyAdminOrdersFilter() {
                 (o.customerAddress||'') + ' ' +
                 (o.customerNotes||'') + ' ' +
                 (o.discountCode||'') + ' ' +
-                (o.receiptImageUrl ? 'ايصال' : '') + ' ' +
+                (o.receiptImageUrl ? (document.documentElement.lang === 'ar' ? 'ايصال' : document.documentElement.lang === 'en' ? 'receipt' : 'reçu') : '') + ' ' +
                 itemsText
             ).toLowerCase();
             return text.includes(search);
@@ -4303,7 +4373,7 @@ window.resetOrdersFilters = function() {
     const first = document.querySelector('.filter-buttons .filter-btn');
     if (first) first.classList.add('active');
     applyAdminOrdersFilter();
-    showToast('🔄', 'تم إعادة ضبط الفلاتر', 'info');
+    showToast('🔄', document.documentElement.lang === 'ar' ? 'تم إعادة ضبط الفلاتر' : document.documentElement.lang === 'en' ? 'Filters reset' : 'Filtres réinitialisés', 'info');
 };
 
 // ===== Product search & filter =====
@@ -4455,7 +4525,7 @@ window.resetProductsFilters = function() {
     const searchInput = document.getElementById('adminProductsSearch');
     if (searchInput) searchInput.value = '';
     applyAdminProductsFilter();
-    showToast('🔄', 'تم إعادة ضبط الفلاتر', 'info');
+    showToast('🔄', document.documentElement.lang === 'ar' ? 'تم إعادة ضبط الفلاتر' : document.documentElement.lang === 'en' ? 'Filters reset' : 'Filtres réinitialisés', 'info');
 };
 
 // ==================== DATE PICKER ====================
@@ -4476,7 +4546,7 @@ window.openDatePicker = function(callback) {
         _datePickerYear = new Date().getFullYear();
     }
     const hint = document.getElementById('datePickerRangeHint');
-    if (hint) hint.textContent = 'اختر تاريخ البداية';
+    if (hint) hint.textContent = document.documentElement.lang === 'ar' ? 'اختر تاريخ البداية' : document.documentElement.lang === 'en' ? 'Select start date' : 'Sélectionnez la date de début';
     const info = document.getElementById('datePickerSelectedInfo');
     if (info) info.textContent = '';
     renderDatePickerCalendar();
@@ -4495,7 +4565,7 @@ window.datePickerMonth = function(delta) {
 };
 
 function renderDatePickerCalendar() {
-    const monthNames = ['يناير','فبراير','مارس','إبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const monthNames = document.documentElement.lang === 'ar' ? ['يناير','فبراير','مارس','إبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'] : document.documentElement.lang === 'en' ? ['January','February','March','April','May','June','July','August','September','October','November','December'] : ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
     document.getElementById('datePickerMonthLabel').textContent = `${monthNames[_datePickerMonth]} ${_datePickerYear}`;
     const grid = document.getElementById('datePickerGrid');
     const firstDay = new Date(_datePickerYear, _datePickerMonth, 1).getDay();
@@ -4557,8 +4627,8 @@ window.datePickerSelectDay = function(dateStr) {
         _datePickerRangeStart = dateStr;
         _datePickerRangeEnd = null;
         _datePickerSelected = dateStr;
-        if (hint) hint.textContent = 'اختر تاريخ النهاية';
-        if (info) info.textContent = `من: ${formatDate(dateStr)} — اختر تاريخ النهاية`;
+        if (hint) hint.textContent = document.documentElement.lang === 'ar' ? 'اختر تاريخ النهاية' : document.documentElement.lang === 'en' ? 'Select end date' : 'Sélectionnez la date de fin';
+        if (info) info.textContent = document.documentElement.lang === 'ar' ? `من: ${formatDate(dateStr)} — اختر تاريخ النهاية` : document.documentElement.lang === 'en' ? `From: ${formatDate(dateStr)} — Select end date` : `De: ${formatDate(dateStr)} — Sélectionnez la date de fin`;
     } else if (!_datePickerRangeEnd) {
         // Second click - set end
         if (dateStr < _datePickerRangeStart) {
@@ -4569,22 +4639,22 @@ window.datePickerSelectDay = function(dateStr) {
             _datePickerRangeEnd = dateStr;
         }
         _datePickerSelected = null;
-        if (hint) hint.textContent = '✓ تم تحديد المدى';
-        if (info) info.textContent = `من ${formatDate(_datePickerRangeStart)} إلى ${formatDate(_datePickerRangeEnd)}`;
+        if (hint) hint.textContent = document.documentElement.lang === 'ar' ? '✓ تم تحديد المدى' : document.documentElement.lang === 'en' ? '✓ Range selected' : '✓ Plage sélectionnée';
+        if (info) info.textContent = document.documentElement.lang === 'ar' ? `من ${formatDate(_datePickerRangeStart)} إلى ${formatDate(_datePickerRangeEnd)}` : document.documentElement.lang === 'en' ? `From ${formatDate(_datePickerRangeStart)} to ${formatDate(_datePickerRangeEnd)}` : `Du ${formatDate(_datePickerRangeStart)} au ${formatDate(_datePickerRangeEnd)}`;
     } else {
         // Third click - restart range
         _datePickerRangeStart = dateStr;
         _datePickerRangeEnd = null;
         _datePickerSelected = dateStr;
-        if (hint) hint.textContent = 'اختر تاريخ النهاية';
-        if (info) info.textContent = `من: ${formatDate(dateStr)} — اختر تاريخ النهاية`;
+        if (hint) hint.textContent = document.documentElement.lang === 'ar' ? 'اختر تاريخ النهاية' : document.documentElement.lang === 'en' ? 'Select end date' : 'Sélectionnez la date de fin';
+        if (info) info.textContent = document.documentElement.lang === 'ar' ? `من: ${formatDate(dateStr)} — اختر تاريخ النهاية` : document.documentElement.lang === 'en' ? `From: ${formatDate(dateStr)} — Select end date` : `De: ${formatDate(dateStr)} — Sélectionnez la date de fin`;
     }
     renderDatePickerCalendar();
 };
 
 function formatDate(dateStr) {
     const d = new Date(dateStr);
-    const monthNames = ['يناير','فبراير','مارس','إبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const monthNames = document.documentElement.lang === 'ar' ? ['يناير','فبراير','مارس','إبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'] : document.documentElement.lang === 'en' ? ['January','February','March','April','May','June','July','August','September','October','November','December'] : ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
     return `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
 }
 
@@ -4656,14 +4726,42 @@ window.deleteOrder = deleteOrder;
 
 // ==================== INVOICE GENERATOR ====================
 window.generateInvoiceHTML = function(order, id) {
+    var _invLang = document.documentElement.lang || 'ar';
+    var _invI18n = {
+        dir: _invLang === 'en' ? 'ltr' : 'rtl',
+        htmlLang: _invLang,
+        orderInvoice: _invLang === 'ar' ? 'فاتورة طلب' : _invLang === 'en' ? 'Order Invoice' : 'Facture de commande',
+        invoice: _invLang === 'ar' ? 'فاتورة' : _invLang === 'en' ? 'Invoice' : 'Facture',
+        customerData: _invLang === 'ar' ? 'بيانات العميل' : _invLang === 'en' ? 'Customer Data' : 'Données client',
+        name: _invLang === 'ar' ? 'الاسم:' : _invLang === 'en' ? 'Name:' : 'Nom:',
+        email: _invLang === 'ar' ? 'البريد:' : _invLang === 'en' ? 'Email:' : 'E-mail:',
+        phone: _invLang === 'ar' ? 'الهاتف:' : _invLang === 'en' ? 'Phone:' : 'Téléphone:',
+        orderData: _invLang === 'ar' ? 'بيانات الطلب' : _invLang === 'en' ? 'Order Data' : 'Données commande',
+        paymentMethod: _invLang === 'ar' ? 'طريقة الدفع:' : _invLang === 'en' ? 'Payment Method:' : 'Mode de paiement:',
+        orderStatus: _invLang === 'ar' ? 'حالة الطلب:' : _invLang === 'en' ? 'Order Status:' : 'Statut:',
+        confirmed: _invLang === 'ar' ? 'مؤكد ✅' : _invLang === 'en' ? 'Confirmed ✅' : 'Confirmé ✅',
+        rejected: _invLang === 'ar' ? 'مرفوض ❌' : _invLang === 'en' ? 'Rejected ❌' : 'Rejeté ❌',
+        underReview: _invLang === 'ar' ? 'قيد المراجعة ⏳' : _invLang === 'en' ? 'Under Review ⏳' : 'En cours ⏳',
+        orderTime: _invLang === 'ar' ? 'وقت الطلب:' : _invLang === 'en' ? 'Order Time:' : 'Heure:',
+        description: _invLang === 'ar' ? 'وصف المنتج' : _invLang === 'en' ? 'Description' : 'Description',
+        qty: _invLang === 'ar' ? 'الكمية' : _invLang === 'en' ? 'Qty' : 'Qté',
+        price: _invLang === 'ar' ? 'السعر' : _invLang === 'en' ? 'Price' : 'Prix',
+        total: _invLang === 'ar' ? 'الإجمالي' : _invLang === 'en' ? 'Total' : 'Total',
+        digitalProduct: _invLang === 'ar' ? 'منتج رقمي' : _invLang === 'en' ? 'Digital Product' : 'Produit numérique',
+        subtotal: _invLang === 'ar' ? 'المجموع الفرعي:' : _invLang === 'en' ? 'Subtotal:' : 'Sous-total:',
+        discount: _invLang === 'ar' ? 'الخصم:' : _invLang === 'en' ? 'Discount:' : 'Remise:',
+        thankYou: _invLang === 'ar' ? 'شكراً لتسوقك من متجر BRAVO! نحن نقدر ثقتك بنا.' : _invLang === 'en' ? 'Thank you for shopping at BRAVO! We appreciate your trust.' : 'Merci d\'avoir acheté chez BRAVO! Nous apprécions votre confiance.',
+        locale: _invLang === 'ar' ? 'ar-EG' : _invLang === 'en' ? 'en-US' : 'fr-FR'
+    };
+
     const d = new Date(order.createdAt || Date.now());
-    const dateStr = d.toLocaleDateString('ar-EG');
-    const timeStr = d.toLocaleTimeString('ar-EG');
+    const dateStr = d.toLocaleDateString(_invI18n.locale);
+    const timeStr = d.toLocaleTimeString(_invI18n.locale);
 
     return `
-    <html dir="rtl" lang="ar">
+    <html dir="${_invI18n.dir}" lang="${_invI18n.htmlLang}">
     <head>
-        <title>فاتورة طلب #${id}</title>
+        <title>${_invI18n.orderInvoice} #${id}</title>
         <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
         <style>
             body { font-family: 'Cairo', sans-serif; padding: 40px; color: #1a0b2e; background: #f8fafc; }
@@ -4698,27 +4796,27 @@ window.generateInvoiceHTML = function(order, id) {
                     <h1>BRAVO Store</h1>
                 </div>
                 <div class="invoice-details" dir="ltr">
-                    <h2>فاتورة</h2>
+                    <h2>${_invI18n.invoice}</h2>
                     <div style="color: #64748b; font-weight: 600;">#${id}</div>
                     <div style="color: #64748b; font-weight: 600;">${dateStr}</div>
                 </div>
             </div>
             <div class="info-section">
                 <div class="info-box">
-                    <h3>بيانات العميل</h3>
-                    <div class="info-row"><span>الاسم:</span> <span>${order.customerName || '-'}</span></div>
-                    <div class="info-row"><span>البريد:</span> <span>${order.customerEmail || '-'}</span></div>
-                    <div class="info-row"><span>الهاتف:</span> <span dir="ltr">${order.customerPhone || '-'}</span></div>
+                    <h3>${_invI18n.customerData}</h3>
+                    <div class="info-row"><span>${_invI18n.name}</span> <span>${order.customerName || '-'}</span></div>
+                    <div class="info-row"><span>${_invI18n.email}</span> <span>${order.customerEmail || '-'}</span></div>
+                    <div class="info-row"><span>${_invI18n.phone}</span> <span dir="ltr">${order.customerPhone || '-'}</span></div>
                 </div>
                 <div class="info-box">
-                    <h3>بيانات الطلب</h3>
-                    <div class="info-row"><span>طريقة الدفع:</span> <span>${order.paymentMethodName || order.paymentMethod}</span></div>
-                    <div class="info-row"><span>حالة الطلب:</span> <span style="color: ${order.status === 'confirmed' ? '#10b981' : order.status === 'rejected' ? '#ef4444' : '#f59e0b'}">${order.status === 'confirmed' ? 'مؤكد ✅' : order.status === 'rejected' ? 'مرفوض ❌' : 'قيد المراجعة ⏳'}</span></div>
-                    <div class="info-row"><span>وقت الطلب:</span> <span>${timeStr}</span></div>
+                    <h3>${_invI18n.orderData}</h3>
+                    <div class="info-row"><span>${_invI18n.paymentMethod}</span> <span>${order.paymentMethodName || order.paymentMethod}</span></div>
+                    <div class="info-row"><span>${_invI18n.orderStatus}</span> <span style="color: ${order.status === 'confirmed' ? '#10b981' : order.status === 'rejected' ? '#ef4444' : '#f59e0b'}">${order.status === 'confirmed' ? _invI18n.confirmed : order.status === 'rejected' ? _invI18n.rejected : _invI18n.underReview}</span></div>
+                    <div class="info-row"><span>${_invI18n.orderTime}</span> <span>${timeStr}</span></div>
                 </div>
             </div>
             <table>
-                <thead><tr><th>وصف المنتج</th><th style="width:100px; text-align:center;">الكمية</th><th style="width:150px; text-align:center;">السعر</th><th style="width:150px; text-align:center;">الإجمالي</th></tr></thead>
+                <thead><tr><th>${_invI18n.description}</th><th style="width:100px; text-align:center;">${_invI18n.qty}</th><th style="width:150px; text-align:center;">${_invI18n.price}</th><th style="width:150px; text-align:center;">${_invI18n.total}</th></tr></thead>
                 <tbody>${(function(){
                     if (order.items && typeof order.items === 'object') {
                         var keys = Object.keys(order.items).filter(function(k){ return order.items[k] && order.items[k].title; });
@@ -4731,17 +4829,17 @@ window.generateInvoiceHTML = function(order, id) {
                             }).join('');
                         }
                     }
-                    return '<tr><td>' + (order.productTitle || 'منتج رقمي') + (order.productImage ? '<br><img src="' + order.productImage + '" style="width:50px;height:50px;object-fit:cover;border-radius:8px;margin-top:5px" loading="lazy">' : '') + '</td><td style="text-align:center;">1</td><td style="text-align:center;" dir="ltr">' + order.price + ' ' + order.currency + '</td><td style="text-align:center;" dir="ltr">' + order.price + ' ' + order.currency + '</td></tr>';
+                    return '<tr><td>' + (order.productTitle || _invI18n.digitalProduct) + (order.productImage ? '<br><img src="' + order.productImage + '" style="width:50px;height:50px;object-fit:cover;border-radius:8px;margin-top:5px" loading="lazy">' : '') + '</td><td style="text-align:center;">1</td><td style="text-align:center;" dir="ltr">' + order.price + ' ' + order.currency + '</td><td style="text-align:center;" dir="ltr">' + order.price + ' ' + order.currency + '</td></tr>';
                 })()}</tbody>
             </table>
             <div class="total-section">
                 <div class="total-box">
-                    <div class="total-row"><span>المجموع الفرعي:</span> <span dir="ltr">${order.price} ${order.currency}</span></div>
-                    <div class="total-row"><span>الخصم:</span> <span dir="ltr">0.00 ${order.currency}</span></div>
-                    <div class="total-row final"><span>الإجمالي:</span> <span dir="ltr">${order.price} ${order.currency}</span></div>
+                    <div class="total-row"><span>${_invI18n.subtotal}</span> <span dir="ltr">${order.price} ${order.currency}</span></div>
+                    <div class="total-row"><span>${_invI18n.discount}</span> <span dir="ltr">0.00 ${order.currency}</span></div>
+                    <div class="total-row final"><span>${_invI18n.total}:</span> <span dir="ltr">${order.price} ${order.currency}</span></div>
                 </div>
             </div>
-            <div class="footer">شكراً لتسوقك من متجر BRAVO! نحن نقدر ثقتك بنا.<br>للدعم الفني والاستفسارات: bravoenergyeg@gmail.com | +20 101 285 3829</div>
+            <div class="footer">${_invI18n.thankYou}<br>For support: bravoenergyeg@gmail.com | +20 101 285 3829</div>
         </div>
         <script> window.onload = function() { setTimeout(() => { window.print(); }, 500); } </script>
     </body>
@@ -4750,8 +4848,10 @@ window.generateInvoiceHTML = function(order, id) {
 }
 
 window.printOrderInvoice = function(id) {
+    var _poiLang = document.documentElement.lang || 'ar';
+    var _poiI18n = { orderNotFound: _poiLang === 'ar' ? 'الطلب غير موجود' : _poiLang === 'en' ? 'Order not found' : 'Commande introuvable' };
     const order = window.allOrders.find(([oid, o]) => oid === id)?.[1];
-    if (!order) return showToast('❌', 'الطلب غير موجود', 'error');
+    if (!order) return showToast('❌', _poiI18n.orderNotFound, 'error');
 
     const printWindow = window.open('', '_blank', 'width=850,height=900');
     printWindow.document.open();
@@ -4760,13 +4860,15 @@ window.printOrderInvoice = function(id) {
 };
 
 window.printCustomerInvoice = function() {
+    var _pciLang = document.documentElement.lang || 'ar';
+    var _pciI18n = { noInvoiceData: _pciLang === 'ar' ? 'لا يمكن العثور على بيانات الفاتورة حالياً.' : _pciLang === 'en' ? 'Invoice data not available.' : 'Données de facture non disponibles.' };
     let order = null;
     try {
         order = JSON.parse(localStorage.getItem('currentOrder') || sessionStorage.getItem('currentOrder'));
     } catch(e) {}
     
     if (!order) {
-        alert('لا يمكن العثور على بيانات الفاتورة حالياً.');
+        alert(_pciI18n.noInvoiceData);
         return;
     }
     
@@ -4898,7 +5000,7 @@ async function deleteProduct(id, event) {
             if(table) table.style.display = 'none';
             if(staticEmpty) {
                 staticEmpty.style.display = 'block';
-                staticEmpty.innerHTML = `<i class="fas fa-box-open" style="font-size: 4em; color: var(--primary); margin-bottom: 15px; display:inline-block;"></i><h3 style="font-size: 1.5em; font-weight: 900; color: var(--text-primary); margin-bottom: 10px;">لا توجد منتجات الآن</h3>`;
+                staticEmpty.innerHTML = `<i class="fas fa-box-open" style="font-size: 4em; color: var(--primary); margin-bottom: 15px; display:inline-block;"></i><h3 style="font-size: 1.5em; font-weight: 900; color: var(--text-primary); margin-bottom: 10px;">${document.documentElement.lang === 'ar' ? 'لا توجد منتجات الآن' : document.documentElement.lang === 'en' ? 'No products available' : 'Aucun produit disponible'}</h3>`;
             }
         }
 
@@ -5119,14 +5221,21 @@ window._renderCustomersTable = function(customers) {
     if (emptyState) emptyState.style.display = 'none';
 
     const lang = currentLang || 'ar';
+    var _rctI18n = {
+        locale: lang === 'ar' ? 'ar-EG' : lang === 'en' ? 'en-US' : 'fr-FR',
+        order: lang === 'ar' ? 'طلب' : lang === 'en' ? 'order' : 'commande',
+        notSpecified: lang === 'ar' ? 'غير محدد' : lang === 'en' ? 'N/A' : 'N/A',
+        viewDetails: lang === 'ar' ? 'عرض التفاصيل' : lang === 'en' ? 'View Details' : 'Voir détails',
+        deleteCustomer: lang === 'ar' ? 'حذف العميل' : lang === 'en' ? 'Delete Customer' : 'Supprimer'
+    };
     const rows = customers.map((c, i) => {
         const dt = c.createdAt ? new Date(c.createdAt) : null;
-        const dateStr = dt && !isNaN(dt.getTime()) ? dt.toLocaleDateString('ar-EG', { year:'numeric', month:'short', day:'numeric' }) : '—';
+        const dateStr = dt && !isNaN(dt.getTime()) ? dt.toLocaleDateString(_rctI18n.locale, { year:'numeric', month:'short', day:'numeric' }) : '—';
         const emailMasked = c.email ? c.email.replace(/(.{2})(.*)(@.*)/, '$1***$3') : '—';
         const phoneDisplay = c.phone || '—';
         const nameInitial = (c.name || '?').charAt(0).toUpperCase();
         const orderBadge = c.orderCount > 0
-            ? `<span style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:4px 12px;border-radius:20px;font-weight:800;font-size:0.85em;">${c.orderCount} طلب</span>`
+            ? `<span style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:4px 12px;border-radius:20px;font-weight:800;font-size:0.85em;">${c.orderCount} ${_rctI18n.order}</span>`
             : `<span style="background:rgba(100,100,100,0.2);color:#999;padding:4px 12px;border-radius:20px;font-weight:700;font-size:0.85em;">0</span>`;
 
         return `
@@ -5135,7 +5244,7 @@ window._renderCustomersTable = function(customers) {
             <td style="text-align:center;">
                 <div style="display:flex;align-items:center;gap:12px;justify-content:center;">
                     <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#ec4899);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.1em;flex-shrink:0;">${nameInitial}</div>
-                    <span style="font-weight:800;color:var(--text-primary);">${c.name || 'غير محدد'}</span>
+                    <span style="font-weight:800;color:var(--text-primary);">${c.name || _rctI18n.notSpecified}</span>
                 </div>
             </td>
             <td style="text-align:center;">
@@ -5156,10 +5265,10 @@ window._renderCustomersTable = function(customers) {
             </td>
             <td style="text-align:center;">
                 <div style="display:flex;gap:8px;justify-content:center;">
-                    <button class="action-btn-sm view" onclick="viewCustomerDetails('${c.uid}')" title="عرض التفاصيل">
+                    <button class="action-btn-sm view" onclick="viewCustomerDetails('${c.uid}')" title="${_rctI18n.viewDetails}">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button class="action-btn-sm delete" onclick="deleteCustomer('${c.uid}', '${(c.name || '').replace(/'/g, "\\'")}')" title="حذف العميل">
+                    <button class="action-btn-sm delete" onclick="deleteCustomer('${c.uid}', '${(c.name || '').replace(/'/g, "\\'")}')" title="${_rctI18n.deleteCustomer}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -5196,9 +5305,31 @@ window.resetCustomersFilters = function() {
 };
 
 window.viewCustomerDetails = async function(uid) {
+    var _vcdLang = document.documentElement.lang || 'ar';
+    var _vcdI18n = {
+        customerNotFound: _vcdLang === 'ar' ? 'لم يتم العثور على بيانات العميل' : _vcdLang === 'en' ? 'Customer not found' : 'Client introuvable',
+        notSpecified: _vcdLang === 'ar' ? 'غير محدد' : _vcdLang === 'en' ? 'N/A' : 'N/A',
+        name: _vcdLang === 'ar' ? 'الاسم:' : _vcdLang === 'en' ? 'Name:' : 'Nom:',
+        email: _vcdLang === 'ar' ? 'البريد:' : _vcdLang === 'en' ? 'Email:' : 'E-mail:',
+        phone: _vcdLang === 'ar' ? 'الهاتف:' : _vcdLang === 'en' ? 'Phone:' : 'Téléphone:',
+        country: _vcdLang === 'ar' ? 'الدولة:' : _vcdLang === 'en' ? 'Country:' : 'Pays:',
+        registered: _vcdLang === 'ar' ? 'التسجيل:' : _vcdLang === 'en' ? 'Registered:' : 'Inscrit le:',
+        orders: _vcdLang === 'ar' ? 'الطلبات' : _vcdLang === 'en' ? 'Orders' : 'Commandes',
+        order: _vcdLang === 'ar' ? 'طلب' : _vcdLang === 'en' ? 'order' : 'commande',
+        confirmedTotal: _vcdLang === 'ar' ? 'إجمالي المؤكد:' : _vcdLang === 'en' ? 'Confirmed total:' : 'Total confirmé:',
+        note: _vcdLang === 'ar' ? 'ملاحظة:' : _vcdLang === 'en' ? 'Note:' : 'Note:',
+        passwordNote: _vcdLang === 'ar' ? 'كلمات المرور مخزنة بشكل مشفر في Firebase Auth ولا يمكن عرضها.' : _vcdLang === 'en' ? 'Passwords are encrypted in Firebase Auth and cannot be displayed.' : 'Les mots de passe sont chiffrés dans Firebase Auth et ne peuvent pas être affichés.',
+        close: _vcdLang === 'ar' ? 'إغلاق' : _vcdLang === 'en' ? 'Close' : 'Fermer',
+        errorLoading: _vcdLang === 'ar' ? 'حدث خطأ أثناء تحميل البيانات' : _vcdLang === 'en' ? 'Error loading data' : 'Erreur lors du chargement',
+        pending: _vcdLang === 'ar' ? 'قيد الانتظار' : _vcdLang === 'en' ? 'Pending' : 'En attente',
+        confirmed: _vcdLang === 'ar' ? 'مؤكد' : _vcdLang === 'en' ? 'Confirmed' : 'Confirmé',
+        rejected: _vcdLang === 'ar' ? 'مرفوض' : _vcdLang === 'en' ? 'Rejected' : 'Rejeté',
+        suspended: _vcdLang === 'ar' ? 'معلق' : _vcdLang === 'en' ? 'Suspended' : 'Suspendu',
+        locale: _vcdLang === 'ar' ? 'ar-EG' : _vcdLang === 'en' ? 'en-US' : 'fr-FR'
+    };
     try {
         const uData = await DB.get(`users/${uid}`);
-        if (!uData) { showToast('❌', 'لم يتم العثور على بيانات العميل', 'error'); return; }
+        if (!uData) { showToast('❌', _vcdI18n.customerNotFound, 'error'); return; }
 
         // Fetch user orders
         let userOrders = [];
@@ -5214,17 +5345,17 @@ window.viewCustomerDetails = async function(uid) {
         } catch(e) {}
 
         const dt = uData.createdAt ? new Date(uData.createdAt) : null;
-        const dateStr = dt && !isNaN(dt.getTime()) ? dt.toLocaleDateString('ar-EG', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+        const dateStr = dt && !isNaN(dt.getTime()) ? dt.toLocaleDateString(_vcdI18n.locale, { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
         const confirmedTotal = userOrders.filter(o => o.status === 'confirmed').reduce((s, o) => s + parseFloat(o.price || 0), 0);
 
         let ordersHtml = '';
         if (userOrders.length > 0) {
             ordersHtml = '<div style="margin-top:20px;padding:16px;background:rgba(147,51,234,0.05);border-radius:14px;border:1px solid rgba(147,51,234,0.2);">' +
-                '<h4 style="margin:0 0 12px 0;font-weight:900;color:var(--primary);display:flex;align-items:center;gap:8px;"><i class="fas fa-shopping-cart"></i> الطلبات (' + userOrders.length + ')</h4>' +
+                '<h4 style="margin:0 0 12px 0;font-weight:900;color:var(--primary);display:flex;align-items:center;gap:8px;"><i class="fas fa-shopping-cart"></i> ' + _vcdI18n.orders + ' (' + userOrders.length + ')</h4>' +
                 '<div style="display:flex;flex-direction:column;gap:8px;">';
             userOrders.forEach(o => {
                 const statusColors = { pending: '#f59e0b', confirmed: '#10b981', rejected: '#ef4444', suspended: '#8b5cf6' };
-                const statusLabels = { pending: 'قيد الانتظار', confirmed: 'مؤكد', rejected: 'مرفوض', suspended: 'معلق' };
+                const statusLabels = { pending: _vcdI18n.pending, confirmed: _vcdI18n.confirmed, rejected: _vcdI18n.rejected, suspended: _vcdI18n.suspended };
                 const sc = statusColors[o.status] || '#666';
                 const sl = statusLabels[o.status] || o.status;
                 const items = o.items && typeof o.items === 'object' ? Object.values(o.items).map(it => it.title).join(', ') : (o.productTitle || '—');
@@ -5247,52 +5378,70 @@ window.viewCustomerDetails = async function(uid) {
         const btns = document.getElementById('modalButtons');
 
         icon.innerHTML = '<div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#ec4899);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:2em;margin:0 auto;">' + nameInitial + '</div>';
-        title.innerHTML = '<span style="color:var(--text-primary);">' + (uData.name || 'غير محدد') + '</span>';
+        title.innerHTML = '<span style="color:var(--text-primary);">' + (uData.name || _vcdI18n.notSpecified) + '</span>';
         msg.innerHTML = '<div style="text-align:start;font-size:0.92em;line-height:1.9;color:var(--text-secondary);direction:rtl;">' +
             '<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 16px;padding:14px;background:rgba(147,51,234,0.05);border-radius:12px;border:1px solid rgba(147,51,234,0.15);margin-bottom:12px;">' +
-            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-user"></i> الاسم:</span><span style="font-weight:700;color:var(--text-primary);">' + (uData.name || '—') + '</span>' +
-            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-envelope"></i> البريد:</span><span style="font-weight:700;color:var(--text-primary);word-break:break-all;">' + (uData.email || '—') + '</span>' +
-            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-phone"></i> الهاتف:</span><span style="font-weight:700;color:var(--text-primary);direction:ltr;">' + (uData.phone || '—') + '</span>' +
-            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-globe"></i> الدولة:</span><span style="font-weight:700;color:var(--text-primary);">' + (uData.country || '—') + '</span>' +
-            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-calendar"></i> التسجيل:</span><span style="font-weight:700;color:var(--text-primary);">' + dateStr + '</span>' +
-            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-shopping-cart"></i> الطلبات:</span><span style="font-weight:700;color:var(--text-primary);">' + userOrders.length + ' طلب (إجمالي المؤكد: ' + confirmedTotal.toFixed(0) + ' EGP)</span>' +
+            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-user"></i> ' + _vcdI18n.name + '</span><span style="font-weight:700;color:var(--text-primary);">' + (uData.name || '—') + '</span>' +
+            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-envelope"></i> ' + _vcdI18n.email + '</span><span style="font-weight:700;color:var(--text-primary);word-break:break-all;">' + (uData.email || '—') + '</span>' +
+            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-phone"></i> ' + _vcdI18n.phone + '</span><span style="font-weight:700;color:var(--text-primary);direction:ltr;">' + (uData.phone || '—') + '</span>' +
+            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-globe"></i> ' + _vcdI18n.country + '</span><span style="font-weight:700;color:var(--text-primary);">' + (uData.country || '—') + '</span>' +
+            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-calendar"></i> ' + _vcdI18n.registered + '</span><span style="font-weight:700;color:var(--text-primary);">' + dateStr + '</span>' +
+            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-shopping-cart"></i> ' + _vcdI18n.orders + ':</span><span style="font-weight:700;color:var(--text-primary);">' + userOrders.length + ' ' + _vcdI18n.order + ' (' + _vcdI18n.confirmedTotal + ' ' + confirmedTotal.toFixed(0) + ' EGP)</span>' +
             '</div>' +
-            '<div style="padding:10px 14px;background:rgba(239,68,68,0.08);border-radius:10px;border:1px solid rgba(239,68,68,0.2);margin-top:10px;"><i class="fas fa-info-circle" style="color:#f87171;"></i> <strong style="color:#fca5a5;">ملاحظة:</strong> <span style="color:#fca5a5;">كلمات المرور مخزنة بشكل مشفر في Firebase Auth ولا يمكن عرضها.</span></div>' +
+            '<div style="padding:10px 14px;background:rgba(239,68,68,0.08);border-radius:10px;border:1px solid rgba(239,68,68,0.2);margin-top:10px;"><i class="fas fa-info-circle" style="color:#f87171;"></i> <strong style="color:#fca5a5;">' + _vcdI18n.note + '</strong> <span style="color:#fca5a5;">' + _vcdI18n.passwordNote + '</span></div>' +
             ordersHtml +
             '</div>';
-        btns.innerHTML = '<button onclick="document.getElementById(\'customModalOverlay\').classList.remove(\'active\')" style="padding:12px 30px;border-radius:12px;background:var(--gradient-primary);color:white;border:none;font-weight:800;cursor:pointer;font-size:1em;font-family:inherit;">إغلاق</button>';
+        btns.innerHTML = '<button onclick="document.getElementById(\'customModalOverlay\').classList.remove(\'active\')" style="padding:12px 30px;border-radius:12px;background:var(--gradient-primary);color:white;border:none;font-weight:800;cursor:pointer;font-size:1em;font-family:inherit;">' + _vcdI18n.close + '</button>';
         modal.classList.add('active');
     } catch(e) {
         console.error('viewCustomerDetails error:', e);
-        showToast('❌', 'حدث خطأ أثناء تحميل البيانات', 'error');
+        showToast('❌', _vcdI18n.errorLoading, 'error');
     }
 };
 
 window.deleteCustomer = async function(uid, name) {
+    var _dcLang = document.documentElement.lang || 'ar';
+    var _dcI18n = {
+        title: _dcLang === 'ar' ? '⚠️ حذف العميل' : _dcLang === 'en' ? '⚠️ Delete Customer' : '⚠️ Supprimer le client',
+        msg: _dcLang === 'ar' ? 'هل أنت متأكد من حذف "' + name + '"؟\nسيتم حذف جميع بيانات العميل نهائياً.' : _dcLang === 'en' ? 'Are you sure you want to delete "' + name + '"?\nAll customer data will be permanently deleted.' : 'Êtes-vous sûr de vouloir supprimer "' + name + '" ?\nToutes les données du client seront définitivement supprimées.',
+        confirm: _dcLang === 'ar' ? 'حذف' : _dcLang === 'en' ? 'Delete' : 'Supprimer',
+        cancel: _dcLang === 'ar' ? 'إلغاء' : _dcLang === 'en' ? 'Cancel' : 'Annuler',
+        success: _dcLang === 'ar' ? 'تم حذف العميل بنجاح' : _dcLang === 'en' ? 'Customer deleted successfully' : 'Client supprimé avec succès',
+        failed: _dcLang === 'ar' ? 'فشل حذف العميل' : _dcLang === 'en' ? 'Failed to delete customer' : 'Échec de la suppression du client'
+    };
     const ok = await showConfirmDialog(
-        '⚠️ حذف العميل',
-        'هل أنت متأكد من حذف "' + name + '"؟\nسيتم حذف جميع بيانات العميل نهائياً.',
-        'حذف',
-        'إلغاء'
+        _dcI18n.title,
+        _dcI18n.msg,
+        _dcI18n.confirm,
+        _dcI18n.cancel
     );
     if (!ok) return;
     try {
         await DB.remove('users/' + uid);
         window._allCustomers = window._allCustomers.filter(c => c.uid !== uid);
         window.applyCustomersFilter();
-        showToast('✅', 'تم حذف العميل بنجاح', 'success');
+        showToast('✅', _dcI18n.success, 'success');
     } catch(e) {
         console.error('deleteCustomer error:', e);
-        showToast('❌', 'فشل حذف العميل', 'error');
+        showToast('❌', _dcI18n.failed, 'error');
     }
 };
 
 window.deleteAllCustomers = async function() {
+    var _dacLang = document.documentElement.lang || 'ar';
+    var _dacI18n = {
+        title: _dacLang === 'ar' ? '⚠️ حذف جميع العملاء' : _dacLang === 'en' ? '⚠️ Delete All Customers' : '⚠️ Supprimer tous les clients',
+        msg: _dacLang === 'ar' ? 'هل أنت متأكد من حذف جميع بيانات العملاء؟\nلن تتمكن من استعادتها.' : _dacLang === 'en' ? 'Are you sure you want to delete all customer data?\nYou will not be able to recover it.' : 'Êtes-vous sûr de vouloir supprimer toutes les données clients ?\nVous ne pourrez pas les récupérer.',
+        confirm: _dacLang === 'ar' ? 'حذف الكل' : _dacLang === 'en' ? 'Delete All' : 'Tout supprimer',
+        cancel: _dacLang === 'ar' ? 'إلغاء' : _dacLang === 'en' ? 'Cancel' : 'Annuler',
+        success: _dacLang === 'ar' ? 'تم حذف جميع العملاء' : _dacLang === 'en' ? 'All customers deleted' : 'Tous les clients supprimés',
+        error: _dacLang === 'ar' ? 'حدث خطأ أثناء الحذف' : _dacLang === 'en' ? 'Error during deletion' : 'Erreur lors de la suppression'
+    };
     const ok = await showConfirmDialog(
-        '⚠️ حذف جميع العملاء',
-        'هل أنت متأكد من حذف جميع بيانات العملاء؟\nلن تتمكن من استعادتها.',
-        'حذف الكل',
-        'إلغاء'
+        _dacI18n.title,
+        _dacI18n.msg,
+        _dacI18n.confirm,
+        _dacI18n.cancel
     );
     if (!ok) return;
     try {
@@ -5301,10 +5450,10 @@ window.deleteAllCustomers = async function() {
         }
         window._allCustomers = [];
         window.applyCustomersFilter();
-        showToast('✅', 'تم حذف جميع العملاء', 'success');
+        showToast('✅', _dacI18n.success, 'success');
     } catch(e) {
         console.error('deleteAllCustomers error:', e);
-        showToast('❌', 'حدث خطأ أثناء الحذف', 'error');
+        showToast('❌', _dacI18n.error, 'error');
     }
 };
 
@@ -7217,7 +7366,7 @@ window.updateCartQuantity = async function(id, change, event) {
     if (!item) return;
     const nq = (item.quantity || 1) + change;
     if (nq < 1) return window.removeFromCart(id);
-    if (nq > 10) return showToast('⚠️', 'الحد الأقصى 10 قطع', 'warning');
+    if (nq > 10) return showToast('⚠️', (document.documentElement.lang === 'ar' ? 'الحد الأقصى 10 قطع' : document.documentElement.lang === 'en' ? 'Max 10 items' : 'Max 10 articles'), 'warning');
     item.quantity = nq;
     if (currentUser) await DB.update(`carts/${currentUser.uid}/${id}`, { quantity: nq });
     localStorage.setItem(STORAGE_KEYS.cart, JSON.stringify(userCart));
@@ -7276,7 +7425,7 @@ window.mergeGuestCartToUser = async function(userId) {
         if (window.updateCartBadge) window.updateCartBadge();
         if (window.renderCartPage) window.renderCartPage();
         console.log("🎉 [Merge] === تم الدمج بنجاح ===");
-    } catch (e) { console.error('❌ [Merge] خطأ:', e); alert('خطأ في دمج السلة: ' + e.message); }
+    } catch (e) { console.error('❌ [Merge] خطأ:', e); alert((document.documentElement.lang === 'ar' ? 'خطأ في دمج السلة: ' : document.documentElement.lang === 'en' ? 'Error merging cart: ' : 'Erreur de fusion du panier: ') + e.message); }
 };
 
 window.mergeGuestWishlistToUser = async function(userId) {
@@ -7523,16 +7672,49 @@ window.renderOrdersList = function(orders) {
     const catEmojis = { books: '📚', software: '💻', formulas: '🧪', courses: '🎓' };
     const catColors = { books:'#3b82f6', software:'#8b5cf6', formulas:'#f59e0b', courses:'#10b981' };
     const cats = APP_CONFIG.categories;
-    const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const dayNamesAr = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const dayNamesEn = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const dayNamesFr = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
     const userCountry = localStorage.getItem('userCountry') || 'EG';
     const lang = document.documentElement.lang || 'ar';
+    const _i18n = {
+        products: lang === 'ar' ? 'المنتجات' : lang === 'en' ? 'Products' : 'Produits',
+        orderNum: lang === 'ar' ? 'رقم الطلب' : lang === 'en' ? 'Order #' : 'Commande #',
+        payment: lang === 'ar' ? 'طريقة الدفع' : lang === 'en' ? 'Payment' : 'Paiement',
+        category: lang === 'ar' ? 'الفئة' : lang === 'en' ? 'Category' : 'Catégorie',
+        date: lang === 'ar' ? 'التاريخ' : lang === 'en' ? 'Date' : 'Date',
+        price: lang === 'ar' ? 'السعر' : lang === 'en' ? 'Price' : 'Prix',
+        saved: lang === 'ar' ? 'وفر' : lang === 'en' ? 'Save' : 'Économisez',
+        adminNote: lang === 'ar' ? 'ملاحظة المشرف' : lang === 'en' ? 'Admin Note' : 'Note admin',
+        download: lang === 'ar' ? 'تحميل المنتج' : lang === 'en' ? 'Download Product' : 'Télécharger',
+        track: lang === 'ar' ? 'متابعة الطلب' : lang === 'en' ? 'Track Order' : 'Suivre la commande',
+        support: lang === 'ar' ? 'الدعم' : lang === 'en' ? 'Support' : 'Support',
+        copyId: lang === 'ar' ? 'نسخ الرقم' : lang === 'en' ? 'Copy ID' : 'Copier ID',
+        unclassified: lang === 'ar' ? 'غير مصنف' : lang === 'en' ? 'Uncategorized' : 'Non classé',
+        step1Title: lang === 'ar' ? 'تم إرسال الطلب' : lang === 'en' ? 'Order Placed' : 'Commande passée',
+        step1Sub: lang === 'ar' ? 'تم استلام طلبك' : lang === 'en' ? 'Order received' : 'Commande reçue',
+        step2Review: lang === 'ar' ? 'تمت المراجعة' : lang === 'en' ? 'Reviewed' : 'Examinée',
+        step2Reviewing: lang === 'ar' ? 'جاري المراجعة' : lang === 'en' ? 'Under Review' : 'En cours',
+        step2Pending: lang === 'ar' ? '⏳ في الانتظار' : lang === 'en' ? '⏳ Pending' : '⏳ En attente',
+        step2SubDone: lang === 'ar' ? 'تم التحقق من الدفع' : lang === 'en' ? 'Payment verified' : 'Paiement vérifié',
+        step2SubDoing: lang === 'ar' ? 'نراجع بيانات الدفع...' : lang === 'en' ? 'Reviewing payment...' : 'Vérification...',
+        step3Confirmed: lang === 'ar' ? '✅ تم التأكيد' : lang === 'en' ? '✅ Confirmed' : '✅ Confirmée',
+        step3Rejected: lang === 'ar' ? '❌ تم الرفض' : lang === 'en' ? '❌ Rejected' : '❌ Rejetée',
+        step3Suspended: lang === 'ar' ? '🟣 معلق' : lang === 'en' ? '🟣 Suspended' : '🟣 Suspendue',
+        step3Pending: lang === 'ar' ? '⏳ في الانتظار' : lang === 'en' ? '⏳ Pending' : '⏳ En attente',
+        step3SubDone: lang === 'ar' ? 'تم تأكيد طلبك بنجاح' : lang === 'en' ? 'Order confirmed successfully' : 'Commande confirmée',
+        step3SubRej: lang === 'ar' ? 'يرجى التواصل مع الدعم' : lang === 'en' ? 'Please contact support' : 'Veuillez contacter le support',
+        step3SubSus: lang === 'ar' ? 'الطلب معلق للمراجعة' : lang === 'en' ? 'Order suspended for review' : 'Commande suspendue'
+    };
     orders = orders.filter(o => o && o.id);
 
     const cards = [];
     for (const o of orders) {
         try {
+        const dayNames = lang === 'ar' ? dayNamesAr : lang === 'en' ? dayNamesEn : dayNamesFr;
+        const dtLocale = lang === 'ar' ? 'ar-EG' : lang === 'en' ? 'en-US' : 'fr-FR';
         const dt = o.createdAt ? new Date(o.createdAt) : null;
-        const fullDate = dt && !isNaN(dt.getTime()) ? `${dayNames[dt.getDay()] || ''} - ${dt.toLocaleDateString('ar-EG')} - الساعة ${dt.toLocaleTimeString('ar-EG', {hour:'2-digit',minute:'2-digit'})}` : '—';
+        const fullDate = dt && !isNaN(dt.getTime()) ? `${dayNames[dt.getDay()] || ''} - ${dt.toLocaleDateString(dtLocale)} - ${lang === 'ar' ? 'الساعة' : lang === 'en' ? 'at' : 'à'} ${dt.toLocaleTimeString(dtLocale, {hour:'2-digit',minute:'2-digit'})}` : '—';
         const pmKey = o.paymentMethod || '';
         const pmName = o.paymentMethodName || PAYMENT_ACCOUNTS[pmKey]?.name?.[lang] || pmKey || '';
         const pmLogo = PAYMENT_ACCOUNTS[pmKey]?.logo || '';
@@ -7561,14 +7743,14 @@ window.renderOrdersList = function(orders) {
         const badgesHTML = (discBadge || specBadge) ? `<div class="badge-column">${discBadge}${specBadge}</div>` : '';
         // ----
         const cat = o.productCategory || o.category || '';
-        const catName = cats?.[lang]?.[cat] || cat || 'غير مصنف';
+        const catName = cats?.[lang]?.[cat] || cat || _i18n.unclassified;
         const catEmoji = catEmojis[cat] || '📦';
         const catColor = catColors[cat] || '#8b5cf6';
         const idStr = String(o.id || '');
         const orderIdShort = idStr.length > 8 ? idStr.slice(-8).toUpperCase() : idStr.toUpperCase();
         const imgUrl = o.productImage || o.image || '';
         // Fix cart-based data — show ALL items
-        let displayTitle = o.productTitle || o.id;
+        let displayTitle = (typeof o.productTitle === 'string' && _isArabic(o.productTitle)) ? _getTranslation(o.productTitle, lang) : (o.productTitle || o.id);
         let displayImg = imgUrl;
         if (o.items && typeof o.items === 'object') {
             const keys = Object.keys(o.items).filter(k => o.items[k] && o.items[k].title);
@@ -7578,7 +7760,8 @@ window.renderOrdersList = function(orders) {
                 if (keys.length > 1) {
                     displayTitle = keys.length + ' ' + (lang === 'ar' ? 'منتجات' : lang === 'en' ? 'products' : 'produits');
                 } else {
-                    displayTitle = first.title || o.productTitle;
+                    var firstTitle = first.title || o.productTitle;
+                    displayTitle = (typeof firstTitle === 'string' && _isArabic(firstTitle)) ? _getTranslation(firstTitle, lang) : firstTitle;
                 }
             }
         }
@@ -7630,34 +7813,34 @@ window.renderOrdersList = function(orders) {
                             <div class="order-card-info-col">
                                 <div class="order-info-grid">
                                     <div class="info-row">
-                                        <span class="info-label">المنتجات</span>
+                                        <span class="info-label">${_i18n.products}</span>
                                         <span class="info-value" style="white-space:normal;line-height:1.6">${(function(){if(o.items&&typeof o.items==='object'){var ks=Object.keys(o.items).filter(function(k){return o.items[k]&&o.items[k].title});if(ks.length>0){var catEmojis={books:'📚',software:'💻',formulas:'🧪',courses:'🎓'};var cats2=APP_CONFIG?APP_CONFIG.categories:null;var lang2=document.documentElement.lang||'ar';var lines=ks.map(function(k){var it=o.items[k];var qty=it.quantity||1;var cat=it.category||'';var ce=catEmojis[cat]||'';var cn=(cats2&&cats2[lang2]&&cats2[lang2][cat])||cat||'';return it.title+' <span style="color:#9333ea">\u00D7'+qty+'</span>'+(cn?' <span class="order-item-cat-badge">'+ce+' '+cn+'</span>':'')});return lines.join('<br>')}}return o.productTitle||'N/A';})()}</span>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">رقم الطلب</span>
-                                        <span class="info-value ord-id">#${orderIdShort} <button class="copy-id-btn" onclick="event.stopPropagation();copyToClipboard('${o.id}',this)" title="نسخ الرقم"><i class="fas fa-copy"></i></button></span>
+                                        <span class="info-label">${_i18n.orderNum}</span>
+                                        <span class="info-value ord-id">#${orderIdShort} <button class="copy-id-btn" onclick="event.stopPropagation();copyToClipboard('${o.id}',this)" title="${_i18n.copyId}"><i class="fas fa-copy"></i></button></span>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">طريقة الدفع</span>
+                                        <span class="info-label">${_i18n.payment}</span>
                                         <span class="info-value pay-method">${pmName} ${pmLogo ? `<img src="${pmLogo}" class="pay-icon" alt="">` : ''}</span>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">الفئة</span>
+                                        <span class="info-label">${_i18n.category}</span>
                                         <span class="info-value"><span class="product-category">${catEmoji} ${catName}</span></span>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">التاريخ</span>
+                                        <span class="info-label">${_i18n.date}</span>
                                         <span class="info-value">${fullDate}</span>
                                     </div>
                                     <div class="info-row">
-                                        <span class="info-label">السعر</span>
+                                        <span class="info-label">${_i18n.price}</span>
                                         <span class="info-value"></span>
                                     </div>
                                 </div>
 
                                 <!-- Pricing block — like product page / cart -->
                                 <div class="order-pricing-block">
-                                    ${hasDiscount ? `<div class="price-old-save-row"><div class="price-old"><span class="price-old-value">${oldPrice}</span> ${o.currency}</div><span class="price-save"><i class="fas fa-tag"></i> وفر ${savings}</span></div>` : ''}
+                                    ${hasDiscount ? `<div class="price-old-save-row"><div class="price-old"><span class="price-old-value">${oldPrice}</span> ${o.currency}</div><span class="price-save"><i class="fas fa-tag"></i> ${_i18n.saved} ${savings}</span></div>` : ''}
                                     <div class="price-final">
                                         <i class="fas fa-fire animated-fire"></i>
                                         <span class="price-value">${currentPrice}</span>
@@ -7665,18 +7848,18 @@ window.renderOrdersList = function(orders) {
                                     </div>
                                 </div>
 
-                                ${o.adminNote ? `<div class="order-note"><i class="fas fa-sticky-note"></i> ملاحظة المشرف: ${o.adminNote}</div>` : ''}
+                                ${o.adminNote ? `<div class="order-note"><i class="fas fa-sticky-note"></i> ${_i18n.adminNote}: ${o.adminNote}</div>` : ''}
 
                                 <div class="order-action-row">
                                     ${o.status === 'confirmed' ? `
                                     <a href="${(o.downloadLink && o.downloadLink !== '#') ? o.downloadLink : (o._dlFallback || '#')}" class="order-action-btn btn-download" target="_blank" onclick="event.stopPropagation()">
-                                        <i class="fas fa-download"></i> تحميل المنتج
+                                        <i class="fas fa-download"></i> ${_i18n.download}
                                     </a>` : ''}
                                     <a href="pending-order.html?order=${o.id}" class="order-action-btn btn-track" onclick="event.stopPropagation()">
-                                        <i class="fas fa-search"></i> متابعة الطلب
+                                        <i class="fas fa-search"></i> ${_i18n.track}
                                     </a>
-                                    <a href="https://wa.me/${APP_CONFIG.whatsappNumber}?text=${encodeURIComponent(`استفسار عن الطلب #${o.id} - ${displayTitle}`)}" class="order-action-btn btn-support" target="_blank" onclick="event.stopPropagation()">
-                                        <i class="fab fa-whatsapp"></i> الدعم
+                                    <a href="https://wa.me/${APP_CONFIG.whatsappNumber}?text=${encodeURIComponent(lang === 'ar' ? `استفسار عن الطلب #${o.id} - ${displayTitle}` : lang === 'en' ? `Inquiry about order #${o.id} - ${displayTitle}` : `Demande de renseignement #${o.id} - ${displayTitle}`)}" class="order-action-btn btn-support" target="_blank" onclick="event.stopPropagation()">
+                                        <i class="fab fa-whatsapp"></i> ${_i18n.support}
                                     </a>
                                 </div>
                             </div>
@@ -7687,15 +7870,15 @@ window.renderOrdersList = function(orders) {
                             <div class="order-progress-line ${o.status}"></div>
                             <div class="order-step completed">
                                 <div class="order-step-dot completed"></div>
-                                <div class="order-step-text"><span>تم إرسال الطلب</span><small>تم استلام طلبك</small></div>
+                                <div class="order-step-text"><span>${_i18n.step1Title}</span><small>${_i18n.step1Sub}</small></div>
                             </div>
                             <div class="order-step ${s2Done ? 'completed' : (s2Active ? 'active' : '')}">
                                 <div class="order-step-dot ${s2Done ? 'completed' : (s2Active ? 'active' : '')}"></div>
-                                <div class="order-step-text"><span>${s2Done ? 'تمت المراجعة' : (s2Active ? 'جاري المراجعة' : '⏳ في الانتظار')}</span><small>${s2Done ? 'تم التحقق من الدفع' : (s2Active ? 'نراجع بيانات الدفع...' : '')}</small></div>
+                                <div class="order-step-text"><span>${s2Done ? _i18n.step2Review : (s2Active ? _i18n.step2Reviewing : _i18n.step2Pending)}</span><small>${s2Done ? _i18n.step2SubDone : (s2Active ? _i18n.step2SubDoing : '')}</small></div>
                             </div>
                             <div class="order-step ${s3Done ? 'completed' : (s3Rejected ? 'rejected' : (s3Suspended ? 'suspended' : ''))}">
                                 <div class="order-step-dot ${s3Done ? 'completed' : (s3Rejected ? 'rejected' : (s3Suspended ? 'suspended' : ''))}"></div>
-                                <div class="order-step-text"><span>${s3Done ? '✅ تم التأكيد' : (s3Rejected ? '❌ تم الرفض' : (s3Suspended ? '🟣 معلق' : '⏳ في الانتظار'))}</span><small>${s3Done ? 'تم تأكيد طلبك بنجاح' : (s3Rejected ? 'يرجى التواصل مع الدعم' : (s3Suspended ? 'الطلب معلق للمراجعة' : ''))}</small></div>
+                                <div class="order-step-text"><span>${s3Done ? _i18n.step3Confirmed : (s3Rejected ? _i18n.step3Rejected : (s3Suspended ? _i18n.step3Suspended : _i18n.step3Pending))}</span><small>${s3Done ? _i18n.step3SubDone : (s3Rejected ? _i18n.step3SubRej : (s3Suspended ? _i18n.step3SubSus : ''))}</small></div>
                             </div>
                         </div>
                     </div>
@@ -7703,7 +7886,7 @@ window.renderOrdersList = function(orders) {
             </div>
         </div>`;
             cards.push(html);
-        } catch(e) { console.warn('Order render error:', o?.id, e); cards.push(`<div class="order-card" data-status="${o?.status||'pending'}" style="opacity:0.6"><div class="order-card-inner" style="border:2px dashed #ef4444;padding:16px;text-align:center"><span style="color:#fff">#${o?.id||'?'}</span><span style="color:#999;margin-right:8px">${o?.status||'?'}</span><span style="color:#ef4444;margin-right:8px;font-size:11px">⚠️ ${e?.message||'خطأ'}</span></div></div>`); }
+        } catch(e) { console.warn('Order render error:', o?.id, e); cards.push(`<div class="order-card" data-status="${o?.status||'pending'}" style="opacity:0.6"><div class="order-card-inner" style="border:2px dashed #ef4444;padding:16px;text-align:center"><span style="color:#fff">#${o?.id||'?'}</span><span style="color:#999;margin-right:8px">${o?.status||'?'}</span><span style="color:#ef4444;margin-right:8px;font-size:11px">⚠️ ${e?.message||((lang === 'ar' ? 'خطأ' : lang === 'en' ? 'Error' : 'Erreur'))}</span></div></div>`); }
     }
     list.innerHTML = cards.join('');
     list.setAttribute('data-rendered', 'true');

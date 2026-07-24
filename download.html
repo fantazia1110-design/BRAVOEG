@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BRAVO - تحميل المنتج</title>
+    <title data-ar="BRAVO - تحميل المنتج" data-en="BRAVO - Download Product" data-fr="BRAVO - Télécharger le produit">BRAVO - تحميل المنتج</title>
     <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/7tKdRmfC/68-1.png">
     <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/7tKdRmfC/68-1.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,8 +15,8 @@
             <i class="fas fa-check"></i>
         </div>
 
-        <h1 id="pageTitle">تم تأكيد الدفع بنجاح! 🎉</h1>
-        <p class="message" id="pageMessage">
+        <h1 id="pageTitle" data-ar="تم تأكيد الدفع بنجاح! 🎉" data-en="Payment Confirmed! 🎉" data-fr="Paiement confirmé ! 🎉">تم تأكيد الدفع بنجاح! 🎉</h1>
+        <p class="message" id="pageMessage" data-ar="مبروك! تم تأكيد عملية الدفع وطلبك جاهز الآن. يمكنك تحميل المنتج مباشرة من خلال الزر أدناه." data-en="Congratulations! Payment confirmed and your order is ready. Download your product using the button below." data-fr="Félicitations ! Paiement confirmé et votre commande est prête. Téléchargez votre produit avec le bouton ci-dessous.">
             مبروك! تم تأكيد عملية الدفع وطلبك جاهز الآن. يمكنك تحميل المنتج مباشرة من خلال الزر أدناه.
         </p>
 
@@ -24,17 +24,17 @@
         </div>
 
         <div class="download-section" data-reveal="fadeInUp" id="downloadSection">
-            <h2>📥 منتجك جاهز للتحميل</h2>
-            <p>اضغط على الزر أدناه لبدء التحميل الفوري.</p>
+            <h2 data-ar="📥 منتجك جاهز للتحميل" data-en="📥 Your product is ready" data-fr="📥 Votre produit est prêt">📥 منتجك جاهز للتحميل</h2>
+            <p data-ar="اضغط على الزر أدناه لبدء التحميل الفوري." data-en="Click below to download instantly." data-fr="Cliquez ci-dessous pour télécharger.">اضغط على الزر أدناه لبدء التحميل الفوري.</p>
             <a href="#" id="downloadBtn" class="download-btn" target="_blank">
                 <i class="fas fa-download"></i>
-                تحميل الآن
+                <span data-ar="تحميل الآن" data-en="Download Now" data-fr="Télécharger">تحميل الآن</span>
             </a>
         </div>
 
         <div class="action-buttons" data-reveal="fadeInUp">
             <a href="index.html" class="btn btn-primary">
-                <i class="fas fa-shopping-bag"></i> تسوق المزيد
+                <i class="fas fa-shopping-bag"></i> <span data-ar="تسوق المزيد" data-en="Shop More" data-fr="Acheter plus">تسوق المزيد</span>
             </a>
         </div>
     </div>
@@ -43,14 +43,14 @@
         <div class="success-icon" style="background:var(--error,#ef4444);">
             <i class="fas fa-times"></i>
         </div>
-        <h1 id="errorTitle">عذراً!</h1>
-        <p class="message" id="errorMessage">هذا الطلب غير متاح للتحميل حالياً.</p>
+        <h1 id="errorTitle" data-ar="عذراً!" data-en="Sorry!" data-fr="Désolé !">عذراً!</h1>
+        <p class="message" id="errorMessage" data-ar="هذا الطلب غير متاح للتحميل حالياً." data-en="This order is unavailable for download." data-fr="Cette commande n'est pas disponible.">هذا الطلب غير متاح للتحميل حالياً.</p>
         <div class="action-buttons">
             <a href="orders.html" class="btn btn-primary">
-                <i class="fas fa-box"></i> طلباتي
+                <i class="fas fa-box"></i> <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
             </a>
             <a href="index.html" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:12px;padding:18px 40px;background:var(--card-bg);color:var(--text-primary);border-radius:16px;font-size:1.1em;font-weight:700;text-decoration:none;border:1px solid var(--border-color);margin-top:15px;">
-                <i class="fas fa-home"></i> العودة للرئيسية
+                <i class="fas fa-home"></i> <span data-ar="العودة للرئيسية" data-en="Back to Home" data-fr="Retour à l'accueil">العودة للرئيسية</span>
             </a>
         </div>
     </div>
@@ -58,7 +58,7 @@
     <div class="success-container" id="loadingContainer">
         <div style="text-align:center;padding:80px 20px;">
             <i class="fas fa-spinner fa-spin" style="font-size:4em;color:var(--primary,#9333ea);margin-bottom:30px;"></i>
-            <h2 style="color:var(--text-primary);">جاري التحقق من الطلب...</h2>
+            <h2 style="color:var(--text-primary);" data-ar="جاري التحقق من الطلب..." data-en="Verifying order..." data-fr="Vérification...">جاري التحقق من الطلب...</h2>
         </div>
     </div>
 
@@ -79,6 +79,34 @@
 
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
+
+        const _dlLang = document.documentElement.lang || 'ar';
+        const _dlI18n = {
+            orderDetails: _dlLang === 'ar' ? 'تفاصيل الطلب' : _dlLang === 'en' ? 'Order Details' : 'Détails de la commande',
+            orderNum: _dlLang === 'ar' ? 'رقم الطلب:' : _dlLang === 'en' ? 'Order ID:' : 'N° de commande :',
+            product: _dlLang === 'ar' ? 'المنتج:' : _dlLang === 'en' ? 'Product:' : 'Produit :',
+            digitalProduct: _dlLang === 'ar' ? 'منتج رقمي' : _dlLang === 'en' ? 'Digital Product' : 'Produit numérique',
+            amountPaid: _dlLang === 'ar' ? 'المبلغ المدفوع:' : _dlLang === 'en' ? 'Amount Paid:' : 'Montant payé :',
+            paymentMethod: _dlLang === 'ar' ? 'طريقة الدفع:' : _dlLang === 'en' ? 'Payment:' : 'Paiement :',
+            name: _dlLang === 'ar' ? 'الاسم:' : _dlLang === 'en' ? 'Name:' : 'Nom :',
+            email: _dlLang === 'ar' ? 'البريد الإلكتروني:' : _dlLang === 'en' ? 'Email:' : 'Email :',
+            orderDate: _dlLang === 'ar' ? 'تاريخ الطلب:' : _dlLang === 'en' ? 'Order Date:' : 'Date :',
+            status: _dlLang === 'ar' ? 'الحالة:' : _dlLang === 'en' ? 'Status:' : 'Statut :',
+            confirmed: _dlLang === 'ar' ? 'مؤكد ✅' : _dlLang === 'en' ? 'Confirmed ✅' : 'Confirmée ✅',
+            noOrder: _dlLang === 'ar' ? 'لا يوجد طلب' : _dlLang === 'en' ? 'No Order Found' : 'Aucune commande',
+            noOrderMsg: _dlLang === 'ar' ? 'لم يتم العثور على رقم الطلب. يرجى التحقق من رابط التحميل.' : _dlLang === 'en' ? 'Order ID not found. Please check the download link.' : 'Numéro introuvable. Vérifiez le lien.',
+            notFound: _dlLang === 'ar' ? 'لم يتم العثور على الطلب' : _dlLang === 'en' ? 'Order Not Found' : 'Commande introuvable',
+            notFoundMsg: _dlLang === 'ar' ? 'عذراً، لم نتمكن من العثور على هذا الطلب. قد يكون قد تم حذفه أو أن الرابط غير صحيح.' : _dlLang === 'en' ? 'Sorry, we could not find this order. It may have been deleted or the link is invalid.' : 'Désolé, commande introuvable. Elle a pu être supprimée.',
+            rejected: _dlLang === 'ar' ? 'تم رفض الطلب' : _dlLang === 'en' ? 'Order Rejected' : 'Commande rejetée',
+            rejectedMsg: _dlLang === 'ar' ? 'عذراً، لم يتم تأكيد طلبك. يرجى التواصل مع الدعم الفني للمزيد من المعلومات.' : _dlLang === 'en' ? 'Sorry, your order was not confirmed. Please contact support.' : 'Désolé, commande non confirmée. Contactez le support.',
+            pending: _dlLang === 'ar' ? 'الطلب لم يتم تأكيده بعد' : _dlLang === 'en' ? 'Order Not Yet Confirmed' : 'Commande non encore confirmée',
+            pendingMsg: _dlLang === 'ar' ? 'طلبك لا يزال قيد المراجعة. سيتم إعلامك فور تأكيد الدفع. يمكنك متابعة حالة طلبك من صفحة الطلبات.' : _dlLang === 'en' ? 'Your order is still under review. You will be notified once confirmed. Track your order from the orders page.' : 'Votre commande est en cours. Vous serez notifié. Suivez-la depuis la page commandes.',
+            downloadUnavailable: _dlLang === 'ar' ? 'رابط التحميل غير متاح حالياً، يرجى التواصل مع الدعم الفني.' : _dlLang === 'en' ? 'Download link unavailable. Please contact support.' : 'Lien indisponible. Contactez le support.',
+            dayNames: _dlLang === 'ar' ? ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'] : _dlLang === 'en' ? ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] : ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
+            dtLocale: _dlLang === 'ar' ? 'ar-EG' : _dlLang === 'en' ? 'en-US' : 'fr-FR',
+            atTime: _dlLang === 'ar' ? 'الساعة' : _dlLang === 'en' ? 'at' : 'à',
+            currency: _dlLang === 'ar' ? 'جنيه' : 'EGP'
+        };
 
         const loadingEl = document.getElementById('loadingContainer');
         const mainEl = document.getElementById('mainContainer');
@@ -138,42 +166,42 @@
             mainEl.style.display = 'block';
 
             const dt = new Date(order.createdAt || order.orderDate || Date.now());
-            const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-            const fullDate = `${dayNames[dt.getDay()]} - ${dt.toLocaleDateString('ar-EG')} - الساعة ${dt.toLocaleTimeString('ar-EG', {hour:'2-digit',minute:'2-digit'})}`;
+            const dayNames = _dlI18n.dayNames;
+            const fullDate = `${dayNames[dt.getDay()]} - ${dt.toLocaleDateString(_dlI18n.dtLocale)} - ${_dlI18n.atTime} ${dt.toLocaleTimeString(_dlI18n.dtLocale, {hour:'2-digit',minute:'2-digit'})}`;
 
             document.getElementById('orderDetails').innerHTML = `
-                <h2>تفاصيل الطلب</h2>
+                <h2>${_dlI18n.orderDetails}</h2>
                 <div class="detail-row">
-                    <span class="detail-label">رقم الطلب:</span>
+                    <span class="detail-label">${_dlI18n.orderNum}</span>
                     <span class="detail-value">${order.id || order.orderId || ''}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">المنتج:</span>
-                    <span class="detail-value">${order.productTitle || 'منتج رقمي'}</span>
+                    <span class="detail-label">${_dlI18n.product}</span>
+                    <span class="detail-value">${order.productTitle || _dlI18n.digitalProduct}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">المبلغ المدفوع:</span>
-                    <span class="detail-value">${order.price || 0} ${order.currency || 'جنيه'}</span>
+                    <span class="detail-label">${_dlI18n.amountPaid}</span>
+                    <span class="detail-value">${order.price || 0} ${order.currency || _dlI18n.currency}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">طريقة الدفع:</span>
+                    <span class="detail-label">${_dlI18n.paymentMethod}</span>
                     <span class="detail-value">${order.paymentMethodName || order.paymentMethod || ''}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">الاسم:</span>
+                    <span class="detail-label">${_dlI18n.name}</span>
                     <span class="detail-value">${order.customerName || ''}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">البريد الإلكتروني:</span>
+                    <span class="detail-label">${_dlI18n.email}</span>
                     <span class="detail-value">${order.customerEmail || ''}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">تاريخ الطلب:</span>
+                    <span class="detail-label">${_dlI18n.orderDate}</span>
                     <span class="detail-value">${fullDate}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">الحالة:</span>
-                    <span class="detail-value" style="color: #10b981;">✅ مؤكد</span>
+                    <span class="detail-label">${_dlI18n.status}</span>
+                    <span class="detail-value" style="color: #10b981;">✅ ${_dlI18n.confirmed}</span>
                 </div>
             `;
 
@@ -184,7 +212,7 @@
                 btn.style.display = 'inline-flex';
             } else {
                 btn.style.display = 'none';
-                document.querySelector('.download-section p').textContent = 'رابط التحميل غير متاح حالياً، يرجى التواصل مع الدعم الفني.';
+                document.querySelector('.download-section p').textContent = _dlI18n.downloadUnavailable;
             }
 
             createConfetti();
@@ -204,7 +232,7 @@
         }
 
         if (!orderId) {
-            showError('لا يوجد طلب', 'لم يتم العثور على رقم الطلب. يرجى التحقق من رابط التحميل.');
+            showError(_dlI18n.noOrder, _dlI18n.noOrderMsg);
         } else {
             let order = await loadOrderFromDB(orderId);
             if (!order) {
@@ -214,13 +242,13 @@
                 }
             }
             if (!order) {
-                showError('لم يتم العثور على الطلب', 'عذراً، لم نتمكن من العثور على هذا الطلب. قد يكون قد تم حذفه أو أن الرابط غير صحيح.');
+                showError(_dlI18n.notFound, _dlI18n.notFoundMsg);
             } else if (order.status === 'confirmed' && order.downloadGranted === true) {
                 displayOrder(order);
             } else if (order.status === 'rejected') {
-                showError('تم رفض الطلب', 'عذراً، لم يتم تأكيد طلبك. يرجى التواصل مع الدعم الفني للمزيد من المعلومات.');
+                showError(_dlI18n.rejected, _dlI18n.rejectedMsg);
             } else {
-                showError('الطلب لم يتم تأكيده بعد', 'طلبك لا يزال قيد المراجعة. سيتم إعلامك فور تأكيد الدفع. يمكنك متابعة حالة طلبك من صفحة الطلبات.');
+                showError(_dlI18n.pending, _dlI18n.pendingMsg);
             }
         }
     </script>
