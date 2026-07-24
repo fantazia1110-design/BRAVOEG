@@ -5873,14 +5873,12 @@ function openEditProductModal(id) {
             return { ar: '', en: '', fr: '' };
         }
         var t = getLangVal('title');
-        document.getElementById('editProductTitleAr').value = t.ar;
-        document.getElementById('editProductTitleEn').value = t.en;
-        document.getElementById('editProductTitleFr').value = t.fr;
+        var editTitleArEl = document.getElementById('editProductTitleAr');
+        if (editTitleArEl) editTitleArEl.value = t.ar;
 
         var d = getLangVal('description');
-        document.getElementById('editProductDescriptionAr').value = d.ar;
-        document.getElementById('editProductDescriptionEn').value = d.en;
-        document.getElementById('editProductDescriptionFr').value = d.fr;
+        var editDescArEl = document.getElementById('editProductDescriptionAr');
+        if (editDescArEl) editDescArEl.value = d.ar;
 
         document.getElementById('editProductCategory').value = p.category || 'books';
         document.getElementById('editProductPriceEGP').value = p.priceEGP || 0;
@@ -5918,31 +5916,6 @@ function openEditProductModal(id) {
         fillArrayField('editProductFeaturesAr', 'features');
         fillArrayField('editProductRequirementsAr', 'requirements');
         fillFAQField('editProductFAQAr', 'faq');
-        // EN and FR are separate textareas
-        function fillLangArrayField(elId, field, lang) {
-            var el = document.getElementById(elId);
-            if (!el) return;
-            var v = p[field];
-            if (v && typeof v === 'object') {
-                var arr = v[lang] || [];
-                el.value = (Array.isArray(arr) ? arr : []).join('\n');
-            }
-        }
-        function fillLangFAQField(elId, field, lang) {
-            var el = document.getElementById(elId);
-            if (!el) return;
-            var v = p[field];
-            if (v && typeof v === 'object') {
-                var arr = v[lang] || [];
-                el.value = (Array.isArray(arr) ? arr : []).map(function(item){ return (item.q||'')+' | '+(item.a||''); }).join('\n');
-            }
-        }
-        fillLangArrayField('editProductFeaturesEn', 'features', 'en');
-        fillLangArrayField('editProductFeaturesFr', 'features', 'fr');
-        fillLangArrayField('editProductRequirementsEn', 'requirements', 'en');
-        fillLangArrayField('editProductRequirementsFr', 'requirements', 'fr');
-        fillLangFAQField('editProductFAQEn', 'faq', 'en');
-        fillLangFAQField('editProductFAQFr', 'faq', 'fr');
         // Sync visibility toggles
         const toggleMap = { editProductShowFullDesc: 'showFullDesc', editProductShowFeatures: 'showFeatures', editProductShowRequirements: 'showRequirements', editProductShowFAQ: 'showFAQ' };
         Object.entries(toggleMap).forEach(([elId, prop]) => {

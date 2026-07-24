@@ -212,10 +212,6 @@
         .login-section .remember-checkbox input:checked ~ .checkmark { background:var(--gradient-primary) !important; border-color:var(--primary) !important; }
         .login-section .remember-checkbox input:checked ~ .checkmark::after { content:'✓' !important; color:white !important; font-size:16px !important; font-weight:900 !important; }
         /* Mobile: match main site EXACTLY — no overrides, header.css handles it */
-        /* Hide EN/FR language fields — only Arabic input, auto-translate on save */
-        .admin-product-form .lang-field-row:has(.lang-badge.en),
-        .admin-product-form .lang-field-row:has(.lang-badge.fr) { display: none !important; }
-        .admin-product-form .lang-field-group { flex-direction: column; }
         /* Upload progress overlay */
         .upload-progress-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10001; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
         .upload-progress-ring { position: relative; width: 120px; height: 120px; }
@@ -1401,20 +1397,7 @@
                                 <i class="fas fa-heading" style="color:var(--primary)"></i>
                                 <span data-ar="اسم المنتج" data-en="Product Name" data-fr="Nom du produit">اسم المنتج</span>
                             </label>
-                            <div class="lang-field-group">
-                                <div class="lang-field-row">
-                                    <span class="lang-badge ar">AR</span>
-                                    <input type="text" id="editProductTitleAr" required>
-                                </div>
-                                <div class="lang-field-row">
-                                    <span class="lang-badge en">EN</span>
-                                    <input type="text" id="editProductTitleEn" required>
-                                </div>
-                                <div class="lang-field-row">
-                                    <span class="lang-badge fr">FR</span>
-                                    <input type="text" id="editProductTitleFr" required>
-                                </div>
-                            </div>
+                            <input type="text" id="editProductTitleAr" required style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;font-weight:600;">
                         </div>
                         <div class="form-group">
                             <label>
@@ -1553,20 +1536,7 @@
                             <i class="fas fa-align-right" style="color:var(--primary)"></i>
                             <span data-ar="الوصف" data-en="Description" data-fr="Description">الوصف</span>
                         </label>
-                        <div class="lang-field-group">
-                            <div class="lang-field-row">
-                                <span class="lang-badge ar">AR</span>
-                                <textarea id="editProductDescriptionAr" rows="3"></textarea>
-                            </div>
-                            <div class="lang-field-row">
-                                <span class="lang-badge en">EN</span>
-                                <textarea id="editProductDescriptionEn" rows="3"></textarea>
-                            </div>
-                            <div class="lang-field-row">
-                                <span class="lang-badge fr">FR</span>
-                                <textarea id="editProductDescriptionFr" rows="3"></textarea>
-                            </div>
-                        </div>
+                        <textarea id="editProductDescriptionAr" rows="3" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
                     </div>
                 </div>
 
@@ -1608,20 +1578,7 @@
                             <i class="fas fa-list-check" style="color:var(--primary)"></i>
                             <span data-ar="المميزات (واحد في كل سطر)" data-en="Features (one per line)" data-fr="Caractéristiques (une par ligne)">المميزات (واحد في كل سطر)</span>
                         </label>
-                        <div class="lang-field-group">
-                            <div class="lang-field-row">
-                                <span class="lang-badge ar">AR</span>
-                                <textarea id="editProductFeaturesAr" rows="3" placeholder="اكتب المميزات هنا، كل سطر = ميزة واحدة"></textarea>
-                            </div>
-                            <div class="lang-field-row">
-                                <span class="lang-badge en">EN</span>
-                                <textarea id="editProductFeaturesEn" rows="3" placeholder="Write features here, one per line"></textarea>
-                            </div>
-                            <div class="lang-field-row">
-                                <span class="lang-badge fr">FR</span>
-                                <textarea id="editProductFeaturesFr" rows="3" placeholder="Caractéristiques, une par ligne"></textarea>
-                            </div>
-                        </div>
+                        <textarea id="editProductFeaturesAr" rows="3" placeholder="اكتب المميزات هنا، كل سطر = ميزة واحدة" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
                     </div>
 
                     <div class="form-group" style="margin-top:16px;">
@@ -1629,20 +1586,7 @@
                             <i class="fas fa-gear" style="color:var(--primary)"></i>
                             <span data-ar="المتطلبات (واحد في كل سطر)" data-en="Requirements (one per line)" data-fr="Prérequis (un par ligne)">المتطلبات (واحد في كل سطر)</span>
                         </label>
-                        <div class="lang-field-group">
-                            <div class="lang-field-row">
-                                <span class="lang-badge ar">AR</span>
-                                <textarea id="editProductRequirementsAr" rows="3" placeholder="اكتب المتطلبات هنا"></textarea>
-                            </div>
-                            <div class="lang-field-row">
-                                <span class="lang-badge en">EN</span>
-                                <textarea id="editProductRequirementsEn" rows="3" placeholder="Write requirements here"></textarea>
-                            </div>
-                            <div class="lang-field-row">
-                                <span class="lang-badge fr">FR</span>
-                                <textarea id="editProductRequirementsFr" rows="3" placeholder="Prérequis"></textarea>
-                            </div>
-                        </div>
+                        <textarea id="editProductRequirementsAr" rows="3" placeholder="اكتب المتطلبات هنا" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
                     </div>
 
                     <div class="form-group" style="margin-top:16px;">
@@ -1650,20 +1594,7 @@
                             <i class="fas fa-question-circle" style="color:var(--primary)"></i>
                             <span data-ar="الأسئلة الشائعة (Q | A في كل سطر)" data-en="FAQ (Q | A per line)" data-fr="FAQ (Q | R par ligne)">الأسئلة الشائعة (سؤال | جواب في كل سطر)</span>
                         </label>
-                        <div class="lang-field-group">
-                            <div class="lang-field-row">
-                                <span class="lang-badge ar">AR</span>
-                                <textarea id="editProductFAQAr" rows="3" placeholder="اكتب الأسئلة هنا، كل سطر = سؤال | جواب"></textarea>
-                            </div>
-                            <div class="lang-field-row">
-                                <span class="lang-badge en">EN</span>
-                                <textarea id="editProductFAQEn" rows="3" placeholder="Write FAQ here, each line = question | answer"></textarea>
-                            </div>
-                            <div class="lang-field-row">
-                                <span class="lang-badge fr">FR</span>
-                                <textarea id="editProductFAQFr" rows="3" placeholder="FAQ : question | réponse par ligne"></textarea>
-                            </div>
-                        </div>
+                        <textarea id="editProductFAQAr" rows="3" placeholder="اكتب الأسئلة هنا، كل سطر = سؤال | جواب" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
                     </div>
                 </div>
 
@@ -2524,20 +2455,7 @@ window.deleteCat = deleteCat; window.toggleCat = toggleCat; window.syncCatsToCon
                         <i class="fas fa-heading" style="color: var(--primary)"></i>
                         <span data-ar="اسم المنتج" data-en="Product Name" data-fr="Nom du produit">اسم المنتج</span>
                     </label>
-                    <div class="lang-field-group">
-                        <div class="lang-field-row">
-                            <span class="lang-badge ar">AR</span>
-                            <input type="text" id="productTitleAr" required placeholder="مثال: كتاب صناعة المنظفات الاحترافية">
-                        </div>
-                        <div class="lang-field-row">
-                            <span class="lang-badge en">EN</span>
-                            <input type="text" id="productTitleEn" required placeholder="e.g: Professional Detergent Book">
-                        </div>
-                        <div class="lang-field-row">
-                            <span class="lang-badge fr">FR</span>
-                            <input type="text" id="productTitleFr" required placeholder="Ex: Livre de détergents professionnels">
-                        </div>
-                    </div>
+                    <input type="text" id="productTitleAr" required placeholder="مثال: كتاب صناعة المنظفات الاحترافية" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;font-weight:600;">
                 </div>
                 <div class="form-group">
                     <label>
@@ -2679,20 +2597,7 @@ window.deleteCat = deleteCat; window.toggleCat = toggleCat; window.syncCatsToCon
                     <i class="fas fa-align-right" style="color: var(--primary)"></i>
                     <span data-ar="وصف المنتج" data-en="Description" data-fr="Description">وصف المنتج</span>
                 </label>
-                <div class="lang-field-group">
-                    <div class="lang-field-row">
-                        <span class="lang-badge ar">AR</span>
-                        <textarea id="productDescriptionAr" required placeholder="اكتب وصفاً تفصيلياً للمنتج..."></textarea>
-                    </div>
-                    <div class="lang-field-row">
-                        <span class="lang-badge en">EN</span>
-                        <textarea id="productDescriptionEn" required placeholder="Write a detailed product description..."></textarea>
-                    </div>
-                    <div class="lang-field-row">
-                        <span class="lang-badge fr">FR</span>
-                        <textarea id="productDescriptionFr" required placeholder="Écrivez une description détaillée..."></textarea>
-                    </div>
-                </div>
+                    <textarea id="productDescriptionAr" required rows="4" placeholder="اكتب وصفاً تفصيلياً للمنتج..." style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;font-weight:600;resize:vertical;"></textarea>
             </div>
         </div>
 
@@ -2734,20 +2639,7 @@ window.deleteCat = deleteCat; window.toggleCat = toggleCat; window.syncCatsToCon
                     <i class="fas fa-list-check" style="color:var(--primary)"></i>
                     <span data-ar="المميزات (واحد في كل سطر)" data-en="Features (one per line)" data-fr="Caractéristiques (une par ligne)">المميزات (واحد في كل سطر)</span>
                 </label>
-                <div class="lang-field-group">
-                    <div class="lang-field-row">
-                        <span class="lang-badge ar">AR</span>
-                        <textarea id="productFeaturesAr" rows="4" placeholder="اكتب المميزات هنا، كل سطر = ميزة واحدة"></textarea>
-                    </div>
-                    <div class="lang-field-row">
-                        <span class="lang-badge en">EN</span>
-                        <textarea id="productFeaturesEn" rows="4" placeholder="Write features here, one per line"></textarea>
-                    </div>
-                    <div class="lang-field-row">
-                        <span class="lang-badge fr">FR</span>
-                        <textarea id="productFeaturesFr" rows="4" placeholder="Caractéristiques, une par ligne"></textarea>
-                    </div>
-                </div>
+                <textarea id="productFeaturesAr" rows="4" placeholder="اكتب المميزات هنا، كل سطر = ميزة واحدة" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
             </div>
 
             <div class="form-group" style="margin-top:16px;">
@@ -2755,20 +2647,7 @@ window.deleteCat = deleteCat; window.toggleCat = toggleCat; window.syncCatsToCon
                     <i class="fas fa-gear" style="color:var(--primary)"></i>
                     <span data-ar="المتطلبات (واحد في كل سطر)" data-en="Requirements (one per line)" data-fr="Prérequis (un par ligne)">المتطلبات (واحد في كل سطر)</span>
                 </label>
-                <div class="lang-field-group">
-                    <div class="lang-field-row">
-                        <span class="lang-badge ar">AR</span>
-                        <textarea id="productRequirementsAr" rows="3" placeholder="اكتب المتطلبات هنا، كل سطر = متطلب واحد"></textarea>
-                    </div>
-                    <div class="lang-field-row">
-                        <span class="lang-badge en">EN</span>
-                        <textarea id="productRequirementsEn" rows="3" placeholder="Write requirements here, one per line"></textarea>
-                    </div>
-                    <div class="lang-field-row">
-                        <span class="lang-badge fr">FR</span>
-                        <textarea id="productRequirementsFr" rows="3" placeholder="Prérequis, un par ligne"></textarea>
-                    </div>
-                </div>
+                <textarea id="productRequirementsAr" rows="3" placeholder="اكتب المتطلبات هنا، كل سطر = متطلب واحد" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
             </div>
 
             <div class="form-group" style="margin-top:16px;">
@@ -2776,20 +2655,7 @@ window.deleteCat = deleteCat; window.toggleCat = toggleCat; window.syncCatsToCon
                     <i class="fas fa-question-circle" style="color:var(--primary)"></i>
                     <span data-ar="الأسئلة الشائعة (Q | A في كل سطر)" data-en="FAQ (Q | A per line)" data-fr="FAQ (Q | R par ligne)">الأسئلة الشائعة (سؤال | جواب في كل سطر)</span>
                 </label>
-                <div class="lang-field-group">
-                    <div class="lang-field-row">
-                        <span class="lang-badge ar">AR</span>
-                        <textarea id="productFAQAr" rows="3" placeholder="اكتب الأسئلة الشائعة هنا، كل سطر = سؤال | جواب"></textarea>
-                    </div>
-                    <div class="lang-field-row">
-                        <span class="lang-badge en">EN</span>
-                        <textarea id="productFAQEn" rows="3" placeholder="Write FAQ here, each line = question | answer"></textarea>
-                    </div>
-                    <div class="lang-field-row">
-                        <span class="lang-badge fr">FR</span>
-                        <textarea id="productFAQFr" rows="3" placeholder="FAQ : question | réponse par ligne"></textarea>
-                    </div>
-                </div>
+                <textarea id="productFAQAr" rows="3" placeholder="اكتب الأسئلة الشائعة هنا، كل سطر = سؤال | جواب" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
             </div>
         </div>
 
