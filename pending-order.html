@@ -474,7 +474,7 @@
         console.log('[Pending] loadLocalOrder for', orderId);
         var order = getFromLocalStorage('orders/' + orderId);
         console.log('[Pending] localStorage order found:', !!order);
-        if (order) { console.log('[Pending] displaying from localStorage'); displayOrderDetails(order); updateStatus(order); return true; }
+        if (order) { console.log('[Pending] displaying from localStorage'); window._pendingOrderData = order; displayOrderDetails(order); updateStatus(order); return true; }
         return false;
     }
 
@@ -485,7 +485,7 @@
             var snap = await window.firebaseGet(window.firebaseRef(window.database, 'orders/' + orderId));
             var exists = snap.exists();
             console.log('[Pending] Firebase snapshot exists:', exists);
-            if (exists) { var order = snap.val(); console.log('[Pending] Firebase order loaded, status:', order.status); displayOrderDetails(order); updateStatus(order); return true; }
+            if (exists) { var order = snap.val(); console.log('[Pending] Firebase order loaded, status:', order.status); window._pendingOrderData = order; displayOrderDetails(order); updateStatus(order); return true; }
         } catch(e) { console.warn('[Pending] Firebase read failed:', e); }
         return false;
     }
@@ -494,58 +494,62 @@
         console.log('[Pending] setting up realtime listener for', orderId);
         try {
             window.firebaseOnValue(window.firebaseRef(window.database, 'orders/' + orderId), function(snapshot) {
-                if (snapshot.exists()) { var order = snapshot.val(); console.log('[Pending] realtime update, status:', order.status); displayOrderDetails(order); updateStatus(order); }
+                if (snapshot.exists()) { var order = snapshot.val(); console.log('[Pending] realtime update, status:', order.status); window._pendingOrderData = order; displayOrderDetails(order); updateStatus(order); }
             });
         } catch(e) { console.warn('[Pending] realtime setup error:', e); }
     }
 
     var _plang = document.documentElement.lang || 'ar';
-    var _pi18n = {
-        updating: _plang === 'ar' ? 'جاري التحديث...' : _plang === 'en' ? 'Updating...' : 'Mise à jour...',
-        updated: _plang === 'ar' ? 'تم التحديث!' : _plang === 'en' ? 'Updated!' : 'Mis à jour!',
-        updateFail: _plang === 'ar' ? 'فشل التحديث' : _plang === 'en' ? 'Update failed' : 'Échec',
-        copied: _plang === 'ar' ? '✅ تم النسخ!' : _plang === 'en' ? '✅ Copied!' : '✅ Copié!',
-        amount: _plang === 'ar' ? 'المبلغ:' : _plang === 'en' ? 'Amount:' : 'Montant:',
-        paymentMethod: _plang === 'ar' ? 'طريقة الدفع:' : _plang === 'en' ? 'Payment:' : 'Paiement:',
-        name: _plang === 'ar' ? 'الاسم:' : _plang === 'en' ? 'Name:' : 'Nom:',
-        email: _plang === 'ar' ? 'البريد:' : _plang === 'en' ? 'Email:' : 'Email:',
-        phone: _plang === 'ar' ? 'الهاتف:' : _plang === 'en' ? 'Phone:' : 'Téléphone:',
-        date: _plang === 'ar' ? 'التاريخ:' : _plang === 'en' ? 'Date:' : 'Date:',
-        status: _plang === 'ar' ? 'الحالة:' : _plang === 'en' ? 'Status:' : 'Statut:',
-        products: _plang === 'ar' ? 'المنتجات:' : _plang === 'en' ? 'Products:' : 'Produits:',
-        receipt: _plang === 'ar' ? 'صورة الإيصال' : _plang === 'en' ? 'Receipt Image' : 'Image du reçu',
-        undefined: _plang === 'ar' ? 'غير محدد' : _plang === 'en' ? 'N/A' : 'N/A',
-        clickToCopy: _plang === 'ar' ? 'اضغط للنسخ' : _plang === 'en' ? 'Click to copy' : 'Cliquer pour copier',
-        itemsCount: _plang === 'ar' ? 'منتجات' : _plang === 'en' ? 'products' : 'produits',
-        qty: _plang === 'ar' ? 'الكمية:' : _plang === 'en' ? 'Qty:' : 'Qté:',
-        statusLabels: {
-            pending: _plang === 'ar' ? 'قيد المراجعة' : _plang === 'en' ? 'Under Review' : 'En cours',
-            confirmed: _plang === 'ar' ? 'مؤكد ✅' : _plang === 'en' ? 'Confirmed ✅' : 'Confirmée ✅',
-            rejected: _plang === 'ar' ? 'مرفوض ❌' : _plang === 'en' ? 'Rejected ❌' : 'Rejetée ❌',
-            suspended: _plang === 'ar' ? 'معلق 🟣' : _plang === 'en' ? 'Suspended 🟣' : 'Suspendue 🟣',
-            trashed: _plang === 'ar' ? 'معلق ⏸️' : _plang === 'en' ? 'Suspended ⏸️' : 'Suspendue ⏸️'
-        },
-        reviewDone: _plang === 'ar' ? 'تمت المراجعة' : _plang === 'en' ? 'Reviewed' : 'Examinée',
-        paymentVerified: _plang === 'ar' ? 'تم التحقق من الدفع' : _plang === 'en' ? 'Payment verified' : 'Paiement vérifié',
-        confirmedTitle: _plang === 'ar' ? 'تم تأكيد الطلب ✅' : _plang === 'en' ? 'Order Confirmed ✅' : 'Commande confirmée ✅',
-        confirmedDesc: _plang === 'ar' ? 'طلبك مؤكد وجاهز للتحميل' : _plang === 'en' ? 'Your order is confirmed and ready' : 'Votre commande est confirmée',
-        confirmedMainTitle: _plang === 'ar' ? 'تم تأكيد طلبك!' : _plang === 'en' ? 'Order Confirmed!' : 'Commande confirmée!',
-        confirmedMsg: _plang === 'ar' ? 'رائع! تم تأكيد دفعتك بنجاح. يمكنك الآن تحميل المنتج.' : _plang === 'en' ? 'Great! Payment confirmed. You can now download the product.' : 'Super ! Paiement confirmé. Téléchargez le produit.',
-        rejectedTitle: _plang === 'ar' ? 'تم الرفض ❌' : _plang === 'en' ? 'Rejected ❌' : 'Rejetée ❌',
-        rejectedDesc: _plang === 'ar' ? 'يرجى التواصل مع الدعم' : _plang === 'en' ? 'Please contact support' : 'Contacter le support',
-        rejectedMainTitle: _plang === 'ar' ? 'تم رفض الطلب' : _plang === 'en' ? 'Order Rejected' : 'Commande rejetée',
-        rejectedMsg: _plang === 'ar' ? 'عذراً، لم نتمكن من تأكيد الدفع. يرجى التواصل معنا للمزيد من التفاصيل.' : _plang === 'en' ? 'Sorry, we could not verify your payment. Please contact us.' : 'Désolé, paiement non vérifié. Contactez-nous.',
-        noRejectReason: _plang === 'ar' ? 'لم يتم تحديد سبب الرفض. يرجى التواصل مع الدعم الفني.' : _plang === 'en' ? 'No rejection reason specified. Please contact support.' : 'Aucun motif spécifié. Contactez le support.',
-        suspendedTitle: _plang === 'ar' ? 'الطلب معلق 🟣' : _plang === 'en' ? 'Order Suspended 🟣' : 'Commande suspendue 🟣',
-        suspendedDesc: _plang === 'ar' ? 'الطلب قيد المراجعة الإضافية. يرجى التواصل مع الدعم.' : _plang === 'en' ? 'Order under additional review. Please contact support.' : 'Commande en revue. Contactez le support.',
-        suspendedMainTitle: _plang === 'ar' ? 'الطلب معلق' : _plang === 'en' ? 'Order Suspended' : 'Commande suspendue',
-        suspendedMsg: _plang === 'ar' ? 'طلبك معلق حالياً للمراجعة. يرجى التواصل معنا للمزيد من التفاصيل.' : _plang === 'en' ? 'Your order is under review. Please contact us.' : 'Votre commande est en revue. Contactez-nous.',
-        errorTitle: _plang === 'ar' ? '⚠️ تعذر تحميل بيانات الطلب' : _plang === 'en' ? '⚠️ Failed to load order' : '⚠️ Échec du chargement',
-        errorMsg: _plang === 'ar' ? 'يرجى المحاولة مرة أخرى أو التواصل مع الدعم الفني' : _plang === 'en' ? 'Please try again or contact support' : 'Réessayez ou contactez le support',
-        errorDetails: _plang === 'ar' ? '⚠️ خطأ في تحميل البيانات' : _plang === 'en' ? '⚠️ Error loading data' : '⚠️ Erreur de chargement',
-        errorMsg2: _plang === 'ar' ? 'لم نتمكن من تحميل تفاصيل الطلب. يرجى المحاولة مرة أخرى.' : _plang === 'en' ? 'Could not load order details. Please try again.' : 'Impossible de charger les détails.',
-        retry: _plang === 'ar' ? 'إعادة المحاولة' : _plang === 'en' ? 'Retry' : 'Réessayer'
-    };
+    function _buildPi18n(lang) {
+        var l = lang || document.documentElement.lang || 'ar';
+        return {
+            updating: l === 'ar' ? 'جاري التحديث...' : l === 'en' ? 'Updating...' : 'Mise à jour...',
+            updated: l === 'ar' ? 'تم التحديث!' : l === 'en' ? 'Updated!' : 'Mis à jour!',
+            updateFail: l === 'ar' ? 'فشل التحديث' : l === 'en' ? 'Update failed' : 'Échec',
+            copied: l === 'ar' ? '✅ تم النسخ!' : l === 'en' ? '✅ Copied!' : '✅ Copié!',
+            amount: l === 'ar' ? 'المبلغ:' : l === 'en' ? 'Amount:' : 'Montant:',
+            paymentMethod: l === 'ar' ? 'طريقة الدفع:' : l === 'en' ? 'Payment:' : 'Paiement:',
+            name: l === 'ar' ? 'الاسم:' : l === 'en' ? 'Name:' : 'Nom:',
+            email: l === 'ar' ? 'البريد:' : l === 'en' ? 'Email:' : 'Email:',
+            phone: l === 'ar' ? 'الهاتف:' : l === 'en' ? 'Phone:' : 'Téléphone:',
+            date: l === 'ar' ? 'التاريخ:' : l === 'en' ? 'Date:' : 'Date:',
+            status: l === 'ar' ? 'الحالة:' : l === 'en' ? 'Status:' : 'Statut:',
+            products: l === 'ar' ? 'المنتجات:' : l === 'en' ? 'Products:' : 'Produits:',
+            receipt: l === 'ar' ? 'صورة الإيصال' : l === 'en' ? 'Receipt Image' : 'Image du reçu',
+            undefined: l === 'ar' ? 'غير محدد' : l === 'en' ? 'N/A' : 'N/A',
+            clickToCopy: l === 'ar' ? 'اضغط للنسخ' : l === 'en' ? 'Click to copy' : 'Cliquer pour copier',
+            itemsCount: l === 'ar' ? 'منتجات' : l === 'en' ? 'products' : 'produits',
+            qty: l === 'ar' ? 'الكمية:' : l === 'en' ? 'Qty:' : 'Qté:',
+            statusLabels: {
+                pending: l === 'ar' ? 'قيد المراجعة' : l === 'en' ? 'Under Review' : 'En cours',
+                confirmed: l === 'ar' ? 'مؤكد ✅' : l === 'en' ? 'Confirmed ✅' : 'Confirmée ✅',
+                rejected: l === 'ar' ? 'مرفوض ❌' : l === 'en' ? 'Rejected ❌' : 'Rejetée ❌',
+                suspended: l === 'ar' ? 'معلق 🟣' : l === 'en' ? 'Suspended 🟣' : 'Suspendue 🟣',
+                trashed: l === 'ar' ? 'معلق ⏸️' : l === 'en' ? 'Suspended ⏸️' : 'Suspendue ⏸️'
+            },
+            reviewDone: l === 'ar' ? 'تمت المراجعة' : l === 'en' ? 'Reviewed' : 'Examinée',
+            paymentVerified: l === 'ar' ? 'تم التحقق من الدفع' : l === 'en' ? 'Payment verified' : 'Paiement vérifié',
+            confirmedTitle: l === 'ar' ? 'تم تأكيد الطلب ✅' : l === 'en' ? 'Order Confirmed ✅' : 'Commande confirmée ✅',
+            confirmedDesc: l === 'ar' ? 'طلبك مؤكد وجاهز للتحميل' : l === 'en' ? 'Your order is confirmed and ready' : 'Votre commande est confirmée',
+            confirmedMainTitle: l === 'ar' ? 'تم تأكيد طلبك!' : l === 'en' ? 'Order Confirmed!' : 'Commande confirmée!',
+            confirmedMsg: l === 'ar' ? 'رائع! تم تأكيد دفعتك بنجاح. يمكنك الآن تحميل المنتج.' : l === 'en' ? 'Great! Payment confirmed. You can now download the product.' : 'Super ! Paiement confirmé. Téléchargez le produit.',
+            rejectedTitle: l === 'ar' ? 'تم الرفض ❌' : l === 'en' ? 'Rejected ❌' : 'Rejetée ❌',
+            rejectedDesc: l === 'ar' ? 'يرجى التواصل مع الدعم' : l === 'en' ? 'Please contact support' : 'Contacter le support',
+            rejectedMainTitle: l === 'ar' ? 'تم رفض الطلب' : l === 'en' ? 'Order Rejected' : 'Commande rejetée',
+            rejectedMsg: l === 'ar' ? 'عذراً، لم نتمكن من تأكيد الدفع. يرجى التواصل معنا للمزيد من التفاصيل.' : l === 'en' ? 'Sorry, we could not verify your payment. Please contact us.' : 'Désolé, paiement non vérifié. Contactez-nous.',
+            noRejectReason: l === 'ar' ? 'لم يتم تحديد سبب الرفض. يرجى التواصل مع الدعم الفني.' : l === 'en' ? 'No rejection reason specified. Please contact support.' : 'Aucun motif spécifié. Contactez le support.',
+            suspendedTitle: l === 'ar' ? 'الطلب معلق 🟣' : l === 'en' ? 'Order Suspended 🟣' : 'Commande suspendue 🟣',
+            suspendedDesc: l === 'ar' ? 'الطلب قيد المراجعة الإضافية. يرجى التواصل مع الدعم.' : l === 'en' ? 'Order under additional review. Please contact support.' : 'Commande en revue. Contactez le support.',
+            suspendedMainTitle: l === 'ar' ? 'الطلب معلق' : l === 'en' ? 'Order Suspended' : 'Commande suspendue',
+            suspendedMsg: l === 'ar' ? 'طلبك معلق حالياً للمراجعة. يرجى التواصل معنا للمزيد من التفاصيل.' : l === 'en' ? 'Your order is under review. Please contact us.' : 'Votre commande est en revue. Contactez-nous.',
+            errorTitle: l === 'ar' ? '⚠️ تعذر تحميل بيانات الطلب' : l === 'en' ? '⚠️ Failed to load order' : '⚠️ Échec du chargement',
+            errorMsg: l === 'ar' ? 'يرجى المحاولة مرة أخرى أو التواصل مع الدعم الفني' : l === 'en' ? 'Please try again or contact support' : 'Réessayez ou contactez le support',
+            errorDetails: l === 'ar' ? '⚠️ خطأ في تحميل البيانات' : l === 'en' ? '⚠️ Error loading data' : '⚠️ Erreur de chargement',
+            errorMsg2: l === 'ar' ? 'لم نتمكن من تحميل تفاصيل الطلب. يرجى المحاولة مرة أخرى.' : l === 'en' ? 'Could not load order details. Please try again.' : 'Impossible de charger les détails.',
+            retry: l === 'ar' ? 'إعادة المحاولة' : l === 'en' ? 'Retry' : 'Réessayer'
+        };
+    }
+    var _pi18n = _buildPi18n(_plang);
 
     window.checkStatus = function() {
         var oid = window._pendingOrderId, btn = document.getElementById('refreshBtn');
@@ -570,9 +574,13 @@
 
     function displayOrderDetails(order) {
         var sc = order.status || 'pending', st = _pi18n.statusLabels[sc] || _pi18n.statusLabels.pending;
+        var _pl = document.documentElement.lang || 'ar';
+        var _dispCur = (order.currency === 'جنيه' || order.currency === 'EGP') ? (_pl === 'ar' ? 'جنيه' : 'EGP') : (order.currency || '');
+        var _pmKey = order.paymentMethod || '';
+        var _pmDisp = (typeof PAYMENT_ACCOUNTS !== 'undefined' && PAYMENT_ACCOUNTS[_pmKey] && PAYMENT_ACCOUNTS[_pmKey].name && PAYMENT_ACCOUNTS[_pmKey].name[_pl]) || order.paymentMethodName || order.paymentMethod || _pi18n.undefined;
         var html = '<div class="order-id" onclick="copyOrderId(\'' + (order.orderId||'') + '\')" title="' + _pi18n.clickToCopy + '">#' + (order.orderId||'N/A') + '</div>' +
-            '<div class="info-row"><span class="info-label"><i class="fas fa-money-bill-wave"></i> ' + _pi18n.amount + '</span><span class="info-value">' + (order.price||0) + ' ' + (order.currency||'') + '</span></div>' +
-            '<div class="info-row"><span class="info-label"><i class="fas fa-credit-card"></i> ' + _pi18n.paymentMethod + '</span><span class="info-value">' + (order.paymentMethodName||order.paymentMethod||_pi18n.undefined) + '</span></div>' +
+            '<div class="info-row"><span class="info-label"><i class="fas fa-money-bill-wave"></i> ' + _pi18n.amount + '</span><span class="info-value">' + (order.price||0) + ' ' + _dispCur + '</span></div>' +
+            '<div class="info-row"><span class="info-label"><i class="fas fa-credit-card"></i> ' + _pi18n.paymentMethod + '</span><span class="info-value">' + _pmDisp + '</span></div>' +
             '<div class="info-row"><span class="info-label"><i class="fas fa-user"></i> ' + _pi18n.name + '</span><span class="info-value">' + (order.customerName||_pi18n.undefined) + '</span></div>' +
             '<div class="info-row"><span class="info-label"><i class="fas fa-envelope"></i> ' + _pi18n.email + '</span><span class="info-value">' + (order.customerEmail||_pi18n.undefined) + '</span></div>' +
             '<div class="info-row"><span class="info-label"><i class="fas fa-phone"></i> ' + _pi18n.phone + '</span><span class="info-value" dir="ltr">' + (order.customerPhone||_pi18n.undefined) + '</span></div>' +
@@ -594,7 +602,9 @@
                     pTotalQty += qty;
                     var cat = item.category || '';
                     var ce = catEmojis[cat] || '';
-                    return (item.title||'') + ' <span style="color:#9333ea;font-size:0.85em">\u00D7' + qty + '</span>' + (ce ? ' <span style="color:rgba(255,255,255,0.4);font-size:0.8em">' + ce + ' ' + cat + '</span>' : '');
+                    var _itemRaw = item.title || '';
+                    var _itemTitle = (typeof _isArabic === 'function' && _isArabic(_itemRaw) && _pl !== 'ar') ? (typeof _getTranslation === 'function' ? _getTranslation(_itemRaw, _pl) : _itemRaw) : _itemRaw;
+                    return _itemTitle + ' <span style="color:#9333ea;font-size:0.85em">\u00D7' + qty + '</span>' + (ce ? ' <span style="color:rgba(255,255,255,0.4);font-size:0.8em">' + ce + ' ' + cat + '</span>' : '');
                 });
                 html += lines.join('<br>');
                 html += '<br><span style="color:#9333ea;font-weight:900;font-size:0.85em">' + itemsCount + ' ' + _pi18n.itemsCount + ' | ' + _pi18n.qty + ' ' + pTotalQty + '</span>';
@@ -745,7 +755,7 @@
         }
     </script>
     <script src="js/include.js?v=20"></script>
-    <script src="js/app.js?v=20260724h"></script>
+    <script src="js/app.js?v=20260724j"></script>
     <script>
         // JS spinner rotation (guaranteed — NEVER stops, even on confirmed)
         try {
@@ -761,6 +771,14 @@
                 }
             })();
         } catch(e) {};
+
+        window._rerenderPendingOrder = function() {
+            _pi18n = _buildPi18n(document.documentElement.lang || 'ar');
+            if (window._pendingOrderData) {
+                displayOrderDetails(window._pendingOrderData);
+                updateStatus(window._pendingOrderData);
+            }
+        };
         // JS-based icon bounce animation fallback (cleared on confirmed)
         try {
             (function() {

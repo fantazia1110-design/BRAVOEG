@@ -2909,6 +2909,28 @@ function switchLanguage(lang) {
             window.displayProduct();
         })();
     }
+    if (window.location.pathname.includes('orders.html') || (window.location.pathname.endsWith('/') === false && window.location.pathname.endsWith('orders'))) {
+        if (typeof _execOrdersSearch === 'function') _execOrdersSearch();
+        else if (window.myOrders && window.renderOrdersList) window.renderOrdersList(window.myOrders);
+        if (window.myOrders) {
+            var _tE = document.getElementById('totalOrders'), _cE = document.getElementById('completedOrders'), _pE = document.getElementById('pendingOrders'), _sE = document.getElementById('totalSpent');
+            if (_tE) _tE.textContent = window.myOrders.length;
+            if (_cE) _cE.textContent = window.myOrders.filter(function(o) { return o.status === 'confirmed'; }).length;
+            if (_pE) _pE.textContent = window.myOrders.filter(function(o) { return o.status === 'pending' || o.status === 'suspended'; }).length;
+            if (_sE) _sE.textContent = window.myOrders.filter(function(o) { return o.status === 'confirmed'; }).reduce(function(s, o) { return s + parseFloat(o.price || 0); }, 0).toFixed(0);
+        }
+    }
+    if (window.location.pathname.includes('admin.html') || window.location.pathname.includes('admin')) {
+        if (typeof applyAdminOrdersFilter === 'function') applyAdminOrdersFilter();
+        if (typeof applyAdminProductsFilter === 'function') applyAdminProductsFilter();
+        if (typeof window.applyCustomersFilter === 'function') window.applyCustomersFilter();
+    }
+    if (window.location.pathname.includes('pending-order.html')) {
+        if (typeof window._rerenderPendingOrder === 'function') window._rerenderPendingOrder();
+    }
+    if (window.location.pathname.includes('Profile.html') || window.location.pathname.includes('profile.html')) {
+        if (typeof window._rerenderProfile === 'function') window._rerenderProfile();
+    }
     closeAllDropdowns();
 }
 
@@ -3931,14 +3953,18 @@ function buildOrderItemsHtml(o, opts) {
     if (o.items && typeof o.items === 'object') {
         var keys = Object.keys(o.items).filter(function(k) { var v = o.items[k]; return v && v.title; });
         if (keys.length > 0) {
-            html += '<div class="order-items-list">';
+            var imgs = [];
             keys.forEach(function(k) {
                 var item = o.items[k];
                 var img = item.image || '';
-                if (img) html += '<img src="' + img + '" class="order-item-thumb" loading="lazy">';
+                if (img) imgs.push(img);
             });
-            html += '</div>';
-            return html;
+            if (imgs.length > 0) {
+                html += '<div class="order-items-list">';
+                imgs.forEach(function(src) { html += '<img src="' + src + '" class="order-item-thumb" loading="lazy">'; });
+                html += '</div>';
+                return html;
+            }
         }
     }
     var imgUrl = o.productImage || o.image || '';
@@ -4024,7 +4050,7 @@ function renderOrders(orders) {
         const dt = o.createdAt ? new Date(o.createdAt) : null;
         const fullDate = dt ? `${_adminDayNames[dt.getDay()]} - ${dt.toLocaleDateString(_adminDtLocale)} - ${lang === 'ar' ? 'الساعة' : lang === 'en' ? 'at' : 'à'} ${dt.toLocaleTimeString(_adminDtLocale, {hour:'2-digit',minute:'2-digit'})}` : '';
         const pmKey = o.paymentMethod || '';
-        const pmName = o.paymentMethodName || (window.PAYMENT_ACCOUNTS && PAYMENT_ACCOUNTS[pmKey] ? PAYMENT_ACCOUNTS[pmKey].name?.[lang] || PAYMENT_ACCOUNTS[pmKey].name?.ar : '') || pmKey || '';
+        const pmName = (window.PAYMENT_ACCOUNTS && PAYMENT_ACCOUNTS[pmKey] ? PAYMENT_ACCOUNTS[pmKey].name?.[lang] || PAYMENT_ACCOUNTS[pmKey].name?.ar : '') || o.paymentMethodName || pmKey || '';
         const pmLogo = (window.PAYMENT_ACCOUNTS && PAYMENT_ACCOUNTS[pmKey]) ? PAYMENT_ACCOUNTS[pmKey].logo || '' : '';
         const cat = o.productCategory || o.category || '';
         const catName = cats ? (cats[lang]?.[cat] || cats.ar?.[cat] || cat || _ai18n.unclassified) : (cat || _ai18n.unclassified);
@@ -4065,6 +4091,7 @@ function renderOrders(orders) {
 
         // Build display title & items HTML for ALL products
         let displayTitle = o.productTitle || 'N/A';
+        const displayTitleTranslated = (typeof displayTitle === 'string' && _isArabic(displayTitle)) ? _getTranslation(displayTitle, lang) : displayTitle;
         let displayImg = imgUrl;
         if (o.items && typeof o.items === 'object') {
             const keys = Object.keys(o.items).filter(k => o.items[k] && o.items[k].title);
@@ -4102,13 +4129,13 @@ function renderOrders(orders) {
                 <div class="order-card-header" style="background:${_sc.header ? 'linear-gradient(135deg,'+_sc.header+','+_sc.header.replace('0.15','0.05').replace('0.1','0.03').replace('0.05','0.02')+') !important' : ''}">
                     <div class="order-card-header-left">
                         <span class="order-card-id" style="color:#fff !important;text-shadow:0 0 20px ${_sc.shadow} !important;">#${orderIdShort}</span>
-                        <span class="order-card-title">${displayTitle}</span>
+                        <span class="order-card-title">${displayTitleTranslated}</span>
                     </div>
                     <div class="order-card-header-right">
                         <span class="order-card-header-price">
                             <i class="fas fa-fire"></i>
                             <span class="hdr-price-value">${currentPrice}</span>
-                            <span class="hdr-price-currency">${o.currency || (lang === 'ar' ? 'جنيه' : lang === 'en' ? 'EGP' : 'EGP')}</span>
+                            <span class="hdr-price-currency">${(o.currency === 'جنيه' || o.currency === 'EGP') ? (lang === 'ar' ? 'جنيه' : 'EGP') : (o.currency || 'EGP')}</span>
                         </span>
                         <span class="admin-order-status-badge ${statusClass[o.status] || ''}" style="color:#fff !important;">${statusLabels[o.status] || o.status}</span>
                         <i class="fas fa-chevron-down order-card-chevron"></i>
@@ -4128,7 +4155,7 @@ function renderOrders(orders) {
                                 <div class="order-info-grid">
                                     <div class="info-row">
                                         <span class="info-label">${_ai18n.products}</span>
-                                        <span class="info-value" style="white-space:normal;line-height:1.6">${(function(){if(o.items&&typeof o.items==='object'){var ks=Object.keys(o.items).filter(function(k){return o.items[k]&&o.items[k].title});if(ks.length>0){var catEmojis={books:'📚',software:'💻',formulas:'🧪',courses:'🎓'};var cats2=APP_CONFIG?APP_CONFIG.categories:null;var lang2=document.documentElement.lang||'ar';var lines=ks.map(function(k){var it=o.items[k];var qty=it.quantity||1;var cat=it.category||'';var ce=catEmojis[cat]||'';var cn=(cats2&&cats2[lang2]&&cats2[lang2][cat])||cat||'';return it.title+' <span style="color:#9333ea">\u00D7'+qty+'</span>'+(cn?' <span class="order-item-cat-badge">'+ce+' '+cn+'</span>':'')});return lines.join('<br>')}}return o.productTitle||'N/A';})()}</span>
+                                        <span class="info-value" style="white-space:normal;line-height:1.6">${(function(){if(o.items&&typeof o.items==='object'){var ks=Object.keys(o.items).filter(function(k){return o.items[k]&&o.items[k].title});if(ks.length>0){var catEmojis={books:'📚',software:'💻',formulas:'🧪',courses:'🎓'};var cats2=APP_CONFIG?APP_CONFIG.categories:null;var lang2=document.documentElement.lang||'ar';var lines=ks.map(function(k){var it=o.items[k];var qty=it.quantity||1;var cat=it.category||'';var ce=catEmojis[cat]||'';var cn=(cats2&&cats2[lang2]&&cats2[lang2][cat])||cat||'';var t=(typeof it.title==='string'&&_isArabic(it.title))?_getTranslation(it.title,lang2):(it.title||'');return t+' <span style="color:#9333ea">\u00D7'+qty+'</span>'+(cn?' <span class="order-item-cat-badge">'+ce+' '+cn+'</span>':'')});return lines.join('<br>')}}var pt=o.productTitle||'N/A';return(typeof pt==='string'&&_isArabic(pt))?_getTranslation(pt,lang):pt;})()}</span>
                                     </div>
                                     <div class="info-row">
                                         <span class="info-label">${_ai18n.orderNum}</span>
@@ -4146,11 +4173,11 @@ function renderOrders(orders) {
 
                                 <!-- Pricing block -->
                                 <div class="order-pricing-block">
-                                    ${hasDiscount ? `<div class="price-old-save-row"><div class="price-old"><span class="price-old-value">${oldPriceVal}</span> ${o.currency || 'EGP'}</div><span class="price-save"><i class="fas fa-tag"></i> ${_ai18n.saved} ${savings}</span></div>` : ''}
+                                    ${hasDiscount ? `<div class="price-old-save-row"><div class="price-old"><span class="price-old-value">${oldPriceVal}</span> ${(o.currency === 'جنيه' || o.currency === 'EGP') ? (lang === 'ar' ? 'جنيه' : 'EGP') : (o.currency || 'EGP')}</div><span class="price-save"><i class="fas fa-tag"></i> ${_ai18n.saved} ${savings}</span></div>` : ''}
                                     <div class="price-final">
                                         <i class="fas fa-fire animated-fire"></i>
                                         <span class="price-value">${currentPrice}</span>
-                                        <span class="price-currency">${o.currency || 'EGP'}</span>
+                                        <span class="price-currency">${(o.currency === 'جنيه' || o.currency === 'EGP') ? (lang === 'ar' ? 'جنيه' : 'EGP') : (o.currency || 'EGP')}</span>
                                     </div>
                                 </div>
 
@@ -7615,6 +7642,15 @@ window.initOrdersPage = async function() {
             // Cart items: grab badge info from first item, and fallback to DB fetch
             if (o.items && typeof o.items === 'object') {
                 const keys = Object.keys(o.items);
+                // Enrich item images from DB if missing
+                for (const [ik, iv] of Object.entries(o.items)) {
+                    if (iv && (!iv.image || iv.image === '') && iv.id && iv.id !== 'cart_checkout') {
+                        try {
+                            const ip = await DB.get(`products/${iv.id}`);
+                            if (ip && ip.image) { iv.image = ip.image; }
+                        } catch(e) {}
+                    }
+                }
                 if (keys.length > 0) {
                     const first = o.items[keys[0]];
                     if (!o.productBadge) o.productBadge = first.badge || '';
@@ -7716,7 +7752,7 @@ window.renderOrdersList = function(orders) {
         const dt = o.createdAt ? new Date(o.createdAt) : null;
         const fullDate = dt && !isNaN(dt.getTime()) ? `${dayNames[dt.getDay()] || ''} - ${dt.toLocaleDateString(dtLocale)} - ${lang === 'ar' ? 'الساعة' : lang === 'en' ? 'at' : 'à'} ${dt.toLocaleTimeString(dtLocale, {hour:'2-digit',minute:'2-digit'})}` : '—';
         const pmKey = o.paymentMethod || '';
-        const pmName = o.paymentMethodName || PAYMENT_ACCOUNTS[pmKey]?.name?.[lang] || pmKey || '';
+        const pmName = PAYMENT_ACCOUNTS[pmKey]?.name?.[lang] || PAYMENT_ACCOUNTS[pmKey]?.name?.ar || o.paymentMethodName || pmKey || '';
         const pmLogo = PAYMENT_ACCOUNTS[pmKey]?.logo || '';
         let orderOldPrice = userCountry === 'EG' ? (o.productOldPriceEGP || o.oldPriceEGP) : (o.productOldPriceUSD || o.oldPriceUSD);
         if (!orderOldPrice && o.items && typeof o.items === 'object') {
@@ -7743,6 +7779,7 @@ window.renderOrdersList = function(orders) {
         const badgesHTML = (discBadge || specBadge) ? `<div class="badge-column">${discBadge}${specBadge}</div>` : '';
         // ----
         const cat = o.productCategory || o.category || '';
+        const displayCurrency = (o.currency === 'جنيه' || o.currency === 'EGP') ? (lang === 'ar' ? 'جنيه' : 'EGP') : (o.currency || 'EGP');
         const catName = cats?.[lang]?.[cat] || cat || _i18n.unclassified;
         const catEmoji = catEmojis[cat] || '📦';
         const catColor = catColors[cat] || '#8b5cf6';
@@ -7795,7 +7832,7 @@ window.renderOrdersList = function(orders) {
                         <span class="order-card-header-price">
                             <i class="fas fa-fire"></i>
                             <span class="hdr-price-value">${currentPrice}</span>
-                            <span class="hdr-price-currency">${o.currency}</span>
+                            <span class="hdr-price-currency">${displayCurrency}</span>
                         </span>
                         <i class="fas fa-chevron-down order-card-chevron"></i>
                     </div>
@@ -7814,7 +7851,7 @@ window.renderOrdersList = function(orders) {
                                 <div class="order-info-grid">
                                     <div class="info-row">
                                         <span class="info-label">${_i18n.products}</span>
-                                        <span class="info-value" style="white-space:normal;line-height:1.6">${(function(){if(o.items&&typeof o.items==='object'){var ks=Object.keys(o.items).filter(function(k){return o.items[k]&&o.items[k].title});if(ks.length>0){var catEmojis={books:'📚',software:'💻',formulas:'🧪',courses:'🎓'};var cats2=APP_CONFIG?APP_CONFIG.categories:null;var lang2=document.documentElement.lang||'ar';var lines=ks.map(function(k){var it=o.items[k];var qty=it.quantity||1;var cat=it.category||'';var ce=catEmojis[cat]||'';var cn=(cats2&&cats2[lang2]&&cats2[lang2][cat])||cat||'';return it.title+' <span style="color:#9333ea">\u00D7'+qty+'</span>'+(cn?' <span class="order-item-cat-badge">'+ce+' '+cn+'</span>':'')});return lines.join('<br>')}}return o.productTitle||'N/A';})()}</span>
+                                        <span class="info-value" style="white-space:normal;line-height:1.6">${(function(){if(o.items&&typeof o.items==='object'){var ks=Object.keys(o.items).filter(function(k){return o.items[k]&&o.items[k].title});if(ks.length>0){var catEmojis={books:'📚',software:'💻',formulas:'🧪',courses:'🎓'};var cats2=APP_CONFIG?APP_CONFIG.categories:null;var lang2=document.documentElement.lang||'ar';var lines=ks.map(function(k){var it=o.items[k];var qty=it.quantity||1;var cat=it.category||'';var ce=catEmojis[cat]||'';var cn=(cats2&&cats2[lang2]&&cats2[lang2][cat])||cat||'';var t=(typeof it.title==='string'&&_isArabic(it.title))?_getTranslation(it.title,lang2):(it.title||'');return t+' <span style="color:#9333ea">\u00D7'+qty+'</span>'+(cn?' <span class="order-item-cat-badge">'+ce+' '+cn+'</span>':'')});return lines.join('<br>')}}var pt=o.productTitle||'N/A';return(typeof pt==='string'&&_isArabic(pt))?_getTranslation(pt,lang):pt;})()}</span>
                                     </div>
                                     <div class="info-row">
                                         <span class="info-label">${_i18n.orderNum}</span>
@@ -7840,11 +7877,11 @@ window.renderOrdersList = function(orders) {
 
                                 <!-- Pricing block — like product page / cart -->
                                 <div class="order-pricing-block">
-                                    ${hasDiscount ? `<div class="price-old-save-row"><div class="price-old"><span class="price-old-value">${oldPrice}</span> ${o.currency}</div><span class="price-save"><i class="fas fa-tag"></i> ${_i18n.saved} ${savings}</span></div>` : ''}
+                                    ${hasDiscount ? `<div class="price-old-save-row"><div class="price-old"><span class="price-old-value">${oldPrice}</span> ${displayCurrency}</div><span class="price-save"><i class="fas fa-tag"></i> ${_i18n.saved} ${savings}</span></div>` : ''}
                                     <div class="price-final">
                                         <i class="fas fa-fire animated-fire"></i>
                                         <span class="price-value">${currentPrice}</span>
-                                        <span class="price-currency">${o.currency}</span>
+                                        <span class="price-currency">${displayCurrency}</span>
                                     </div>
                                 </div>
 

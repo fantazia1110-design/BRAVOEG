@@ -407,7 +407,7 @@
 
     <!-- Main JavaScript -->
     <script src="js/include.js?v=21"></script>
-    <script src="js/app.js?v=20260724h"></script>
+    <script src="js/app.js?v=20260724j"></script>
     <script type="module" src="firebase-config.js"></script>
     <script>initPageHero();</script>
     <script>
@@ -470,6 +470,17 @@
     });
     var _langBtn = document.querySelector('.lang-switch');
     if (_langBtn) { var _la = _langBtn.getAttribute('data-' + _prLang); if (_la) _langBtn.setAttribute('aria-label', _la); }
+    window._rerenderProfile = function() {
+        _prLang = document.documentElement.lang || 'ar';
+        document.querySelectorAll('.whatsapp-float').forEach(function(wa){
+            var title = wa.getAttribute('data-' + _prLang + '-title') || wa.getAttribute('data-ar-title');
+            if (title) wa.setAttribute('title', title);
+            var msg = wa.getAttribute('data-' + _prLang + '-wa') || wa.getAttribute('data-ar-wa');
+            if (msg) { var base = wa.href.split('?')[0]; wa.href = base + '?text=' + encodeURIComponent(msg); }
+        });
+        var lb2 = document.querySelector('.lang-switch');
+        if (lb2) { var la2 = lb2.getAttribute('data-' + _prLang); if (la2) lb2.setAttribute('aria-label', la2); }
+    };
     var editFieldName = '';
     function openModal(field) {
         editFieldName = field;
