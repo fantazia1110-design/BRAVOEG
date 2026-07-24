@@ -2366,20 +2366,110 @@ function checkCheckoutFormValidity() {
     }
 }
 
-async function uploadToImgBB(file) {
+function _showUploadProgress(label) {
+    var circ = 2 * Math.PI * 54;
+    var ov = document.createElement('div');
+    ov.className = 'upload-progress-overlay';
+    ov.id = 'uploadProgressOverlay';
+    ov.innerHTML = '<div class="upload-progress-ring"><svg width="120" height="120"><circle class="ring-bg" cx="60" cy="60" r="54" stroke-dasharray="' + circ + '" stroke-dashoffset="0"></circle><circle class="ring-fg" cx="60" cy="60" r="54" stroke-dasharray="' + circ + '" stroke-dashoffset="' + circ + '"></circle></svg><div class="upload-progress-pct">0%</div></div><div class="upload-progress-label">' + (label || 'جاري الرفع...') + '</div>';
+    document.body.appendChild(ov);
+    return ov;
+}
+function _updateUploadProgress(pct) {
+    var ov = document.getElementById('uploadProgressOverlay');
+    if (!ov) return;
+    var circ = 2 * Math.PI * 54;
+    var fg = ov.querySelector('.ring-fg');
+    var pctEl = ov.querySelector('.upload-progress-pct');
+    if (fg) fg.style.strokeDashoffset = circ - (circ * pct / 100);
+    if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+}
+function _hideUploadProgress() {
+    var ov = document.getElementById('uploadProgressOverlay');
+    if (ov) ov.remove();
+}
+function _showFormNotification(formId, type, msg) {
+    var form = document.getElementById(formId);
+    if (!form) return;
+    var n = form.querySelector('.form-inline-notification');
+    if (!n) { n = document.createElement('div'); n.className = 'form-inline-notification'; form.insertBefore(n, form.firstChild); }
+    n.className = 'form-inline-notification show ' + type;
+    n.innerHTML = '<i class="fas ' + (type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle') + '"></i> ' + msg;
+    if (type !== 'error') setTimeout(function() { n.classList.remove('show'); }, 5000);
+}
+
+async function uploadToImgBB(file, opts) {
+    opts = opts || {};
+    var upLabel = opts.progressLabel || (currentLang === 'ar' ? 'جاري رفع الصورة...' : currentLang === 'en' ? 'Uploading image...' : 'Téléchargement...');
     return new Promise((resolve, reject) => {
-        const r = new FileReader(); r.onload = async (e) => { 
-            try { 
-                const b = e.target.result.split(',')[1]; const fd = new FormData(); fd.append('key', APP_CONFIG.imgbbApiKey); fd.append('image', b); 
-                const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: fd }); 
-                const d = await res.json(); if (d.success) resolve(d.data); else throw new Error(d.error?.message || 'Upload failed'); 
-            } catch (err) { 
-                console.warn('ImgBB upload failed, using local base64 for testing');
-                resolve({ display_url: e.target.result, url: e.target.result });
-            } 
+        var r = new FileReader();
+        r.onload = function(e) {
+            try {
+                var b = e.target.result.split(',')[1];
+                var fd = new FormData();
+                fd.append('key', APP_CONFIG.imgbbApiKey);
+                fd.append('image', b);
+                if (opts.showProgress !== false) _showUploadProgress(upLabel);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'https://api.imgbb.com/1/upload');
+                xhr.upload.onprogress = function(ev) {
+                    if (ev.lengthComputable) {
+                        var pct = (ev.loaded / ev.total) * 100;
+                        _updateUploadProgress(pct);
+                    }
+                };
+                xhr.onload = function() {
+                    _hideUploadProgress();
+                    try {
+                        var d = JSON.parse(xhr.responseText);
+                        if (d.success) resolve(d.data);
+                        else throw new Error(d.error?.message || 'Upload failed');
+                    } catch(err) {
+                        console.warn('ImgBB upload failed, using local base64');
+                        resolve({ display_url: e.target.result, url: e.target.result });
+                    }
+                };
+                xhr.onerror = function() {
+                    _hideUploadProgress();
+                    console.warn('ImgBB upload failed, using local base64');
+                    resolve({ display_url: e.target.result, url: e.target.result });
+                };
+                xhr.send(fd);
+            } catch(err) {
+                _hideUploadProgress();
+                reject(err);
+            }
         };
-        r.onerror = () => reject(new Error('File reading failed')); r.readAsDataURL(file);
+        r.onerror = function() { _hideUploadProgress(); reject(new Error('File reading failed')); };
+        r.readAsDataURL(file);
     });
+}
+
+async function _translateTextArTo(text, targetLang) {
+    if (!text || !text.trim()) return text;
+    var cacheKey = 'ar|' + targetLang + '|' + text;
+    try { var cached = JSON.parse(localStorage.getItem('translationCache') || '{}')[cacheKey]; if (cached) return cached; } catch(e) {}
+    try {
+        var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=ar|' + targetLang;
+        var res = await fetch(url);
+        var data = await res.json();
+        if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+            var tr = data.responseData.translatedText;
+            if (tr && tr !== text && tr.toUpperCase() !== text.toUpperCase()) {
+                try { var cache = JSON.parse(localStorage.getItem('translationCache') || '{}'); cache[cacheKey] = tr; localStorage.setItem('translationCache', JSON.stringify(cache)); } catch(e) {}
+                return tr;
+            }
+        }
+    } catch(e) {}
+    return text;
+}
+async function _translateLinesArTo(lines, targetLang) {
+    if (!lines || !lines.length) return lines;
+    var results = [];
+    for (var i = 0; i < lines.length; i++) {
+        results.push(await _translateTextArTo(lines[i], targetLang));
+    }
+    return results;
 }
 
 async function handleCheckoutSubmit(e) {
@@ -5575,10 +5665,9 @@ function initAddProductForm() {
         e.preventDefault();
         const btn = document.getElementById('submitProductBtn');
         const orig = btn.innerHTML;
+        const addNotif = document.getElementById('addProductNotification');
 
         var titleAr = (document.getElementById('productTitleAr')?.value || '').trim();
-        var titleEn = (document.getElementById('productTitleEn')?.value || '').trim();
-        var titleFr = (document.getElementById('productTitleFr')?.value || '').trim();
         if (!titleAr) {
             showToast('❌', currentLang === 'ar' ? 'اسم المنتج مطلوب (AR)' : currentLang === 'en' ? 'Product title required (AR)' : 'Titre requis (AR)', 'error');
             document.getElementById('productTitleAr')?.focus();
@@ -5592,7 +5681,8 @@ function initAddProductForm() {
         }
 
         btn.disabled = true;
-        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${currentLang === 'ar' ? 'جاري الإضافة...' : currentLang === 'en' ? 'Adding...' : 'Ajout en cours...'}`;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${currentLang === 'ar' ? 'جاري الترجمة والإضافة...' : currentLang === 'en' ? 'Translating & adding...' : 'Traduction et ajout...'}`;
+        if (addNotif) { addNotif.className = 'form-inline-notification show info'; addNotif.innerHTML = '<i class="fas fa-language"></i> ' + (currentLang === 'ar' ? 'جاري ترجمة النصوص إلى الإنجليزي والفرنسي...' : currentLang === 'en' ? 'Translating to English and French...' : 'Traduction en anglais et français...'); }
 
         const oldPriceEGP = parseFloat(document.getElementById('productOldPriceEGP')?.value) || 0;
         const oldPriceUSD = parseFloat(document.getElementById('productOldPriceUSD')?.value) || 0;
@@ -5603,11 +5693,7 @@ function initAddProductForm() {
             return v ? v.split('\n').map(function(s){ return s.trim(); }).filter(Boolean) : [];
         }
         var featsAr = parseLangLines('productFeaturesAr');
-        var featsEn = parseLangLines('productFeaturesEn');
-        var featsFr = parseLangLines('productFeaturesFr');
         var reqsAr = parseLangLines('productRequirementsAr');
-        var reqsEn = parseLangLines('productRequirementsEn');
-        var reqsFr = parseLangLines('productRequirementsFr');
         function parseFAQ(id) {
             return (document.getElementById(id)?.value || '').split('\n').map(function(s){ return s.trim(); }).filter(Boolean).map(function(line){
                 var idx = line.indexOf('|');
@@ -5616,15 +5702,35 @@ function initAddProductForm() {
             }).filter(function(item){ return item.q; });
         }
         var faqAr = parseFAQ('productFAQAr');
-        var faqEn = parseFAQ('productFAQEn');
-        var faqFr = parseFAQ('productFAQFr');
 
         var images = productImages.length > 0 ? productImages : [];
         var mainIdx = productImages.length > 0 ? mainImageIndex : 0;
         var videoUrl = (document.getElementById('productVideoUrl')?.value || '').trim();
         var descAr = (document.getElementById('productDescriptionAr')?.value || '').trim() || 'وصف المنتج';
-        var descEn = (document.getElementById('productDescriptionEn')?.value || '').trim();
-        var descFr = (document.getElementById('productDescriptionFr')?.value || '').trim();
+
+        // Auto-translate Arabic to EN/FR
+        var titleEn = '', titleFr = '';
+        var descEn = '', descFr = '';
+        var featsEn = [], featsFr = [];
+        var reqsEn = [], reqsFr = [];
+        var faqEn = [], faqFr = [];
+        try {
+            [titleEn, titleFr] = await Promise.all([_translateTextArTo(titleAr, 'en'), _translateTextArTo(titleAr, 'fr')]);
+            [descEn, descFr] = await Promise.all([_translateTextArTo(descAr, 'en'), _translateTextArTo(descAr, 'fr')]);
+            [featsEn, featsFr] = await Promise.all([_translateLinesArTo(featsAr, 'en'), _translateLinesArTo(featsAr, 'fr')]);
+            [reqsEn, reqsFr] = await Promise.all([_translateLinesArTo(reqsAr, 'en'), _translateLinesArTo(reqsAr, 'fr')]);
+            var faqTransEn = [], faqTransFr = [];
+            for (var fi = 0; fi < faqAr.length; fi++) {
+                var qEn = await _translateTextArTo(faqAr[fi].q, 'en');
+                var aEn = faqAr[fi].a ? await _translateTextArTo(faqAr[fi].a, 'en') : '';
+                var qFr = await _translateTextArTo(faqAr[fi].q, 'fr');
+                var aFr = faqAr[fi].a ? await _translateTextArTo(faqAr[fi].a, 'fr') : '';
+                faqTransEn.push({ q: qEn, a: aEn });
+                faqTransFr.push({ q: qFr, a: aFr });
+            }
+            faqEn = faqTransEn;
+            faqFr = faqTransFr;
+        } catch(te) { console.warn('Translation failed, using Arabic fallback', te); titleEn = titleAr; titleFr = titleAr; descEn = descAr; descFr = descAr; featsEn = featsAr; featsFr = featsAr; reqsEn = reqsAr; reqsFr = reqsAr; faqEn = faqAr; faqFr = faqAr; }
 
         const product = {
             title: { ar: titleAr, en: titleEn || titleAr, fr: titleFr || titleAr },
@@ -5669,6 +5775,7 @@ function initAddProductForm() {
                 if (typeof updateStats === 'function') updateStats();
 
                 showToast('✅', currentLang === 'ar' ? 'تم إضافة المنتج بنجاح!' : currentLang === 'en' ? 'Product added!' : 'Produit ajouté !', 'success');
+                if (addNotif) { addNotif.className = 'form-inline-notification show success'; addNotif.innerHTML = '<i class="fas fa-check-circle"></i> ' + (currentLang === 'ar' ? 'تمت الترجمة والإضافة بنجاح!' : currentLang === 'en' ? 'Translated and added successfully!' : 'Traduit et ajouté avec succès !'); setTimeout(function(){ addNotif.className = 'form-inline-notification'; }, 4000); }
                 form.reset();
                 productImages = [];
                 mainImageIndex = 0;
@@ -5686,8 +5793,10 @@ function initAddProductForm() {
         } catch (err) {
             console.error('Error adding product:', err);
             showToast('❌', currentLang === 'ar' ? 'فشل إضافة المنتج' : currentLang === 'en' ? 'Failed to add product' : "Échec de l'ajout du produit", 'error');
+            if (addNotif) { addNotif.className = 'form-inline-notification show error'; addNotif.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + (currentLang === 'ar' ? 'فشلت الإضافة' : currentLang === 'en' ? 'Add failed' : "Échec de l'ajout"); }
         } finally {
             btn.disabled = false; btn.innerHTML = orig;
+            if (addNotif) setTimeout(function(){ addNotif.className = 'form-inline-notification'; }, 6000);
         }
     });
 }
@@ -6173,9 +6282,8 @@ function initEditForms() {
         epf.addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('editProductId').value;
+            const editNotif = document.getElementById('editProductNotification');
             var editTitleAr = document.getElementById('editProductTitleAr')?.value.trim() || '';
-            var editTitleEn = document.getElementById('editProductTitleEn')?.value.trim() || '';
-            var editTitleFr = document.getElementById('editProductTitleFr')?.value.trim() || '';
             var editPriceEGP = parseFloat(document.getElementById('editProductPriceEGP')?.value) || 0;
             var editPriceUSD = parseFloat(document.getElementById('editProductPriceUSD')?.value) || 0;
             if (!editTitleAr) {
@@ -6193,11 +6301,7 @@ function initEditForms() {
                 return v ? v.split('\n').map(function(s){ return s.trim(); }).filter(Boolean) : [];
             }
             var editFeatsAr = editParseLangLines('editProductFeaturesAr');
-            var editFeatsEn = editParseLangLines('editProductFeaturesEn');
-            var editFeatsFr = editParseLangLines('editProductFeaturesFr');
             var editReqsAr = editParseLangLines('editProductRequirementsAr');
-            var editReqsEn = editParseLangLines('editProductRequirementsEn');
-            var editReqsFr = editParseLangLines('editProductRequirementsFr');
             function editParseFAQ(id) {
                 return (document.getElementById(id)?.value || '').split('\n').map(function(s){ return s.trim(); }).filter(Boolean).map(function(line){
                     var idx = line.indexOf('|');
@@ -6206,16 +6310,38 @@ function initEditForms() {
                 }).filter(function(item){ return item.q; });
             }
             var editFaqAr = editParseFAQ('editProductFAQAr');
-            var editFaqEn = editParseFAQ('editProductFAQEn');
-            var editFaqFr = editParseFAQ('editProductFAQFr');
             var imgs = window.__editImages || [];
             var mainIdx = window.__editMainIdx || 0;
             const editImagesArr = imgs.length > 0 ? imgs : [];
             const editMainIdx = imgs.length > 0 ? mainIdx : 0;
             const editVideoUrl = (document.getElementById('editProductVideoUrl')?.value || '').trim();
             var editDescAr = (document.getElementById('editProductDescriptionAr')?.value || '').trim() || 'وصف المنتج';
-            var editDescEn = (document.getElementById('editProductDescriptionEn')?.value || '').trim();
-            var editDescFr = (document.getElementById('editProductDescriptionFr')?.value || '').trim();
+
+            // Auto-translate Arabic to EN/FR
+            var editTitleEn = '', editTitleFr = '';
+            var editDescEn = '', editDescFr = '';
+            var editFeatsEn = [], editFeatsFr = [];
+            var editReqsEn = [], editReqsFr = [];
+            var editFaqEn = [], editFaqFr = [];
+            try {
+                if (editNotif) { editNotif.className = 'form-inline-notification show info'; editNotif.innerHTML = '<i class="fas fa-language"></i> ' + (currentLang === 'ar' ? 'جاري ترجمة النصوص...' : currentLang === 'en' ? 'Translating texts...' : 'Traduction des textes...'); }
+                [editTitleEn, editTitleFr] = await Promise.all([_translateTextArTo(editTitleAr, 'en'), _translateTextArTo(editTitleAr, 'fr')]);
+                [editDescEn, editDescFr] = await Promise.all([_translateTextArTo(editDescAr, 'en'), _translateTextArTo(editDescAr, 'fr')]);
+                [editFeatsEn, editFeatsFr] = await Promise.all([_translateLinesArTo(editFeatsAr, 'en'), _translateLinesArTo(editFeatsAr, 'fr')]);
+                [editReqsEn, editReqsFr] = await Promise.all([_translateLinesArTo(editReqsAr, 'en'), _translateLinesArTo(editReqsAr, 'fr')]);
+                var eFaqEn = [], eFaqFr = [];
+                for (var fi = 0; fi < editFaqAr.length; fi++) {
+                    var qEn = await _translateTextArTo(editFaqAr[fi].q, 'en');
+                    var aEn = editFaqAr[fi].a ? await _translateTextArTo(editFaqAr[fi].a, 'en') : '';
+                    var qFr = await _translateTextArTo(editFaqAr[fi].q, 'fr');
+                    var aFr = editFaqAr[fi].a ? await _translateTextArTo(editFaqAr[fi].a, 'fr') : '';
+                    eFaqEn.push({ q: qEn, a: aEn });
+                    eFaqFr.push({ q: qFr, a: aFr });
+                }
+                editFaqEn = eFaqEn;
+                editFaqFr = eFaqFr;
+            } catch(te) { console.warn('Edit translation failed', te); editTitleEn = editTitleAr; editTitleFr = editTitleAr; editDescEn = editDescAr; editDescFr = editDescAr; editFeatsEn = editFeatsAr; editFeatsFr = editFeatsAr; editReqsEn = editReqsAr; editReqsFr = editReqsAr; editFaqEn = editFaqAr; editFaqFr = editFaqAr; }
+
             const u = {
                 title: { ar: editTitleAr, en: editTitleEn || editTitleAr, fr: editTitleFr || editTitleAr },
                 category: document.getElementById('editProductCategory')?.value || 'books',
@@ -6256,9 +6382,11 @@ function initEditForms() {
                 }
                 closeEditProductModal(); 
                 showToast('✅', currentLang === 'ar' ? 'تم تحديث المنتج!' : currentLang === 'en' ? 'Product updated!' : 'Produit mis à jour !', 'success');
+                if (editNotif) { editNotif.className = 'form-inline-notification show success'; editNotif.innerHTML = '<i class="fas fa-check-circle"></i> ' + (currentLang === 'ar' ? 'تمت الترجمة والتحديث بنجاح!' : currentLang === 'en' ? 'Translated and updated!' : 'Traduit et mis à jour !'); setTimeout(function(){ editNotif.className = 'form-inline-notification'; }, 4000); }
             } catch(e) {
                 console.error('Save failed:', e);
                 showToast('❌', currentLang === 'ar' ? 'فشل الحفظ: مشكلة في قاعدة البيانات' : currentLang === 'en' ? 'Save failed: database error' : 'Échec de la sauvegarde : erreur de base de données', 'error');
+                if (editNotif) { editNotif.className = 'form-inline-notification show error'; editNotif.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + (currentLang === 'ar' ? 'فشلت الترجمة أو الحفظ' : currentLang === 'en' ? 'Translation or save failed' : 'Échec de la traduction ou de la sauvegarde'); }
             }
         });
     }

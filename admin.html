@@ -212,6 +212,26 @@
         .login-section .remember-checkbox input:checked ~ .checkmark { background:var(--gradient-primary) !important; border-color:var(--primary) !important; }
         .login-section .remember-checkbox input:checked ~ .checkmark::after { content:'✓' !important; color:white !important; font-size:16px !important; font-weight:900 !important; }
         /* Mobile: match main site EXACTLY — no overrides, header.css handles it */
+        /* Hide EN/FR language fields — only Arabic input, auto-translate on save */
+        .admin-product-form .lang-field-row:has(.lang-badge.en),
+        .admin-product-form .lang-field-row:has(.lang-badge.fr) { display: none !important; }
+        .admin-product-form .lang-field-group { flex-direction: column; }
+        /* Upload progress overlay */
+        .upload-progress-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10001; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+        .upload-progress-ring { position: relative; width: 120px; height: 120px; }
+        .upload-progress-ring svg { transform: rotate(-90deg); }
+        .upload-progress-ring circle { fill: none; stroke-width: 8; }
+        .upload-progress-ring .ring-bg { stroke: rgba(255,255,255,0.15); }
+        .upload-progress-ring .ring-fg { stroke: #9333ea; stroke-linecap: round; transition: stroke-dashoffset 0.3s ease; }
+        .upload-progress-pct { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 1.5em; font-weight: 900; color: #fff; }
+        .upload-progress-label { font-size: 1em; color: rgba(255,255,255,0.8); font-weight: 600; }
+        /* Inline form notification */
+        .form-inline-notification { margin: 12px 0; padding: 12px 16px; border-radius: 12px; font-weight: 700; font-size: 0.95em; display: none; align-items: center; gap: 10px; animation: slideDown 0.3s ease; }
+        .form-inline-notification.show { display: flex; }
+        .form-inline-notification.success { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #10b981; }
+        .form-inline-notification.error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #ef4444; }
+        .form-inline-notification.info { background: rgba(147,51,234,0.15); border: 1px solid rgba(147,51,234,0.3); color: #9333ea; }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
     </style>
     <script>
         /* ═══════════════════════════════════════════════════
@@ -1332,6 +1352,7 @@
             </div>
 
             <form id="editProductForm" class="admin-product-form">
+                <div class="form-inline-notification" id="editProductNotification"></div>
                 <input type="hidden" id="editProductId">
 
                 <!-- Images & Video -->
@@ -2014,7 +2035,7 @@
     </div>
 
     <!-- Main JavaScript -->
-    <script src="js/app.js?v=20260724j"></script>
+    <script src="js/app.js?v=20260724k"></script>
     <script>
         document.querySelector('.admin-main')?.addEventListener('click', function(e) {
             var s = document.getElementById('adminSidebar');
@@ -2456,7 +2477,7 @@ window.deleteCat = deleteCat; window.toggleCat = toggleCat; window.syncCatsToCon
             </h2>
         </div>
         <form id="addProductForm" class="admin-product-form">
-
+            <div class="form-inline-notification" id="addProductNotification"></div>
         <!-- Images & Video Upload -->
         <div class="admin-form-card">
             <div class="admin-form-card-title">
