@@ -3,33 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-ar="تواصل معنا - BRAVO Store" data-en="Contact Us - BRAVO Store" data-fr="Contactez-nous - BRAVO Store">تواصل معنا - BRAVO Store</title>
-    <meta name="description" data-ar="تواصل مع فريق BRAVO - نحن هنا لمساعدتك" data-en="Contact the BRAVO team - We're here to help you" data-fr="Contactez l'équipe BRAVO - Nous sommes là pour vous aider" content="تواصل مع فريق BRAVO - نحن هنا لمساعدتك">
-    
-    <!-- Favicon -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title data-ar="المفضلة - BRAVO Store ❤️" data-en="Wishlist - BRAVO Store ❤️" data-fr="Favoris - BRAVO Store ❤️">المفضلة - BRAVO Store ❤️</title>
     <link rel="icon" type="image/png" href="https://i.ibb.co/7tKdRmfC/68-1.png">
-    
-    <!-- External CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
-          crossorigin="anonymous" referrerpolicy="no-referrer">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     
     <!-- Main CSS -->
-    <link rel="stylesheet" href="shared/css/global.css?v=15">
+    <link rel="stylesheet" href="shared/css/global.css">
     <link rel="stylesheet" href="shared/css/toast.css?v=5">
     <link rel="stylesheet" href="shared/css/header.css?v=22">
-    <link rel="stylesheet" href="shared/css/footer.css?v=15">
-    <link rel="stylesheet" href="shared/css/responsive.css?v=15">
-    <link rel="stylesheet" href="shared/css/components.css?v=15">
-    <link rel="stylesheet" href="shared/css/reveal.css?v=1">
+    <link rel="stylesheet" href="shared/css/footer.css">
+    <link rel="stylesheet" href="shared/css/responsive.css?v=16">
+    <link rel="stylesheet" href="shared/css/components.css">
+    <link rel="stylesheet" href="shared/css/reveal.css">
     <link rel="stylesheet" href="shared/css/quick-view.css?v=22">
-    <link rel="stylesheet" href="css/contact.css?v=2">
+    <link rel="stylesheet" href="css/wishlist.css?v=30">
+    <link rel="stylesheet" href="shared/css/product-card.css?v=53">
+    <style>
+.wishlist-page > .container { max-width: 1600px; margin: 0 auto; padding: 80px 5% 60px; }
+@media (max-width: 1024px) {
+    .wishlist-page > .container { padding-top: 70px; }
+}
+@media (max-width: 768px) {
+    .wishlist-page > .container { padding-top: 98px; }
+}
+@media (max-width: 480px) {
+    .wishlist-page > .container { padding-top: 88px; }
+}
+@media (max-width: 360px) {
+    .wishlist-page > .container { padding-top: 80px; }
+}
+</style>
 </head>
-<body>
-
+<body class="wishlist-page">
     <!-- Particles Background -->
     <canvas id="particles" aria-hidden="true"></canvas>
 
@@ -51,36 +60,11 @@
             <ul class="nav-menu" id="navMenu" role="menubar">
                 <!-- Mobile: divider -->
                 <li class="nav-menu-divider" role="separator"><span data-ar="الحساب" data-en="Account" data-fr="Compte">الحساب</span></li>
-                <!-- Mobile: حسابي (logged in only) -->
-                <li class="mobile-action-item logged-in-only" id="accountMobile" style="display:none;" role="none">
+                <!-- Mobile: حسابي -->
+                <li class="mobile-action-item" role="none">
                     <a class="mobile-action-btn" href="Profile.html">
                         <i class="fas fa-user"></i>
                         <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
-                    </a>
-                </li>
-                <li class="mobile-action-item logged-in-only" id="switchAccountMobile" style="display:none;" role="none">
-                    <a class="mobile-action-btn" href="javascript:handleSwitchAccount()">
-                        <i class="fas fa-exchange-alt"></i>
-                        <span data-ar="تبديل الحساب" data-en="Switch Account" data-fr="Changer de compte">تبديل الحساب</span>
-                    </a>
-                </li>
-                <li class="mobile-action-item logged-in-only" id="logoutMobile" style="display:none;" role="none">
-                    <a class="mobile-action-btn" href="javascript:handleLogout()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span data-ar="تسجيل الخروج" data-en="Logout" data-fr="D&#233;connexion">تسجيل الخروج</span>
-                    </a>
-                </li>
-                <!-- Mobile: تسجيل الدخول (guest only) -->
-                <li class="mobile-action-item guest-only" id="loginMobile" role="none">
-                    <a class="mobile-action-btn" href="auth.html">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span data-ar="تسجيل الدخول" data-en="Login" data-fr="Connexion">تسجيل الدخول</span>
-                    </a>
-                </li>
-                <li class="mobile-action-item guest-only" id="registerMobile" role="none">
-                    <a class="mobile-action-btn" href="auth.html#register">
-                        <i class="fas fa-user-plus"></i>
-                        <span data-ar="إنشاء حساب" data-en="Register" data-fr="S'inscrire">إنشاء حساب</span>
                     </a>
                 </li>
                 <!-- Mobile: طلباتي -->
@@ -88,11 +72,10 @@
                     <a class="mobile-action-btn" href="orders.html">
                         <i class="fas fa-box"></i>
                         <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
-                        <span class="action-badge" id="ordersBadgeMobile">0</span>
                     </a>
                 </li>
                 <!-- Mobile: divider -->
-                <li class="nav-menu-divider" role="separator"><span data-ar="الصفحات الرئيسية" data-en="Main Pages" data-fr="Pages principales">الصفحات الرئيسية</span></li>
+                <li class="nav-menu-divider" role="separator"><span data-ar="الصفحات" data-en="Pages" data-fr="Pages">الصفحات</span></li>
                 <!-- الرئيسية -->
                 <li role="none">
                     <a href="index.html" role="menuitem">
@@ -118,7 +101,7 @@
                 <li class="conditional-nav-item nav-item-checkout" data-page="checkout.html" style="display:none;">
                     <a href="checkout.html" role="menuitem">
                         <i class="fas fa-credit-card"></i>
-                        <span data-ar="إتمام الشراء" data-en="Checkout" data-fr="Paiement">إتمام الشراء</span>
+                        <span data-ar="الدفع" data-en="Checkout" data-fr="Paiement">الدفع</span>
                     </a>
                 </li>
                 <li class="conditional-nav-item nav-item-profile" data-page="profile.html" style="display:none;">
@@ -149,7 +132,7 @@
                 </li>
                 <!-- تواصل معنا -->
                 <li role="none">
-                    <a href="contact.html" class="active" role="menuitem" aria-current="page">
+                    <a href="contact.html" role="menuitem">
                         <i class="fas fa-headset" aria-hidden="true"></i>
                         <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span>
                     </a>
@@ -172,6 +155,14 @@
                         <span class="action-badge" id="cartBadgeMobile">0</span>
                     </a>
                 </li>
+                <!-- Mobile: notifications -->
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="javascript:toggleDropdown('notificationsDropdown')">
+                        <i class="fas fa-bell"></i>
+                        <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                        <span class="action-badge" id="notificationsBadgeMobile">0</span>
+                    </a>
+                </li>
                 <!-- Mobile: language -->
                 <li class="nav-menu-divider" role="separator"><span data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span></li>
                 <li class="mobile-action-item" role="none">
@@ -191,6 +182,29 @@
                         <span id="langText">EN</span>
                     </button>
                     <span class="action-label" data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span>
+                </div>
+                <!-- Notifications -->
+                <div class="action-btn-wrapper dropdown" id="notificationsDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('notificationsDropdown')" aria-label="الإشعارات" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell" aria-hidden="true"></i>
+                        <span class="action-badge" id="notificationsBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                    <div class="dropdown-menu" id="notificationsMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4>
+                                <i class="fas fa-bell" aria-hidden="true"></i> 
+                                <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                            </h4>
+                        </div>
+                        <div class="dropdown-content" id="notificationsContent"></div>
+                        <div class="dropdown-footer">
+                            <button class="dropdown-btn" onclick="markAllAsRead()">
+                                <span data-ar="تعليم الكل كمقروء" data-en="Mark all as read" data-fr="Tout lire">تعليم الكل كمقروء</span>
+                                <span class="emoji">✅</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <!-- Wishlist -->
                 <div class="action-btn-wrapper dropdown" id="wishlistDropdown">
@@ -215,14 +229,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- Orders -->
-                <div class="action-btn-wrapper">
-                    <a href="orders.html" class="action-btn" aria-label="طلباتي">
-                        <i class="fas fa-box" aria-hidden="true"></i>
-                        <span class="action-badge" id="ordersBadge" style="display: none;">0</span>
-                    </a>
-                    <span class="action-label" data-ar="طلباتي" data-en="Orders" data-fr="Commandes">طلباتي</span>
-                </div>
                 <!-- Cart -->
                 <div class="action-btn-wrapper dropdown" id="cartDropdown">
                     <button class="action-btn" onclick="toggleDropdown('cartDropdown')" aria-label="سلة التسوق" aria-haspopup="true" aria-expanded="false">
@@ -239,11 +245,7 @@
                         </div>
                         <div class="dropdown-content" id="cartContent"></div>
                         <div class="dropdown-footer">
-                            <a href="cart.html" class="dropdown-btn dropdown-btn-cart">
-                                <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
-                                <span class="emoji">🛒</span>
-                            </a>
-                            <a href="checkout.html" class="dropdown-btn dropdown-btn-checkout">
+                            <a href="checkout.html" class="dropdown-btn">
                                 <span data-ar="إتمام الشراء" data-en="Checkout" data-fr="Paiement">إتمام الشراء</span>
                                 <span class="emoji">💳</span>
                             </a>
@@ -286,133 +288,67 @@
                     </div>
                 </div>
                 <!-- Mobile Menu Toggle -->
-                <div class="action-btn-wrapper mobile-menu-toggle">
-                    <button class="action-btn" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
+                <div class="action-btn-wrapper">
+                    <button class="action-btn mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
                         <i class="fas fa-bars" id="mobileMenuIcon" aria-hidden="true"></i>
                     </button>
+                    <span class="action-label" data-ar="القائمة" data-en="Menu" data-fr="Menu">القائمة</span>
                 </div>
+                <!-- Admin Button -->
+                <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;" aria-label="لوحة التحكم">
+                    <i class="fas fa-user-shield" aria-hidden="true"></i>
+                    <span data-ar="لوحة التحكم" data-en="Admin" data-fr="Admin">لوحة التحكم</span>
+                </a>
             </div>
         </nav>
     </header>
 
-    <section class="container contact-content" data-reveal="fadeInUp">
+    <div class="container">
         <div class="breadcrumb reveal">
             <a href="index.html"><i class="fas fa-home home-icon"></i> <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span></a>
             <i class="fas fa-chevron-left chevron"></i>
-            <span class="current" data-ar="اتصل بنا" data-en="Contact Us" data-fr="Nous contacter">اتصل بنا</span>
+            <span class="current" data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
         </div>
-        <div class="page-hero-wrapper reveal" style="margin-bottom:15px;">
+
+        <div class="page-hero-wrapper reveal">
             <h1>
-                <span class="hero-headline typing-done"><span data-ar="تواصل معنا" data-en="Contact Us" data-fr="Contactez-nous">تواصل معنا</span> <span class="emoji">📞</span></span>
+                <span class="hero-headline typing-done"><span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span> <span class="emoji">❤️</span></span>
             </h1>
-            <p class="page-subtitle" data-ar="لديك سؤال أو استفسار؟ فريقنا جاهز للرد عليك"
-               data-en="Have a question? Our team is ready to answer" data-fr="Une question ? Notre équipe est prête à répondre">
-                لديك سؤال أو استفسار؟ فريقنا جاهز للرد عليك
-            </p>
-        </div>
-        <div class="contact-grid" data-reveal="staggerFade">
-            <!-- WhatsApp -->
-            <div class="contact-card whatsapp-card">
-                <div class="contact-icon whatsapp-icon">
-                    <i class="fab fa-whatsapp"></i>
-                </div>
-                <h3 data-ar="واتساب" data-en="WhatsApp" data-fr="WhatsApp">واتساب</h3>
-                <p data-ar="للتواصل عبر الواتساب" data-en="Contact via WhatsApp" data-fr="Contacter via WhatsApp">للتواصل عبر الواتساب</p>
-                <p style="font-size:0.9em; color:#fff !important; font-weight:700 !important; margin-top:-10px;" data-ar="201012853829+" data-en="+201012853829">201012853829+</p>
-                <a href="https://wa.me/201012853829?text=مرحباً، لدي استفسار" 
-                   class="contact-btn whatsapp-btn" 
-                   target="_blank">
-                    <i class="fab fa-whatsapp"></i>
-                    <span data-ar="الواتساب" data-en="Chat on WhatsApp" data-fr="Discuter sur WhatsApp">الواتساب</span>
-                </a>
-            </div>
-
-            <!-- Facebook -->
-            <div class="contact-card facebook-card">
-                <div class="contact-icon facebook-icon">
-                    <i class="fab fa-facebook"></i>
-                </div>
-                <h3 data-ar="فيسبوك" data-en="Facebook" data-fr="Facebook">فيسبوك</h3>
-                <p data-ar="للتواصل عبر فيسبوك" data-en="Contact via Facebook" data-fr="Contacter via Facebook">للتواصل عبر فيسبوك</p>
-                <p style="font-size:0.9em; color:#fff !important; font-weight:700 !important; margin-top:-10px;" data-ar="عالم المنظفات ومستحضرات التجميل والعطور" data-en="Almndhf" data-fr="Almndhf">عالم المنظفات ومستحضرات التجميل والعطور</p>
-                <a href="https://www.facebook.com/profile.php?id=100095293684019" 
-                   class="contact-btn facebook-btn" 
-                   target="_blank">
-                    <i class="fab fa-facebook"></i>
-                    <span data-ar="تابعنا" data-en="Follow Us" data-fr="Suivez-nous">تابعنا</span>
-                </a>
-            </div>
+            <p class="page-subtitle" data-ar="منتجاتك المفضلة في مكان واحد" data-en="Your favorite products in one place" data-fr="Vos produits favoris en un seul endroit">منتجاتك المفضلة في مكان واحد</p>
         </div>
 
-        <!-- Contact Form -->
-        <div class="contact-form" data-reveal="clipIn">
-            <h2 style="text-align: center; margin-bottom: 30px;">
-                <span class="emoji">✉️</span>
-                <span data-ar="أرسل رسالة" data-en="Send Message" data-fr="Envoyer">أرسل رسالة</span>
-            </h2>
-
-            <form id="contactForm">
-                <div class="form-group">
-                    <label class="form-label" data-ar="الاسم الكامل" data-en="Full Name" data-fr="Nom complet">الاسم الكامل</label>
-                    <input type="text" 
-                           class="form-input" 
-                           data-ar-placeholder="أدخل اسمك الكامل"
-                           data-en-placeholder="Enter your full name"
-                           placeholder="أدخل اسمك الكامل"
-                           required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" data-ar="البريد الإلكتروني" data-en="Email" data-fr="Email">البريد الإلكتروني</label>
-                    <input type="email" 
-                           class="form-input" 
-                           data-ar-placeholder="your@email.com"
-                           data-en-placeholder="your@email.com"
-                           placeholder="your@email.com"
-                           required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" data-ar="الموضوع" data-en="Subject" data-fr="Sujet">الموضوع</label>
-                    <input type="text" 
-                           class="form-input" 
-                           data-ar-placeholder="ما هو موضوع رسالتك؟"
-                           data-en-placeholder="What's your message about?"
-                           placeholder="ما هو موضوع رسالتك؟"
-                           required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label" data-ar="الرسالة" data-en="Message" data-fr="Message">الرسالة</label>
-                    <textarea class="form-textarea" 
-                              data-ar-placeholder="اكتب رسالتك هنا..."
-                              data-en-placeholder="Write your message here..."
-                              placeholder="اكتب رسالتك هنا..."
-                              required></textarea>
-                </div>
-
-                <button type="submit" class="submit-btn">
-                    <i class="fas fa-paper-plane"></i>
-                    <span data-ar="إرسال الرسالة" data-en="Send Message" data-fr="Envoyer">إرسال الرسالة</span>
+        <div class="wishlist-actions reveal" id="wishlistActions" style="display: none;">
+            <div class="wishlist-count">
+                <i class="fas fa-heart"></i>
+                لديك <span id="wishlistCount">0</span> منتج في المفضلة
+            </div>
+            <div class="action-buttons">
+                <button class="action-btn btn-primary" onclick="addAllToCart()">
+                    <i class="fas fa-cart-plus"></i>
+                    إضافة الكل للسلة
                 </button>
-            </form>
-
-            <div class="info-box">
-                <p>
-                    <i class="fas fa-clock"></i>
-                    <strong data-ar="وقت الرد:" data-en="Response Time:" data-fr="Temps de réponse :">وقت الرد:</strong>
-                    <span data-ar="نرد خلال 24 ساعة" data-en="Within 24 hours" data-fr="Sous 24 heures">نرد خلال 24 ساعة</span>
-                </p>
-                <p>
-                    <i class="fas fa-headset"></i>
-                    <strong data-ar="الدعم الفني:" data-en="Tech Support:" data-fr="Support technique :">الدعم الفني:</strong>
-                    <span data-ar="متاح 24/7" data-en="Available 24/7" data-fr="Disponible 24/7">متاح 24/7</span>
-                </p>
+                <button class="action-btn btn-danger" onclick="clearWishlistLocal()">
+                    <i class="fas fa-trash-alt"></i>
+                    مسح الكل
+                </button>
             </div>
         </div>
-    </section>
 
-    <!-- Footer -->
+        <div class="products-grid" id="productsGrid"></div>
+
+        <div class="empty-state reveal" id="emptyState" style="display: none;">
+            <div class="heart-icon"><i class="fas fa-heart-broken"></i></div>
+            <h3>المفضلة فارغة</h3>
+            <p>لم تقم بإضافة أي منتجات إلى قائمة المفضلة بعد.<br>ابدأ باستكشاف منتجاتنا الرائعة وأضف ما يعجبك!</p>
+        </div>
+
+        <div class="wishlist-footer reveal">
+            <a href="index.html" class="back-home-btn"><i class="fas fa-arrow-right"></i> العودة للرئيسية</a>
+            <a href="products.html" class="continue-shop-btn"><i class="fas fa-store"></i> متابعة التسوق</a>
+        </div>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -421,7 +357,7 @@
                         <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO">
                         <span>BRAVO</span>
                     </div>
-                    <p data-ar="المنصة الأولى لتعليم الصناعات الكيميائية" data-en="The #1 Platform for Chemical Industries" data-fr="La plateforme n°1 pour les industries chimiques">المنصة الأولى لتعليم الصناعات الكيميائية</p>
+                    <p data-ar="متجر BRAVO لتعليم صناعة المنظفات ومستحضرات التجميل والعطور" data-en="The #1 Digital Store" data-fr="La boutique numérique n°1">متجر BRAVO لتعليم صناعة المنظفات ومستحضرات التجميل والعطور</p>
                     <div class="social-links">
                         <a href="#"><i class="fab fa-facebook"></i></a>
                         <a href="#"><i class="fab fa-twitter"></i></a>
@@ -432,30 +368,10 @@
                 <div class="footer-section">
                     <h4 data-ar="روابط سريعة" data-en="Quick Links" data-fr="Liens rapides">روابط سريعة</h4>
                     <ul>
-                        <li>
-                            <a href="index.html">
-                                <i class="fas fa-angle-left"></i> 
-                                <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="products.html">
-                                <i class="fas fa-angle-left"></i> 
-                                <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="about.html">
-                                <i class="fas fa-angle-left"></i> 
-                                <span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="contact.html">
-                                <i class="fas fa-angle-left"></i> 
-                                <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span>
-                            </a>
-                        </li>
+                        <li><a href="index.html"><i class="fas fa-angle-left"></i> <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span></a></li>
+                        <li><a href="products.html"><i class="fas fa-angle-left"></i> <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span></a></li>
+                        <li><a href="about.html"><i class="fas fa-angle-left"></i> <span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span></a></li>
+                        <li><a href="contact.html"><i class="fas fa-angle-left"></i> <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span></a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
@@ -472,7 +388,7 @@
                     <ul class="contact-info">
                         <li><i class="fas fa-phone"></i> <span dir="ltr">+20 101 285 3829</span></li>
                         <li><i class="fas fa-envelope"></i> info@bravo.com</li>
-                        <li><i class="fas fa-map-marker-alt"></i> <span data-ar="القاهرة، مصر" data-en="Cairo, Egypt" data-fr="Le Caire, Égypte">القاهرة، مصر</span></li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span data-ar="الجيزة، مصر" data-en="Cairo, Egypt" data-fr="Le Caire, Égypte">الجيزة، مصر</span></li>
                     </ul>
                 </div>
             </div>
@@ -487,35 +403,47 @@
         </div>
     </footer>
 
-    <!-- Scroll to Top -->
-    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">
-        <i class="fas fa-arrow-up"></i>
-    </button>
-
-    <!-- WhatsApp Float -->
-    <a href="https://wa.me/201012853829?text=مرحباً، أريد الاستفسار" 
-       class="whatsapp-float" 
-       target="_blank" 
-       title="تواصل معنا عبر واتساب">
-        <i class="fab fa-whatsapp"></i>
-    </a>
-
-    <!-- Scripts -->
+    <!-- Main JavaScript -->
     <script src="js/include.js?v=20"></script>
     <script src="js/app.js?v=20260724e"></script>
     <script>initPageHero();</script>
+
+    <!-- Scroll Reveal (matches homepage) -->
     <script>
     function revealElement(el) {
-        if (!el || el.classList.contains('revealed')) return;
-        var rect = el.getBoundingClientRect();
-        var isVisible = rect.top < window.innerHeight - 60 && rect.bottom > 0;
-        if (isVisible) {
-            el.classList.add('revealed');
+        if (el.classList.contains('animate-in')) return;
+        el.classList.add('animate-in');
+        var from, to = { opacity: 1, transform: 'none' };
+        var duration = 1100, easing = 'cubic-bezier(0.16, 1, 0.3, 1)';
+        if (el.classList.contains('filters')) {
+            from = { opacity: 0, transform: 'perspective(800px) translateY(40px) rotateX(15deg)' };
+            duration = 1000;
+        } else if (el.classList.contains('product-card')) {
+            var pi = parseInt(el.dataset.revealIndex || '0', 10) % 4;
+            var pAnims = [
+                { transform: 'perspective(800px) translateY(60px) rotateX(15deg)' },
+                { transform: 'perspective(800px) translateX(60px) rotateY(-15deg)' },
+                { transform: 'perspective(800px) translateY(60px) rotateX(15deg)' },
+                { transform: 'perspective(800px) translateX(-60px) rotateY(15deg)' }
+            ];
+            from = { opacity: 0, transform: pAnims[pi].transform };
+            duration = 1000;
+            easing = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+        } else {
+            from = { opacity: 0, transform: 'perspective(800px) translateY(30px)' };
+        }
+        if (el.animate) {
+            el.animate([from, to], { duration: duration, fill: 'forwards', easing: easing });
         }
     }
     function checkReveals() {
-        document.querySelectorAll('.reveal:not(.revealed)').forEach(revealElement);
-        document.querySelectorAll('[data-reveal]:not(.revealed)').forEach(revealElement);
+        document.querySelectorAll('.reveal:not(.animate-in)').forEach(function(el) {
+            var rect = el.getBoundingClientRect();
+            var vh = window.innerHeight;
+            if (rect.top < vh && rect.bottom > 0) {
+                revealElement(el);
+            }
+        });
     }
     window.addEventListener('scroll', checkReveals, { passive: true });
     setInterval(checkReveals, 500);
@@ -528,40 +456,20 @@
     <!-- Quick View Modal Container -->
     <div id="quickViewModal" class="quick-view-modal-overlay"></div>
 
-    <script>
-        // Contact Form Handler
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const inputs = this.querySelectorAll('input, textarea');
-            const name = inputs[0].value.trim();
-            const email = inputs[1].value.trim();
-            const subject = inputs[2].value.trim();
-            const message = inputs[3].value.trim();
-            
-            const lang = document.documentElement.lang || 'ar';
-            
-            const rawMsg = lang === 'ar'
-                ? `الاسم: ${name}\nالبريد: ${email}\nالموضوع: ${subject}\nالرسالة: ${message}`
-                : `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage: ${message}`;
-            
-            const waUrl = `https://wa.me/201012853829?text=${encodeURIComponent(rawMsg)}`;
-            
-            const successMsg = lang === 'ar' 
-                ? 'تم إرسال رسالتك بنجاح! سنرد عليك قريباً.'
-                : 'Message sent successfully! We will reply soon.';
-            const successTitle = lang === 'ar' ? 'تم الإرسال' : 'Sent';
-            
-            if (typeof window.showToast === 'function') {
-                window.showToast(successTitle, successMsg, 'success');
-            }
-            
-            this.reset();
-            setTimeout(() => window.open(waUrl, '_blank'), 1000);
-        });
-    </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

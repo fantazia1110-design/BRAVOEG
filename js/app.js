@@ -854,6 +854,7 @@ const DB = {
         let current = localData;
         for(let i=0; i<parts.length-1; i++) { if(!current[parts[i]]) current[parts[i]] = {}; current = current[parts[i]]; }
         current[parts[parts.length-1]] = data;
+        if (parts[0] === 'orders' && data && !data.orderDate) { data.orderDate = data.orderDateReadable || new Date().toISOString(); }
         if (current[parts[parts.length-1]] && typeof current[parts[parts.length-1]] === 'object' && !current[parts[parts.length-1]]._isLocal) current[parts[parts.length-1]]._isLocal = true;
         localStorage.setItem('bravo_local_db', JSON.stringify(localData));
         _dbNotifyListeners(parts[0], localData);
@@ -1540,7 +1541,7 @@ function generateBadges(product) {
 // ║   Quick View System - Final v4.2 (مع البادجات)       ║
 // ╚═══════════════════════════════════════════════════════╝
 
-function openQuickView(productId, event) {
+async function openQuickView(productId, event) {
     if (event) { event.stopPropagation(); event.preventDefault(); }
 
     var product = allProducts.find(function(p) { return p.id === productId; });
@@ -1548,6 +1549,23 @@ function openQuickView(productId, event) {
 
     var lang = document.documentElement.lang || 'ar';
     var isAr = lang === 'ar';
+
+    if (lang !== 'ar' && product.title) {
+        var fieldsToTranslate = [
+            { field: 'title', val: product.title },
+            { field: 'description', val: product.description }
+        ];
+        var promises = [];
+        fieldsToTranslate.forEach(function(f) {
+            if (typeof f.val === 'string' && _isArabic(f.val)) {
+                var key = _cacheKey(f.val, 'ar', lang);
+                if (!_translationCache[key]) {
+                    promises.push(autoTranslate(f.val, 'ar', lang));
+                }
+            }
+        });
+        if (promises.length > 0) await Promise.all(promises);
+    }
     var cu = getUserCurrency();
     var price = getProductPrice(product);
     var currency = cu.symbol;
@@ -1566,7 +1584,7 @@ function openQuickView(productId, event) {
         oldPriceHTML = '<div class="price-old"><span class="price-old-value">' + oldP + '</span> ' + currency + '</div>';
 
         saveHTML = '<span class="price-save">' +
-            (isAr ? 'وفر' : 'Save') + ' ' + saved + ' ' + currency +
+            (lang === 'ar' ? 'وفر' : lang === 'en' ? 'Save' : 'Économisez') + ' ' + saved + ' ' + currency +
             '</span>';
     }
 
@@ -1590,17 +1608,17 @@ function openQuickView(productId, event) {
     if (stock > 10) {
         stockHTML = '<div class="qv-stock in-stock">' +
             '<span class="qv-stock-dot"></span> ' +
-            (isAr ? 'متوفر في المخزن' : 'In Stock') +
+            (lang === 'ar' ? 'متوفر في المخزن' : lang === 'en' ? 'In Stock' : 'En stock') +
             '</div>';
     } else if (stock > 0) {
         stockHTML = '<div class="qv-stock low-stock">' +
             '<span class="qv-stock-dot"></span> ' +
-            (isAr ? 'باقي ' + stock + ' فقط!' : 'Only ' + stock + ' left!') +
+            (lang === 'ar' ? 'باقي ' + stock + ' فقط!' : lang === 'en' ? 'Only ' + stock + ' left!' : 'Plus que ' + stock + ' en stock !') +
             '</div>';
     } else {
         stockHTML = '<div class="qv-stock out-stock">' +
             '<span class="qv-stock-dot"></span> ' +
-            (isAr ? 'نفد من المخزن' : 'Out of Stock') +
+            (lang === 'ar' ? 'نفد من المخزن' : lang === 'en' ? 'Out of Stock' : 'Rupture de stock') +
             '</div>';
     }
 
@@ -1640,7 +1658,7 @@ function openQuickView(productId, event) {
     html += '<div class="quick-view-modal" id="qvContent">';
 
     // زرار الإغلاق
-    html += '<button class="qv-close-btn" id="qvCloseBtn" title="' + (isAr ? 'إغلاق' : 'Close') + '">✕</button>';
+    html += '<button class="qv-close-btn" id="qvCloseBtn" title="' + (lang === 'ar' ? 'إغلاق' : lang === 'en' ? 'Close' : 'Fermer') + '">✕</button>';
 
     // === قسم الصورة ===
     html += '<div class="qv-image-section">';
@@ -1651,7 +1669,7 @@ function openQuickView(productId, event) {
     // زر المفضلة (نقلته داخل الحاوية عشان يبقى في المقص)
     html += '<button class="qv-wishlist-btn' + (isWished ? ' active' : '') + '" ' +
         'onclick="qvToggleWishlist(this, \'' + productId + '\', event)" ' +
-        'title="' + (isAr ? 'المفضلة' : 'Wishlist') + '">';
+        'title="' + (lang === 'ar' ? 'المفضلة' : lang === 'en' ? 'Wishlist' : 'Favoris') + '">';
     html += '<i class="' + (isWished ? 'fas' : 'far') + ' fa-heart"></i>';
     html += '</button>';
 
@@ -1693,7 +1711,7 @@ function openQuickView(productId, event) {
         html += '<p class="qv-description' + (needReadMore ? '' : ' expanded') + '" id="' + descId + '">' + desc + '</p>';
         if (needReadMore) {
             html += '<button class="qv-read-more-btn" onclick="qvToggleDesc(\'' + descId + '\', this)">';
-            html += (isAr ? 'اقرأ المزيد' : 'Read more') + ' <i class="fas fa-chevron-down"></i>';
+            html += (lang === 'ar' ? 'اقرأ المزيد' : lang === 'en' ? 'Read more' : 'Lire la suite') + ' <i class="fas fa-chevron-down"></i>';
             html += '</button>';
         }
     }
@@ -1709,18 +1727,18 @@ function openQuickView(productId, event) {
     // الأزرار
     html += '<div class="product-actions" style="margin-top:auto;padding-top:10px">';
     html += '<button class="product-btn btn-add-cart' + (inCart ? ' added' : '') + '" id="qvCartBtn" onclick="qvAddToCart(\'' + productId + '\', event)">';
-    html += (inCart ? (isAr ? 'في السلة' : 'In Cart') : (isAr ? 'أضف للسلة' : 'Add to Cart')) + ' <i class="fas ' + (inCart ? 'fa-check-circle' : 'fa-shopping-cart') + '"></i>';
+    html += (inCart ? (lang === 'ar' ? 'في السلة' : lang === 'en' ? 'In Cart' : 'Dans le panier') : (lang === 'ar' ? 'أضف للسلة' : lang === 'en' ? 'Add to Cart' : 'Ajouter au panier')) + ' <i class="fas ' + (inCart ? 'fa-check-circle' : 'fa-shopping-cart') + '"></i>';
     html += '</button>';
     html += '<a href="checkout.html?product=' + productId +
         '&title=' + encodeURIComponent(qvTitle) +
         '&price=' + price +
         '&currency=' + currency +
         '" class="product-btn btn-buy-now" onclick="event.stopPropagation()">';
-    html += (isAr ? 'اشتر الآن' : 'Buy Now') + ' <i class="fas fa-credit-card"></i>';
+    html += (lang === 'ar' ? 'اشتر الآن' : lang === 'en' ? 'Buy Now' : 'Acheter') + ' <i class="fas fa-credit-card"></i>';
     html += '</a>';
     html += '<a href="product-details.html?id=' + productId +
         '" class="qv-btn-details" onclick="event.stopPropagation()">';
-    html += '<i class="fas fa-info-circle"></i> ' + (isAr ? 'تفاصيل كاملة' : 'Full Details');
+    html += '<i class="fas fa-info-circle"></i> ' + (lang === 'ar' ? 'تفاصيل كاملة' : lang === 'en' ? 'Full Details' : 'Détails complets');
     html += '</a>';
     html += '</div>';
     html += '</div>';
@@ -1792,7 +1810,7 @@ function qvAddToCart(productId, event) {
     if (event) event.stopPropagation();
 
     var btn = document.getElementById('qvCartBtn');
-    var isAr = (document.documentElement.lang || 'ar') === 'ar';
+    var lang = document.documentElement.lang || 'ar';
 
     if (typeof addToCart === 'function') {
         addToCart(productId, event);
@@ -1801,7 +1819,7 @@ function qvAddToCart(productId, event) {
     if (btn) {
         var originalHTML = btn.innerHTML;
         btn.classList.add('added');
-        btn.innerHTML = '<i class="fas fa-check"></i> ' + (isAr ? 'تمت الإضافة!' : 'Added!');
+        btn.innerHTML = '<i class="fas fa-check"></i> ' + (lang === 'ar' ? 'تمت الإضافة!' : lang === 'en' ? 'Added!' : 'Ajouté !');
 
         setTimeout(function() {
             btn.classList.remove('added');
@@ -1833,13 +1851,13 @@ function qvToggleDesc(descId, btn) {
     var desc = document.getElementById(descId);
     if (!desc) return;
 
-    var isAr = (document.documentElement.lang || 'ar') === 'ar';
+    var lang = document.documentElement.lang || 'ar';
     var isExpanded = desc.classList.toggle('expanded');
 
     if (isExpanded) {
-        btn.innerHTML = (isAr ? 'عرض أقل' : 'Show less') + ' <i class="fas fa-chevron-up"></i>';
+        btn.innerHTML = (lang === 'ar' ? 'عرض أقل' : lang === 'en' ? 'Show less' : 'Afficher moins') + ' <i class="fas fa-chevron-up"></i>';
     } else {
-        btn.innerHTML = (isAr ? 'اقرأ المزيد' : 'Read more') + ' <i class="fas fa-chevron-down"></i>';
+        btn.innerHTML = (lang === 'ar' ? 'اقرأ المزيد' : lang === 'en' ? 'Read more' : 'Lire la suite') + ' <i class="fas fa-chevron-down"></i>';
     }
 }
 
@@ -2024,7 +2042,12 @@ function displayProducts() {
 async function getCheckoutOrderData() {
     try {
         const u = new URLSearchParams(window.location.search);
-        
+
+        // تحميل المنتجات قبل أي شيء لضمان توفر البيانات
+        if (allProducts.length === 0 && typeof loadAllProducts === 'function') {
+            try { await loadAllProducts(); } catch(e) {}
+        }
+
         // 1. تحديد بيانات الطلب أولاً (من sessionStorage أو URL)
         if (u.get('product')) {
             sessionStorage.removeItem('cartCheckout');
@@ -2344,7 +2367,7 @@ async function handleCheckoutSubmit(e) {
             try { const p = await DB.get(`products/${checkoutOrderData.productId}`); if (p) { productExtra = { productImage: p.image || '', productCategory: p.category || '', productOldPriceEGP: p.oldPriceEGP || 0, productOldPriceUSD: p.oldPriceUSD || 0, downloadLink: p.downloadLink || '', productHot: p.hot || p.bestseller || p.badge === 'hot', productFeatured: p.featured || p.badge === 'featured', productBadge: p.badge || '' }; } } catch (e) {}
         }
         const pmName = window.paymentMethods?.[selectedPaymentMethod]?.name?.ar || PAYMENT_ACCOUNTS[selectedPaymentMethod]?.name?.ar || selectedPaymentMethod;
-        const order = { isMultipleItems: checkoutOrderData.isMultipleItems || false, items: checkoutOrderData.isMultipleItems ? checkoutOrderData.items : null, productId: checkoutOrderData.productId || 'N/A', productTitle: checkoutOrderData.productTitle || 'Product', price: parseFloat(checkoutOrderData.price) || 0, currency: checkoutOrderData.currency || 'جنيه', paymentMethod: selectedPaymentMethod, paymentMethodName: pmName, customerName: document.getElementById('customerName').value.trim(), customerEmail: document.getElementById('customerEmail').value.trim(), customerPhone: document.getElementById('customerPhone').value.trim(), fileName: uploadedFile.name, fileSize: `${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB`, receiptImageUrl: imgUrl, userId: currentUser?.uid || 'guest', userEmail: currentUser?.email || document.getElementById('customerEmail').value.trim(), userCountry: checkoutOrderData.userCountry || userCountry || 'EG', status: 'pending', createdAt: ts, orderDateReadable: now.toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'en' ? 'en-US' : 'fr-FR'), orderTimeReadable: now.toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'en' ? 'en-US' : 'fr-FR'), ...productExtra };
+        const order = { isMultipleItems: checkoutOrderData.isMultipleItems || false, items: checkoutOrderData.isMultipleItems ? checkoutOrderData.items : null, productId: checkoutOrderData.productId || 'N/A', productTitle: checkoutOrderData.productTitle || 'Product', price: parseFloat(checkoutOrderData.price) || 0, currency: checkoutOrderData.currency || 'جنيه', paymentMethod: selectedPaymentMethod, paymentMethodName: pmName, customerName: document.getElementById('customerName').value.trim(), customerEmail: document.getElementById('customerEmail').value.trim(), customerPhone: document.getElementById('customerPhone').value.trim(), fileName: uploadedFile.name, fileSize: `${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB`, receiptImageUrl: imgUrl, userId: currentUser?.uid || 'guest', userEmail: currentUser?.email || document.getElementById('customerEmail').value.trim(), userCountry: checkoutOrderData.userCountry || userCountry || 'EG', status: 'pending', orderDate: now.toISOString(), createdAt: ts, orderDateReadable: now.toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'en' ? 'en-US' : 'fr-FR'), orderTimeReadable: now.toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'en' ? 'en-US' : 'fr-FR'), ...productExtra };
         let id = String(100000 + Math.floor(Math.random() * 900000));
         try { const cnt = await DB.get('meta/orderCounter'); if (cnt?.value) id = String(cnt.value + 1); await DB.set('meta/orderCounter', { value: parseInt(id) }); } catch(e) {}
         await DB.set(`orders/${id}`, { ...order, orderId: id });
@@ -2867,18 +2890,140 @@ function toggleLanguage() {
     switchLanguage(next);
 }
 
+// ╔═══════════════════════════════════════════════════════╗
+// ║   Auto-Translation System (MyMemory API + Cache)      ║
+// ╚═══════════════════════════════════════════════════════╝
+
+var _translationCache = {};
+(function() {
+    try {
+        var stored = localStorage.getItem('translationCache');
+        if (stored) _translationCache = JSON.parse(stored);
+    } catch(e) {}
+})();
+
+function _saveTranslationCache() {
+    try { localStorage.setItem('translationCache', JSON.stringify(_translationCache)); } catch(e) {}
+}
+
+function _cacheKey(text, fromLang, toLang) {
+    return fromLang + '|' + toLang + '|' + text;
+}
+
+var _pendingTranslations = {};
+var _translationQueue = [];
+var _translationTimer = null;
+
+async function autoTranslate(text, fromLang, toLang) {
+    if (!text || !text.trim()) return text;
+    if (fromLang === toLang) return text;
+    var key = _cacheKey(text, fromLang, toLang);
+    if (_translationCache[key]) return _translationCache[key];
+    return new Promise(function(resolve) {
+        _translationQueue.push({ text: text, from: fromLang, to: toLang, resolve: resolve });
+        clearTimeout(_translationTimer);
+        _translationTimer = setTimeout(_processTranslationQueue, 150);
+    });
+}
+
+async function _processTranslationQueue() {
+    var batch = _translationQueue.splice(0);
+    if (batch.length === 0) return;
+    var fromLang = batch[0].from;
+    var toLang = batch[0].to;
+    var apiLang = fromLang + '|' + toLang;
+    var uniqueTexts = [];
+    var textMap = {};
+    batch.forEach(function(item) {
+        var key = _cacheKey(item.text, item.from, item.to);
+        if (_translationCache[key]) {
+            item.resolve(_translationCache[key]);
+        } else if (!textMap[item.text]) {
+            textMap[item.text] = [item.resolve];
+            uniqueTexts.push(item.text);
+        } else {
+            textMap[item.text].push(item.resolve);
+        }
+    });
+    if (uniqueTexts.length === 0) return;
+    for (var i = 0; i < uniqueTexts.length; i++) {
+        var text = uniqueTexts[i];
+        try {
+            var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text.slice(0, 500)) + '&langpair=' + encodeURIComponent(apiLang);
+            var resp = await fetch(url);
+            var data = await resp.json();
+            if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+                var tText = data.responseData.translatedText;
+                if (tText && tText.toUpperCase() !== text.toUpperCase()) {
+                    _translationCache[_cacheKey(text, fromLang, toLang)] = tText;
+                    (textMap[text] || []).forEach(function(r) { r(tText); });
+                } else {
+                    (textMap[text] || []).forEach(function(r) { r(text); });
+                }
+            } else {
+                (textMap[text] || []).forEach(function(r) { r(text); });
+            }
+        } catch(e) {
+            (textMap[text] || []).forEach(function(r) { r(text); });
+        }
+        if (i < uniqueTexts.length - 1) await new Promise(function(r) { setTimeout(r, 100); });
+    }
+    _saveTranslationCache();
+}
+
+function _isArabic(text) {
+    return /[\u0600-\u06FF]/.test(text);
+}
+
+function _getTranslation(text, toLang) {
+    if (!text || !_isArabic(text)) return text;
+    if (toLang === 'ar') return text;
+    var fromLang = 'ar';
+    var key = _cacheKey(text, fromLang, toLang);
+    if (_translationCache[key]) return _translationCache[key];
+    autoTranslate(text, fromLang, toLang);
+    return text;
+}
+
+function _translateBatch(texts, toLang) {
+    if (toLang === 'ar') return;
+    var toTranslate = [];
+    texts.forEach(function(item) {
+        if (item.text && _isArabic(item.text)) {
+            var key = _cacheKey(item.text, 'ar', toLang);
+            if (!_translationCache[key]) {
+                toTranslate.push(item.text);
+            }
+        }
+    });
+    if (toTranslate.length === 0) return;
+    var unique = [];
+    var seen = {};
+    toTranslate.forEach(function(t) { if (!seen[t]) { seen[t] = true; unique.push(t); } });
+    autoTranslate(unique[0], 'ar', toLang);
+    for (var i = 1; i < unique.length; i++) {
+        (function(t) { autoTranslate(t, 'ar', toLang); })(unique[i]);
+    }
+}
+window.autoTranslate = autoTranslate;
+window._translateBatch = _translateBatch;
+
 function getProductText(obj, field, lang) {
     if (!obj || !obj[field]) return '';
     var val = obj[field];
     if (typeof val === 'string') {
         if (lang === 'ar') return val;
-        return /[\u0600-\u06FF]/.test(val) ? '' : val;
+        if (_isArabic(val)) return _getTranslation(val, lang);
+        return val;
     }
-    if (typeof val === 'object' && val !== null) {
-        if (val[lang]) return val[lang];
-        if (lang === 'ar') return val.en || '';
-        if (lang === 'en') return val.fr || '';
-        if (lang === 'fr') return val.en || '';
+    if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+        var langVal = val[lang] || '';
+        if (langVal && !_isArabic(langVal)) return langVal;
+        if (val.ar && _isArabic(val.ar)) {
+            if (lang === 'ar') return val.ar;
+            return _getTranslation(val.ar, lang);
+        }
+        if (langVal) return langVal;
         return '';
     }
     return String(val);
@@ -2889,15 +3034,33 @@ function getProductArray(obj, field, lang) {
     if (!obj || !obj[field]) return [];
     var val = obj[field];
     if (Array.isArray(val)) {
-        if (lang === 'ar') return val;
-        var hasArabic = val.some(function(i) { return typeof i === 'string' && /[\u0600-\u06FF]/.test(i); });
-        return hasArabic ? [] : val;
+        if (lang === 'ar') return val.map(function(item) {
+            if (typeof item === 'object' && item !== null) return (item.ar || item.en || '');
+            return item;
+        });
+        return val.map(function(item) {
+            if (typeof item === 'string' && _isArabic(item)) return _getTranslation(item, lang);
+            if (typeof item === 'object' && item !== null) {
+                var langItem = item[lang] || '';
+                if (langItem && !_isArabic(langItem)) return langItem;
+                if (item.ar && _isArabic(item.ar)) return _getTranslation(item.ar, lang);
+                return langItem || '';
+            }
+            return item;
+        });
     }
-    if (typeof val === 'object' && val !== null) {
-        if (val[lang]) return val[lang];
-        if (lang === 'ar') return val.en || [];
-        if (lang === 'en') return val.fr || [];
-        if (lang === 'fr') return val.en || [];
+    if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+        var langVal = val[lang];
+        if (Array.isArray(langVal)) {
+            if (lang === 'ar') return langVal;
+            return langVal.map(function(item) {
+                if (typeof item === 'string' && _isArabic(item)) return _getTranslation(item, lang);
+                return item;
+            });
+        }
+        if (lang === 'ar' && Array.isArray(val.en)) return val.en;
+        if (lang === 'en' && Array.isArray(val.fr)) return val.fr;
+        if (lang === 'fr' && Array.isArray(val.en)) return val.en;
         return [];
     }
     return [];
@@ -3023,15 +3186,108 @@ window._translateProductArrayField = _translateProductArrayField;
 
 async function autoTranslateProducts(targetLang) {
     if (targetLang === 'ar' || !allProducts || !allProducts.length) return;
-    var batch = allProducts.filter(function(p) { return p && p.title; });
-    for (var i = 0; i < batch.length; i++) {
-        await _translateProductField(batch[i], 'title', targetLang);
-        await _translateProductField(batch[i], 'description', targetLang);
-        await _translateProductArrayField(batch[i], 'features', targetLang);
-        await _translateProductArrayField(batch[i], 'requirements', targetLang);
-        await _translateProductArrayField(batch[i], 'faq', targetLang);
-        if (i % 3 === 2) await new Promise(function(r) { setTimeout(r, 300); });
+    var fields = ['title', 'description'];
+    var arrayFields = ['features', 'requirements', 'faq'];
+    var textsToTranslate = [];
+    var objectUpdates = [];
+    allProducts.forEach(function(p) {
+        if (!p) return;
+        fields.forEach(function(f) {
+            var val = p[f];
+            if (typeof val === 'string' && _isArabic(val)) {
+                var key = _cacheKey(val, 'ar', targetLang);
+                if (!_translationCache[key]) {
+                    textsToTranslate.push(val);
+                }
+            } else if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+                var arabicVal = val.ar || '';
+                if (arabicVal && typeof arabicVal === 'string' && _isArabic(arabicVal)) {
+                    var currentVal = val[targetLang] || '';
+                    if (!currentVal || currentVal === arabicVal || _isArabic(currentVal)) {
+                        var key = _cacheKey(arabicVal, 'ar', targetLang);
+                        if (!_translationCache[key]) {
+                            textsToTranslate.push(arabicVal);
+                        }
+                        objectUpdates.push({ product: p, field: f, arabicVal: arabicVal });
+                    }
+                }
+            }
+        });
+        arrayFields.forEach(function(f) {
+            var val = p[f];
+            if (Array.isArray(val)) {
+                val.forEach(function(item) {
+                    if (typeof item === 'string' && _isArabic(item)) {
+                        var key = _cacheKey(item, 'ar', targetLang);
+                        if (!_translationCache[key]) {
+                            textsToTranslate.push(item);
+                        }
+                    } else if (typeof item === 'object' && item !== null) {
+                        var arabicItem = item.ar || '';
+                        if (arabicItem && typeof arabicItem === 'string' && _isArabic(arabicItem)) {
+                            var currentItem = item[targetLang] || '';
+                            if (!currentItem || currentItem === arabicItem || _isArabic(currentItem)) {
+                                var key = _cacheKey(arabicItem, 'ar', targetLang);
+                                if (!_translationCache[key]) {
+                                    textsToTranslate.push(arabicItem);
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    });
+    if (textsToTranslate.length === 0) return;
+    var unique = [];
+    var seen = {};
+    textsToTranslate.forEach(function(t) { if (!seen[t]) { seen[t] = true; unique.push(t); } });
+    for (var i = 0; i < unique.length; i++) {
+        var text = unique[i];
+        var key = _cacheKey(text, 'ar', targetLang);
+        if (_translationCache[key]) continue;
+        try {
+            var apiLang = 'ar|' + targetLang;
+            var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text.slice(0, 500)) + '&langpair=' + encodeURIComponent(apiLang);
+            var resp = await fetch(url);
+            var data = await resp.json();
+            if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
+                var tText = data.responseData.translatedText;
+                if (tText && tText.toUpperCase() !== text.toUpperCase()) {
+                    _translationCache[key] = tText;
+                }
+            }
+        } catch(e) { console.warn('Translation failed for:', text.slice(0, 50), e); }
+        if (i % 10 === 9) await new Promise(function(r) { setTimeout(r, 150); });
     }
+    objectUpdates.forEach(function(update) {
+        var key = _cacheKey(update.arabicVal, 'ar', targetLang);
+        var translated = _translationCache[key];
+        if (translated) {
+            update.product[update.field][targetLang] = translated;
+        }
+    });
+    allProducts.forEach(function(p) {
+        if (!p) return;
+        arrayFields.forEach(function(f) {
+            var val = p[f];
+            if (Array.isArray(val)) {
+                val.forEach(function(item) {
+                    if (typeof item === 'object' && item !== null) {
+                        var arabicItem = item.ar || '';
+                        if (arabicItem && typeof arabicItem === 'string' && _isArabic(arabicItem)) {
+                            var key = _cacheKey(arabicItem, 'ar', targetLang);
+                            var translated = _translationCache[key];
+                            if (translated) {
+                                item[targetLang] = translated;
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    });
+    _saveTranslationCache();
 }
 window.autoTranslateProducts = autoTranslateProducts;
 
