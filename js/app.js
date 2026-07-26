@@ -608,6 +608,27 @@ async function detectUserCountry() {
         localStorage.setItem(STORAGE_KEYS.country + '_ts', String(Date.now()));
     } catch (e2) {}
 }
+async function getVisitorInfo() {
+    const cached = localStorage.getItem('visitorIP');
+    const cachedTs = parseInt(localStorage.getItem('visitorIP_ts') || '0');
+    if (cached && cachedTs && (Date.now() - cachedTs < 3600000)) {
+        return { ip: cached, country: localStorage.getItem(STORAGE_KEYS.country) || 'EG' };
+    }
+    try {
+        const ctrl = new AbortController();
+        const tmr = setTimeout(() => ctrl.abort(), 4000);
+        const res = await fetch('https://ipapi.co/json/', { signal: ctrl.signal });
+        clearTimeout(tmr);
+        if (res.ok) {
+            const data = await res.json();
+            const ip = data.ip || '';
+            const country = data.country_code || data.country || 'EG';
+            if (ip) { localStorage.setItem('visitorIP', ip); localStorage.setItem('visitorIP_ts', String(Date.now())); }
+            return { ip, country };
+        }
+    } catch(e) {}
+    return { ip: '', country: localStorage.getItem(STORAGE_KEYS.country) || 'EG' };
+}
 if (typeof window !== 'undefined') detectUserCountry();
 let activeDropdown = null;
 let userNotifications = [];
@@ -628,7 +649,7 @@ async function initializeFirebase() {
         const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
         const { getDatabase, ref, get, set, update, remove, push, onValue, off } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
         const { getAuth, onAuthStateChanged, signOut } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
-        const { getStorage, ref: storageRef, uploadBytes, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js");
+        const { getStorage, ref: storageRef, uploadBytes, uploadBytesResumable, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js");
         app = initializeApp(FIREBASE_CONFIG);
         database = getDatabase(app);
         auth = getAuth(app);
@@ -642,6 +663,7 @@ async function initializeFirebase() {
         window.firebaseOnValue = onValue; window.firebaseOff = off;
         window.firebaseSignOut = signOut; window.firebaseOnAuthStateChanged = onAuthStateChanged;
         window.firebaseStorageRef = storageRef; window.firebaseUploadBytes = uploadBytes;
+        window.firebaseUploadBytesResumable = uploadBytesResumable;
         window.firebaseGetDownloadURL = getDownloadURL;
         window.firebaseAuthReady = true;
         console.log('✅ Firebase initialized successfully');
@@ -861,7 +883,7 @@ const DB = {
         if (current[parts[parts.length-1]] && typeof current[parts[parts.length-1]] === 'object' && !current[parts[parts.length-1]]._isLocal) current[parts[parts.length-1]]._isLocal = true;
         localStorage.setItem('bravo_local_db', JSON.stringify(localData));
         _dbNotifyListeners(parts[0], localData);
-        if (fbError) throw fbError;
+        if (fbError) { console.warn('Firebase set failed, data saved locally:', fbError.message || fbError); }
         return true; 
     },
     update: async (path, data) => { 
@@ -890,7 +912,7 @@ const DB = {
         if (current[lastPart] && typeof current[lastPart] === 'object' && !current[lastPart]._isLocal) current[lastPart]._isLocal = true;
         localStorage.setItem('bravo_local_db', JSON.stringify(localData));
         _dbNotifyListeners(parts[0], localData);
-        if (fbError) throw fbError;
+        if (fbError) { console.warn('Firebase update failed, data saved locally:', fbError.message || fbError); }
         return true; 
     },
     remove: async (path) => { 
@@ -1194,6 +1216,18 @@ async function initializeAuth() {
         window.firebaseOnAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user; window.currentUser = currentUser; await loadUserData(user.uid); updateUIWithUser(user);
+                getVisitorInfo().then(info => {
+                    if (info.ip) {
+                        DB.get('users/' + user.uid).then(ud => {
+                            if (ud && (!ud.ip || !ud.country)) {
+                                var patch = {};
+                                if (!ud.ip && info.ip) patch.ip = info.ip;
+                                if (!ud.country && info.country) patch.country = info.country;
+                                if (Object.keys(patch).length) DB.update('users/' + user.uid, patch);
+                            }
+                        });
+                    }
+                });
                 if (window.location.pathname.includes('checkout')) {
                     const n = document.getElementById('customerName'), e = document.getElementById('customerEmail');
                     if (n && user.displayName) n.value = user.displayName;
@@ -1305,7 +1339,7 @@ async function markAllAsRead() { if (!currentUser || !userNotifications.length) 
 
 // ==================== PRODUCTS ====================
 async function loadAllProducts() {
-    try { const p = await DB.get('products'); console.log('🔍 loadAllProducts DB.get returned:', p ? (typeof p === 'object' ? Object.keys(p).length + ' keys' : typeof p) : 'null'); if (p && typeof p === 'object') { allProducts = Object.entries(p).map(([id, d]) => ({ ...d, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed'); console.log('🔍 allProducts after filter:', allProducts.length); updateStats(); return allProducts; } return []; }
+    try { const p = await DB.get('products'); console.log('🔍 loadAllProducts DB.get returned:', p ? (typeof p === 'object' ? Object.keys(p).length + ' keys' : typeof p) : 'null'); if (p && typeof p === 'object') { allProducts = Object.entries(p).map(([id, d]) => ({ ...d, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed'); if (currentLang && currentLang !== 'ar' && typeof _applyCachedTranslations === 'function') _applyCachedTranslations(allProducts, currentLang); console.log('🔍 allProducts after filter:', allProducts.length); updateStats(); return allProducts; } return []; }
     catch (e) { console.error('Error loading products:', e); return []; }
 }
 
@@ -1315,17 +1349,20 @@ function listenToProducts() {
         console.log('🔍 listenToProducts callback, data:', data ? (typeof data === 'object' ? Object.keys(data).length + ' keys' : typeof data) : 'null');
         if (data && typeof data === 'object') { 
             allProducts = Object.entries(data).map(([id, p]) => ({ ...p, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed'); 
+            if (currentLang && currentLang !== 'ar' && typeof _applyCachedTranslations === 'function') _applyCachedTranslations(allProducts, currentLang);
             console.log('🔍 allProducts after listenToProducts:', allProducts.length);
-            if (window.displayProducts && !window.location.pathname.toLowerCase().includes('wishlist')) {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(function() { 
-                    if (currentLang !== 'ar' && typeof autoTranslateProducts === 'function') {
-                        autoTranslateProducts(currentLang).then(function() { displayProducts(); }).catch(function() { displayProducts(); });
-                    } else {
-                        displayProducts(); 
-                    }
-                }, 50);
-            }
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function() { 
+                if (currentLang !== 'ar' && typeof autoTranslateProducts === 'function') {
+                    autoTranslateProducts(currentLang).then(function() { 
+                        if (window.displayProducts) displayProducts();
+                    }).catch(function() { 
+                        if (window.displayProducts) displayProducts();
+                    });
+                } else {
+                    if (window.displayProducts) displayProducts(); 
+                }
+            }, 50);
             updateStats(); 
         } 
     }); 
@@ -1364,8 +1401,6 @@ async function toggleWishlist(productId, event) {
     if (event) { event.stopPropagation(); event.preventDefault(); }
 
     const product = allProducts.find(p => p.id === productId);
-    if (!product) return;
-
     const index = userWishlist.findIndex(item => (item.id || item) === productId);
     const inWL = index > -1;
 
@@ -1374,6 +1409,7 @@ async function toggleWishlist(productId, event) {
         if (currentUser) await DB.remove(`wishlists/${currentUser.uid}/${productId}`);
         showToast(currentLang === 'ar' ? '💔 تم الإزالة' : currentLang === 'en' ? '💔 Removed' : '💔 Retiré', currentLang === 'ar' ? 'تم إزالة المنتج من المفضلة' : currentLang === 'en' ? 'Removed from wishlist' : 'Retiré des favoris', 'error');
     } else {
+        if (!product) return;
         var wishTitleStr = typeof product.title === 'string' ? product.title : (product.title?.ar || '');
         const wishlistItem = { id: productId, title: wishTitleStr, image: product.image || '', icon: product.icon || 'fa-box', priceEGP: product.priceEGP, priceUSD: product.priceUSD, category: product.category, addedAt: Date.now() };
         userWishlist.push(wishlistItem);
@@ -1535,7 +1571,8 @@ function flyToCart(event) {
 
 
 // ==================== GENERATE PRODUCT BADGES ====================
-function generateBadges(product) {
+function generateBadges(product, lang) {
+    lang = lang || currentLang || 'ar';
     let discountHTML = '';
     let specialHTML = '';
 
@@ -1545,24 +1582,24 @@ function generateBadges(product) {
     if (oldPrice && oldPrice > currentPrice) {
         const disc = Math.round(((oldPrice - currentPrice) / oldPrice) * 100);
         discountHTML = `<div class="discount-badge">
-            <span class="discount-text">${currentLang === 'ar' ? 'خصم' : currentLang === 'en' ? 'OFF' : 'RÉDUCTION'}</span>
+            <span class="discount-text">${lang === 'ar' ? 'خصم' : lang === 'en' ? 'OFF' : 'RÉDUCTION'}</span>
             <span class="discount-percent">${disc}%</span>
         </div>`;
     }
 
     if (product.hot || product.bestseller || product.badge === 'hot') {
         specialHTML = `<span class="special-badge hot-badge">
-            <i class="fas fa-fire"></i> ${currentLang === 'ar' ? 'الأكثر مبيعاً' : currentLang === 'en' ? 'BESTSELLER' : 'MEILLEURE VENTE'}
+            <i class="fas fa-fire"></i> ${lang === 'ar' ? 'الأكثر مبيعاً' : lang === 'en' ? 'BESTSELLER' : 'MEILLEURE VENTE'}
         </span>`;
     } else if (product.featured || product.badge === 'featured') {
         specialHTML = `<span class="special-badge featured-badge">
-            <i class="fas fa-crown"></i> ${currentLang === 'ar' ? 'مميز' : currentLang === 'en' ? 'FEATURED' : 'EN VEDETTE'}
+            <i class="fas fa-crown"></i> ${lang === 'ar' ? 'مميز' : lang === 'en' ? 'FEATURED' : 'EN VEDETTE'}
         </span>`;
     }
 
     if (!discountHTML && !specialHTML) return '';
 
-    return `<div class="badge-column" style="position:absolute!important;top:0!important;right:0!important;left:auto!important;z-index:10!important">${discountHTML}${specialHTML}</div>`;
+    return `<div class="badge-column">${discountHTML}${specialHTML}</div>`;
 }
 
 // ╔═══════════════════════════════════════════════════════╗
@@ -1617,7 +1654,7 @@ async function openQuickView(productId, event) {
     }
 
     // === بدجات ===
-    var badgeColumnHTML = generateBadges ? generateBadges(product) : '';
+    var badgeColumnHTML = generateBadges ? generateBadges(product, lang) : '';
 
     // === النجوم ===
     var starsHTML = '';
@@ -1920,7 +1957,7 @@ function generateProductCardHTML(product, index, opts) {
 
     return `
             <div class="product-card reveal" data-reveal-index="${index}">
-                ${generateBadges(product)}
+                ${generateBadges(product, lang)}
                 <button class="wishlist-btn-card ${inWishlist ? 'active' : ''}" data-wishlist-id="${product.id}" onclick="toggleWishlist('${product.id}', event)" aria-label="${wishlistAria}">
                     <i class="${inWishlist ? 'fas' : 'far'} fa-heart"></i>
                 </button>
@@ -2366,36 +2403,55 @@ function checkCheckoutFormValidity() {
     }
 }
 
-function _showUploadProgress(label) {
+window._uploadProgressStart = 0;
+window._uploadAbortController = null;
+function _showUploadProgress(label, totalBytes) {
     var circ = 2 * Math.PI * 54;
+    var existing = document.getElementById('uploadProgressOverlay');
+    if (existing) existing.remove();
+    var totalMB = totalBytes ? (totalBytes / (1024 * 1024)).toFixed(1) : '?';
     var ov = document.createElement('div');
     ov.className = 'upload-progress-overlay';
     ov.id = 'uploadProgressOverlay';
-    ov.innerHTML = '<div class="upload-progress-ring"><svg width="120" height="120"><circle class="ring-bg" cx="60" cy="60" r="54" stroke-dasharray="' + circ + '" stroke-dashoffset="0"></circle><circle class="ring-fg" cx="60" cy="60" r="54" stroke-dasharray="' + circ + '" stroke-dashoffset="' + circ + '"></circle></svg><div class="upload-progress-pct">0%</div></div><div class="upload-progress-label">' + (label || 'جاري الرفع...') + '</div>';
+    ov.innerHTML = '<div class="upload-progress-close" id="uploadProgressClose" title="إلغاء">&#10005;</div><div class="upload-progress-ring"><svg width="120" height="120"><defs><linearGradient id="uploadGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#9333ea"/><stop offset="100%" style="stop-color:#c084fc"/></linearGradient></defs><circle class="ring-bg" cx="60" cy="60" r="54" stroke-dasharray="' + circ + '" stroke-dashoffset="0"></circle><circle class="ring-fg" cx="60" cy="60" r="54" stroke-dasharray="' + circ + '" stroke-dashoffset="' + circ + '"></circle></svg><div class="upload-progress-pct">0%</div></div><div class="upload-progress-label">' + (label || 'جاري الرفع...') + '</div><div class="upload-progress-size">0 MB / ' + totalMB + ' MB</div>';
     document.body.appendChild(ov);
+    document.getElementById('uploadProgressClose').addEventListener('click', function() {
+        if (window._uploadAbortController) { window._uploadAbortController.abort(); window._uploadAbortController = null; }
+        _hideUploadProgress();
+        showToast('❌', currentLang === 'ar' ? 'تم إلغاء الرفع' : currentLang === 'en' ? 'Upload cancelled' : 'Téléchargement annulé', 'error');
+    });
+    window._uploadProgressStart = Date.now();
     return ov;
 }
-function _updateUploadProgress(pct) {
+function _updateUploadProgress(pct, loadedBytes, totalBytes) {
     var ov = document.getElementById('uploadProgressOverlay');
     if (!ov) return;
     var circ = 2 * Math.PI * 54;
     var fg = ov.querySelector('.ring-fg');
     var pctEl = ov.querySelector('.upload-progress-pct');
+    var sizeEl = ov.querySelector('.upload-progress-size');
     if (fg) fg.style.strokeDashoffset = circ - (circ * pct / 100);
     if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+    if (sizeEl && loadedBytes != null) {
+        var loadedMB = (loadedBytes / (1024 * 1024)).toFixed(1);
+        var totalMB = totalBytes ? (totalBytes / (1024 * 1024)).toFixed(1) : '?';
+        sizeEl.textContent = loadedMB + ' MB / ' + totalMB + ' MB';
+    }
 }
 function _hideUploadProgress() {
     var ov = document.getElementById('uploadProgressOverlay');
-    if (ov) ov.remove();
+    if (!ov) return;
+    var elapsed = Date.now() - (window._uploadProgressStart || 0);
+    var minTime = 1200;
+    var remaining = Math.max(0, minTime - elapsed);
+    setTimeout(function() {
+        var el = document.getElementById('uploadProgressOverlay');
+        if (el) el.remove();
+    }, remaining);
 }
 function _showFormNotification(formId, type, msg) {
-    var form = document.getElementById(formId);
-    if (!form) return;
-    var n = form.querySelector('.form-inline-notification');
-    if (!n) { n = document.createElement('div'); n.className = 'form-inline-notification'; form.insertBefore(n, form.firstChild); }
-    n.className = 'form-inline-notification show ' + type;
-    n.innerHTML = '<i class="fas ' + (type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle') + '"></i> ' + msg;
-    if (type !== 'error') setTimeout(function() { n.classList.remove('show'); }, 5000);
+    var emoji = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+    showToast(emoji, msg, type);
 }
 
 async function uploadToImgBB(file, opts) {
@@ -2409,13 +2465,13 @@ async function uploadToImgBB(file, opts) {
                 var fd = new FormData();
                 fd.append('key', APP_CONFIG.imgbbApiKey);
                 fd.append('image', b);
-                if (opts.showProgress !== false) _showUploadProgress(upLabel);
+                if (opts.showProgress !== false) _showUploadProgress(upLabel, file.size);
                 var xhr = new XMLHttpRequest();
                 xhr.open('POST', 'https://api.imgbb.com/1/upload');
                 xhr.upload.onprogress = function(ev) {
                     if (ev.lengthComputable) {
                         var pct = (ev.loaded / ev.total) * 100;
-                        _updateUploadProgress(pct);
+                        _updateUploadProgress(pct, ev.loaded, ev.total);
                     }
                 };
                 xhr.onload = function() {
@@ -2445,22 +2501,86 @@ async function uploadToImgBB(file, opts) {
     });
 }
 
+async function uploadVideoToFirebase(file, opts) {
+    opts = opts || {};
+    var lang = currentLang || 'ar';
+    var label = opts.progressLabel || (lang === 'ar' ? 'جاري رفع الفيديو...' : lang === 'en' ? 'Uploading video...' : 'Téléchargement de la vidéo...');
+    return new Promise(function(resolve, reject) {
+        var r = new FileReader();
+        r.onload = function(e) {
+            try {
+                var b = e.target.result.split(',')[1];
+                var fd = new FormData();
+                fd.append('key', APP_CONFIG.imgbbApiKey);
+                fd.append('image', b);
+                _showUploadProgress(label, file.size);
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'https://api.imgbb.com/1/upload');
+                xhr.upload.onprogress = function(ev) {
+                    if (ev.lengthComputable) {
+                        var pct = (ev.loaded / ev.total) * 100;
+                        _updateUploadProgress(pct, ev.loaded, ev.total);
+                    }
+                };
+                xhr.onload = function() {
+                    _hideUploadProgress();
+                    try {
+                        var d = JSON.parse(xhr.responseText);
+                        if (d.success) resolve(d.data.display_url || d.data.url);
+                        else throw new Error(d.error?.message || 'Upload failed');
+                    } catch(err) {
+                        console.warn('ImgBB video upload failed, using base64');
+                        resolve(e.target.result);
+                    }
+                };
+                xhr.onerror = function() {
+                    _hideUploadProgress();
+                    console.warn('ImgBB video upload failed, using base64');
+                    resolve(e.target.result);
+                };
+                xhr.send(fd);
+            } catch(err) {
+                _hideUploadProgress();
+                reject(err);
+            }
+        };
+        r.onerror = function() { _hideUploadProgress(); reject(new Error('File reading failed')); };
+        r.readAsDataURL(file);
+    });
+}
+
 async function _translateTextArTo(text, targetLang) {
     if (!text || !text.trim()) return text;
     var cacheKey = 'ar|' + targetLang + '|' + text;
     try { var cached = JSON.parse(localStorage.getItem('translationCache') || '{}')[cacheKey]; if (cached) return cached; } catch(e) {}
+    if (_translationCache[cacheKey]) return _translationCache[cacheKey];
     try {
-        var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=ar|' + targetLang;
+        var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=ar&tl=' + targetLang + '&dt=t&q=' + encodeURIComponent(text);
         var res = await fetch(url);
         var data = await res.json();
-        if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
-            var tr = data.responseData.translatedText;
+        if (data && data[0]) {
+            var tr = data[0].map(function(s) { return s[0]; }).join('');
             if (tr && tr !== text && tr.toUpperCase() !== text.toUpperCase()) {
+                _translationCache[cacheKey] = tr;
                 try { var cache = JSON.parse(localStorage.getItem('translationCache') || '{}'); cache[cacheKey] = tr; localStorage.setItem('translationCache', JSON.stringify(cache)); } catch(e) {}
                 return tr;
             }
         }
-    } catch(e) {}
+    } catch(e) {
+        try {
+            var url2 = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=ar|' + targetLang;
+            var res2 = await fetch(url2);
+            var data2 = await res2.json();
+            if (data2.responseStatus === 200 && data2.responseData && data2.responseData.translatedText) {
+                var tr2 = data2.responseData.translatedText;
+                if (tr2 && tr2 !== text && tr2.toUpperCase() !== text.toUpperCase()) {
+                    _translationCache[cacheKey] = tr2;
+                    try { var cache2 = JSON.parse(localStorage.getItem('translationCache') || '{}'); cache2[cacheKey] = tr2; localStorage.setItem('translationCache', JSON.stringify(cache2)); } catch(e2) {}
+                    return tr2;
+                }
+            }
+        } catch(e2) {}
+    }
     return text;
 }
 async function _translateLinesArTo(lines, targetLang) {
@@ -2485,7 +2605,8 @@ async function handleCheckoutSubmit(e) {
             try { const p = await DB.get(`products/${checkoutOrderData.productId}`); if (p) { productExtra = { productImage: p.image || '', productCategory: p.category || '', productOldPriceEGP: p.oldPriceEGP || 0, productOldPriceUSD: p.oldPriceUSD || 0, downloadLink: p.downloadLink || '', productHot: p.hot || p.bestseller || p.badge === 'hot', productFeatured: p.featured || p.badge === 'featured', productBadge: p.badge || '' }; } } catch (e) {}
         }
         const pmName = window.paymentMethods?.[selectedPaymentMethod]?.name?.ar || PAYMENT_ACCOUNTS[selectedPaymentMethod]?.name?.ar || selectedPaymentMethod;
-        const order = { isMultipleItems: checkoutOrderData.isMultipleItems || false, items: checkoutOrderData.isMultipleItems ? checkoutOrderData.items : null, productId: checkoutOrderData.productId || 'N/A', productTitle: checkoutOrderData.productTitle || 'Product', price: parseFloat(checkoutOrderData.price) || 0, currency: checkoutOrderData.currency || (document.documentElement.lang === 'ar' ? 'جنيه' : 'EGP'), paymentMethod: selectedPaymentMethod, paymentMethodName: pmName, customerName: document.getElementById('customerName').value.trim(), customerEmail: document.getElementById('customerEmail').value.trim(), customerPhone: document.getElementById('customerPhone').value.trim(), fileName: uploadedFile.name, fileSize: `${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB`, receiptImageUrl: imgUrl, userId: currentUser?.uid || 'guest', userEmail: currentUser?.email || document.getElementById('customerEmail').value.trim(), userCountry: checkoutOrderData.userCountry || userCountry || 'EG', status: 'pending', orderDate: now.toISOString(), createdAt: ts, orderDateReadable: now.toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'en' ? 'en-US' : 'fr-FR'), orderTimeReadable: now.toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'en' ? 'en-US' : 'fr-FR'), ...productExtra };
+        const _visitorIP = localStorage.getItem('visitorIP') || '';
+        const order = { isMultipleItems: checkoutOrderData.isMultipleItems || false, items: checkoutOrderData.isMultipleItems ? checkoutOrderData.items : null, productId: checkoutOrderData.productId || 'N/A', productTitle: checkoutOrderData.productTitle || 'Product', price: parseFloat(checkoutOrderData.price) || 0, currency: checkoutOrderData.currency || (document.documentElement.lang === 'ar' ? 'جنيه' : 'EGP'), paymentMethod: selectedPaymentMethod, paymentMethodName: pmName, customerName: document.getElementById('customerName').value.trim(), customerEmail: document.getElementById('customerEmail').value.trim(), customerPhone: document.getElementById('customerPhone').value.trim(), fileName: uploadedFile.name, fileSize: `${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB`, receiptImageUrl: imgUrl, userId: currentUser?.uid || 'guest', userEmail: currentUser?.email || document.getElementById('customerEmail').value.trim(), userCountry: checkoutOrderData.userCountry || userCountry || 'EG', ip: _visitorIP, status: 'pending', orderDate: now.toISOString(), createdAt: ts, orderDateReadable: now.toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'en' ? 'en-US' : 'fr-FR'), orderTimeReadable: now.toLocaleTimeString(currentLang === 'ar' ? 'ar-EG' : currentLang === 'en' ? 'en-US' : 'fr-FR'), ...productExtra };
         let id = String(100000 + Math.floor(Math.random() * 900000));
         try { const cnt = await DB.get('meta/orderCounter'); if (cnt?.value) id = String(cnt.value + 1); await DB.set('meta/orderCounter', { value: parseInt(id) }); } catch(e) {}
         await DB.set(`orders/${id}`, { ...order, orderId: id });
@@ -2573,6 +2694,25 @@ function loadWishlistDropdown() {
     const c = document.getElementById('wishlistContent');
     if (!c) return;
     const lang = document.documentElement.lang || 'ar';
+    if (lang === 'ar') { _renderWishlistDropdown(c, 'ar', {}); return; }
+    var _translatedTitles = {};
+    var _promises = userWishlist.slice(0, 5).map(function(item) {
+        var prod = window.allProducts && window.allProducts.find(function(p){ return p.id === item.id; });
+        var val = prod && prod.title;
+        var arabic = '';
+        if (typeof val === 'string' && _isArabic(val)) arabic = val;
+        else if (val && typeof val === 'object' && val.ar && _isArabic(val.ar)) arabic = val.ar;
+        else if (typeof item.title === 'string' && _isArabic(item.title)) arabic = item.title;
+        if (arabic) {
+            return _translateText(arabic, lang).then(function(t) {
+                if (t && t !== arabic) { _translatedTitles[item.id] = t; _translatedTitles[arabic] = t; }
+            }).catch(function(){});
+        }
+        return Promise.resolve();
+    });
+    Promise.all(_promises).then(function(){ _renderWishlistDropdown(c, lang, _translatedTitles); });
+}
+function _renderWishlistDropdown(c, lang, translatedTitles) {
     const catEmojis = { books: '📚', software: '💻', formulas: '🧪', courses: '🎓' };
 
     if (userWishlist.length === 0) {
@@ -2587,13 +2727,28 @@ function loadWishlistDropdown() {
         return;
     }
 
+    function _wt(item) {
+        if (translatedTitles[item.id]) return translatedTitles[item.id];
+        var prod = window.allProducts && window.allProducts.find(function(p){ return p.id === item.id; });
+        var val = prod && prod.title;
+        if (val && typeof val === 'object' && val[lang] && !_isArabic(val[lang])) return val[lang];
+        if (val && typeof val === 'object' && val.ar && translatedTitles[val.ar]) return translatedTitles[val.ar];
+        if (typeof val === 'string' && !_isArabic(val)) return val;
+        if (typeof item.title === 'string' && !_isArabic(item.title)) return item.title;
+        if (translatedTitles[item.title]) return translatedTitles[item.title];
+        var tKey = (typeof val === 'string' ? val : (val && val.ar) || item.title) + '|' + lang;
+        try { if (_transCache && _transCache[tKey] && !_isArabic(_transCache[tKey])) return _transCache[tKey]; } catch(e) {}
+        try { var lc = JSON.parse(localStorage.getItem('translationCache') || '{}'); var lcKey = 'ar|' + lang + '|' + ((typeof val === 'string' ? val : (val && val.ar) || item.title)); if (lc[lcKey] && lc[lcKey] !== (typeof val === 'string' ? val : (val && val.ar))) return lc[lcKey]; } catch(e) {}
+        return item.title || '';
+    }
+
     c.innerHTML = userWishlist.slice(0, 5).map(item => {
         const price = getProductPrice(item);
         const cur = getUserCurrency().symbol;
         const catKey = item.category || '';
         const catName = APP_CONFIG.categories[lang]?.[catKey] || item.categoryName || catKey;
         const catEmoji = catEmojis[catKey] || '📦';
-        var wishTitle = getProductText(window.allProducts?.find(function(p){ return p.id === item.id; }), 'title', lang) || item.title;
+        var wishTitle = _wt(item);
 
         return `
             <div class="dropdown-item" onclick="window.location.href='product-details.html?id=${item.id}'" style="align-items:center;padding:12px 14px;border-radius:16px;background:var(--card-bg);border:1.5px solid var(--border-color);margin-bottom:8px;transition:all 0.3s;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
@@ -2635,8 +2790,25 @@ function loadCartDropdown() {
     const c = document.getElementById('cartContent');
     if (!c) return;
     const lang = document.documentElement.lang || 'ar';
-
-    // تنظيف userCart من العناصر التالفة قبل العرض
+    if (lang === 'ar') { _renderCartDropdown(c, 'ar', {}); return; }
+    var _translatedTitles = {};
+    var _promises = userCart.slice(0, 5).map(function(item) {
+        var prod = window.allProducts && window.allProducts.find(function(p){ return p.id === item.id; });
+        var val = prod && prod.title;
+        var arabic = '';
+        if (typeof val === 'string' && _isArabic(val)) arabic = val;
+        else if (val && typeof val === 'object' && val.ar && _isArabic(val.ar)) arabic = val.ar;
+        else if (typeof item.title === 'string' && _isArabic(item.title)) arabic = item.title;
+        if (arabic) {
+            return _translateText(arabic, lang).then(function(t) {
+                if (t && t !== arabic) { _translatedTitles[item.id] = t; _translatedTitles[arabic] = t; }
+            }).catch(function(){});
+        }
+        return Promise.resolve();
+    });
+    Promise.all(_promises).then(function(){ _renderCartDropdown(c, lang, _translatedTitles); });
+}
+function _renderCartDropdown(c, lang, translatedTitles) {
     const origLen = userCart.length;
     userCart = userCart.filter(item => item && item.id && item.id !== 'undefined' && item.title && item.title !== 'undefined' && (item.price !== undefined && item.price !== null));
     if (userCart.length !== origLen) {
@@ -2665,7 +2837,19 @@ function loadCartDropdown() {
         const catKey = item.category || '';
         const catName = APP_CONFIG.categories[lang]?.[catKey] || item.categoryName || catKey;
         const catEmoji = catEmojis[catKey] || '📦';
-        var cartTitle = getProductText(window.allProducts?.find(function(p){ return p.id === item.id; }), 'title', lang) || item.title;
+        var cartTitle = (function() {
+            if (translatedTitles[item.id]) return translatedTitles[item.id];
+            var prod = window.allProducts && window.allProducts.find(function(p){ return p.id === item.id; });
+            var val = prod && prod.title;
+            if (val && typeof val === 'object' && val[lang] && !_isArabic(val[lang])) return val[lang];
+            if (val && typeof val === 'object' && val.ar && translatedTitles[val.ar]) return translatedTitles[val.ar];
+            if (typeof val === 'string' && !_isArabic(val)) return val;
+            if (typeof item.title === 'string' && !_isArabic(item.title)) return item.title;
+            if (translatedTitles[item.title]) return translatedTitles[item.title];
+            var tKey = (typeof val === 'string' ? val : (val && val.ar) || item.title) + '|' + lang;
+            try { if (_transCache && _transCache[tKey] && !_isArabic(_transCache[tKey])) return _transCache[tKey]; } catch(e) {}
+            return item.title || '';
+        })();
 
         return `
             <div class="dropdown-item" style="align-items:center;padding:12px;border-radius:16px;background:rgba(245,158,11,0.04);border:1px solid rgba(245,158,11,0.12);margin-bottom:10px;transition:all 0.3s">
@@ -2970,18 +3154,29 @@ function switchLanguage(lang) {
     const mobileLt = document.getElementById('mobileLangText');
     if (mobileLt) mobileLt.innerHTML = '<span class="flag-icon">' + getLangFlagHtml(currentLang) + '</span> ' + (currentLang === 'ar' ? 'العربية' : currentLang === 'en' ? 'English' : 'Français');
     translatePage(currentLang);
+    var _postTranslate = function() {
+        if (typeof loadCartDropdown === 'function') loadCartDropdown();
+        if (typeof loadWishlistDropdown === 'function') loadWishlistDropdown();
+        if (window.location.pathname.includes('cart') && typeof window.renderCartPage === 'function') window.renderCartPage();
+    };
     if (window.location.pathname.toLowerCase().includes('wishlist')) {
         autoTranslateProducts(currentLang).then(function() {
+            _postTranslate();
             if (window.renderWishlistPage) renderWishlistPage();
         }).catch(function() {
+            _postTranslate();
             if (window.renderWishlistPage) renderWishlistPage();
         });
     } else if (window.displayProducts) {
         autoTranslateProducts(currentLang).then(function() {
+            _postTranslate();
             displayProducts();
         }).catch(function() {
+            _postTranslate();
             displayProducts();
         });
+    } else {
+        autoTranslateProducts(currentLang).then(function() { _postTranslate(); }).catch(function() { _postTranslate(); });
     }
     if (window.location.pathname.includes('checkout')) { displayPaymentMethods(); if (window._checkoutLoadingStart) { var _elapsed = Date.now() - window._checkoutLoadingStart; var _remaining = Math.max(0, 2200 - _elapsed); setTimeout(function() { displayCheckoutOrderSummary(); }, _remaining); } else { displayCheckoutOrderSummary(); } }
     if (window.location.pathname.includes('product-details') && typeof window.displayProduct === 'function') {
@@ -3037,14 +3232,46 @@ function toggleLanguage() {
 var _translationCache = {};
 (function() {
     try {
-        var stored = localStorage.getItem('translationCache');
-        if (stored) _translationCache = JSON.parse(stored);
+        var cacheVer = localStorage.getItem('translationCacheVer');
+        if (cacheVer !== 'v3') {
+            localStorage.removeItem('translationCache');
+            localStorage.setItem('translationCacheVer', 'v3');
+        } else {
+            var stored = localStorage.getItem('translationCache');
+            if (stored) _translationCache = JSON.parse(stored);
+        }
     } catch(e) {}
 })();
 
 function _saveTranslationCache() {
     try { localStorage.setItem('translationCache', JSON.stringify(_translationCache)); } catch(e) {}
 }
+
+function _applyCachedTranslations(products, lang) {
+    if (!lang || lang === 'ar' || !products || !products.length) return;
+    try { var lc = JSON.parse(localStorage.getItem('translationCache') || '{}'); for (var k in lc) { if (!_translationCache[k]) _translationCache[k] = lc[k]; } } catch(e) {}
+    var fields = ['title', 'description'];
+    products.forEach(function(p) {
+        if (!p) return;
+        fields.forEach(function(f) {
+            var val = p[f];
+            if (typeof val === 'string' && _isArabic(val)) {
+                var key = _cacheKey(val, 'ar', lang);
+                if (_translationCache[key]) {
+                    var obj = { ar: val };
+                    obj[lang] = _translationCache[key];
+                    p[f] = obj;
+                }
+            } else if (typeof val === 'object' && val !== null && !Array.isArray(val) && val.ar && _isArabic(val.ar)) {
+                if (!val[lang] || val[lang] === val.ar || _isArabic(val[lang] || '')) {
+                    var key2 = _cacheKey(val.ar, 'ar', lang);
+                    if (_translationCache[key2]) val[lang] = _translationCache[key2];
+                }
+            }
+        });
+    });
+}
+window._applyCachedTranslations = _applyCachedTranslations;
 
 function _cacheKey(text, fromLang, toLang) {
     return fromLang + '|' + toLang + '|' + text;
@@ -3089,17 +3316,24 @@ async function _processTranslationQueue() {
     for (var i = 0; i < uniqueTexts.length; i++) {
         var text = uniqueTexts[i];
         try {
-            var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text.slice(0, 500)) + '&langpair=' + encodeURIComponent(apiLang);
-            var resp = await fetch(url);
-            var data = await resp.json();
-            if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
-                var tText = data.responseData.translatedText;
-                if (tText && tText.toUpperCase() !== text.toUpperCase()) {
-                    _translationCache[_cacheKey(text, fromLang, toLang)] = tText;
-                    (textMap[text] || []).forEach(function(r) { r(tText); });
-                } else {
-                    (textMap[text] || []).forEach(function(r) { r(text); });
+            var tText = null;
+            try {
+                var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + fromLang + '&tl=' + toLang + '&dt=t&q=' + encodeURIComponent(text);
+                var resp = await fetch(url);
+                var data = await resp.json();
+                if (data && data[0]) tText = data[0].map(function(s) { return s[0]; }).join('');
+            } catch(e1) {}
+            if (!tText) {
+                var url2 = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text.slice(0, 500)) + '&langpair=' + encodeURIComponent(apiLang);
+                var resp2 = await fetch(url2);
+                var data2 = await resp2.json();
+                if (data2.responseStatus === 200 && data2.responseData && data2.responseData.translatedText) {
+                    tText = data2.responseData.translatedText;
                 }
+            }
+            if (tText && tText.toUpperCase() !== text.toUpperCase()) {
+                _translationCache[_cacheKey(text, fromLang, toLang)] = tText;
+                (textMap[text] || []).forEach(function(r) { r(tText); });
             } else {
                 (textMap[text] || []).forEach(function(r) { r(text); });
             }
@@ -3121,6 +3355,11 @@ function _getTranslation(text, toLang) {
     var fromLang = 'ar';
     var key = _cacheKey(text, fromLang, toLang);
     if (_translationCache[key]) return _translationCache[key];
+    try {
+        var localCache = JSON.parse(localStorage.getItem('translationCache') || '{}');
+        if (localCache[key]) { _translationCache[key] = localCache[key]; return localCache[key]; }
+    } catch(e) {}
+    try { var altKey = text + '|' + toLang; if (typeof _transCache !== 'undefined' && _transCache[altKey] && !_isArabic(_transCache[altKey])) { _translationCache[key] = _transCache[altKey]; return _transCache[altKey]; } } catch(e) {}
     autoTranslate(text, fromLang, toLang);
     return text;
 }
@@ -3153,17 +3392,29 @@ function getProductText(obj, field, lang) {
     var val = obj[field];
     if (typeof val === 'string') {
         if (lang === 'ar') return val;
-        if (_isArabic(val)) return _getTranslation(val, lang);
+        if (_isArabic(val)) {
+            var tr = _getTranslation(val, lang);
+            if (tr && tr !== val) return tr;
+            var _sk = _cacheKey(val, 'ar', lang);
+            try { var _lc = JSON.parse(localStorage.getItem('translationCache') || '{}'); if (_lc[_sk] && _lc[_sk] !== val) return _lc[_sk]; } catch(e) {}
+            autoTranslate(val, 'ar', lang);
+            return val;
+        }
         return val;
     }
     if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
         var langVal = val[lang] || '';
-        if (langVal && !_isArabic(langVal)) return langVal;
         if (val.ar && _isArabic(val.ar)) {
             if (lang === 'ar') return val.ar;
-            return _getTranslation(val.ar, lang);
+            var cached = _getTranslation(val.ar, lang);
+            if (cached && cached !== val.ar) return cached;
+            if (langVal && !_isArabic(langVal)) return langVal;
+            var _ok = _cacheKey(val.ar, 'ar', lang);
+            try { var _oc = JSON.parse(localStorage.getItem('translationCache') || '{}'); if (_oc[_ok] && _oc[_ok] !== val.ar) return _oc[_ok]; } catch(e) {}
+            autoTranslate(val.ar, 'ar', lang);
+            return val.ar;
         }
-        if (langVal) return langVal;
+        if (langVal && !_isArabic(langVal)) return langVal;
         return '';
     }
     return String(val);
@@ -3181,10 +3432,13 @@ function getProductArray(obj, field, lang) {
         return val.map(function(item) {
             if (typeof item === 'string' && _isArabic(item)) return _getTranslation(item, lang);
             if (typeof item === 'object' && item !== null) {
+                if (item.ar && _isArabic(item.ar)) {
+                    var cached = _getTranslation(item.ar, lang);
+                    if (cached && cached !== item.ar) return cached;
+                }
                 var langItem = item[lang] || '';
                 if (langItem && !_isArabic(langItem)) return langItem;
-                if (item.ar && _isArabic(item.ar)) return _getTranslation(item.ar, lang);
-                return langItem || '';
+                return '';
             }
             return item;
         });
@@ -3343,8 +3597,9 @@ async function autoTranslateProducts(targetLang) {
                 var arabicVal = val.ar || '';
                 if (arabicVal && typeof arabicVal === 'string' && _isArabic(arabicVal)) {
                     var currentVal = val[targetLang] || '';
-                    if (!currentVal || currentVal === arabicVal || _isArabic(currentVal)) {
-                        var key = _cacheKey(arabicVal, 'ar', targetLang);
+                    var key = _cacheKey(arabicVal, 'ar', targetLang);
+                    var needsRetranslation = !currentVal || currentVal === arabicVal || _isArabic(currentVal) || !_translationCache[key];
+                    if (needsRetranslation) {
                         if (!_translationCache[key]) {
                             textsToTranslate.push(arabicVal);
                         }
@@ -3366,9 +3621,10 @@ async function autoTranslateProducts(targetLang) {
                         var arabicItem = item.ar || '';
                         if (arabicItem && typeof arabicItem === 'string' && _isArabic(arabicItem)) {
                             var currentItem = item[targetLang] || '';
-                            if (!currentItem || currentItem === arabicItem || _isArabic(currentItem)) {
-                                var key = _cacheKey(arabicItem, 'ar', targetLang);
-                                if (!_translationCache[key]) {
+                            var aKey = _cacheKey(arabicItem, 'ar', targetLang);
+                            var itemNeedsRetranslation = !currentItem || currentItem === arabicItem || _isArabic(currentItem) || !_translationCache[aKey];
+                            if (itemNeedsRetranslation) {
+                                if (!_translationCache[aKey]) {
                                     textsToTranslate.push(arabicItem);
                                 }
                             }
@@ -3378,7 +3634,7 @@ async function autoTranslateProducts(targetLang) {
             }
         });
     });
-    if (textsToTranslate.length === 0) return;
+    if (textsToTranslate.length > 0) {
     var unique = [];
     var seen = {};
     textsToTranslate.forEach(function(t) { if (!seen[t]) { seen[t] = true; unique.push(t); } });
@@ -3387,18 +3643,30 @@ async function autoTranslateProducts(targetLang) {
         var key = _cacheKey(text, 'ar', targetLang);
         if (_translationCache[key]) continue;
         try {
-            var apiLang = 'ar|' + targetLang;
-            var url = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text.slice(0, 500)) + '&langpair=' + encodeURIComponent(apiLang);
-            var resp = await fetch(url);
-            var data = await resp.json();
-            if (data.responseStatus === 200 && data.responseData && data.responseData.translatedText) {
-                var tText = data.responseData.translatedText;
-                if (tText && tText.toUpperCase() !== text.toUpperCase()) {
-                    _translationCache[key] = tText;
+            var tText = null;
+            try {
+                var url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=ar&tl=' + targetLang + '&dt=t&q=' + encodeURIComponent(text);
+                var resp = await fetch(url);
+                var data = await resp.json();
+                if (data && data[0]) {
+                    tText = data[0].map(function(s) { return s[0]; }).join('');
                 }
+            } catch(e1) {}
+            if (!tText) {
+                var apiLang = 'ar|' + targetLang;
+                var url2 = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text.slice(0, 500)) + '&langpair=' + encodeURIComponent(apiLang);
+                var resp2 = await fetch(url2);
+                var data2 = await resp2.json();
+                if (data2.responseStatus === 200 && data2.responseData && data2.responseData.translatedText) {
+                    tText = data2.responseData.translatedText;
+                }
+            }
+            if (tText && tText.toUpperCase() !== text.toUpperCase()) {
+                _translationCache[key] = tText;
             }
         } catch(e) { console.warn('Translation failed for:', text.slice(0, 50), e); }
         if (i % 10 === 9) await new Promise(function(r) { setTimeout(r, 150); });
+    }
     }
     objectUpdates.forEach(function(update) {
         var key = _cacheKey(update.arabicVal, 'ar', targetLang);
@@ -3406,6 +3674,21 @@ async function autoTranslateProducts(targetLang) {
         if (translated) {
             update.product[update.field][targetLang] = translated;
         }
+    });
+    allProducts.forEach(function(p) {
+        if (!p) return;
+        fields.forEach(function(f) {
+            var val = p[f];
+            if (typeof val === 'string' && _isArabic(val)) {
+                var key = _cacheKey(val, 'ar', targetLang);
+                var translated = _translationCache[key];
+                if (translated) {
+                    var obj = { ar: val };
+                    obj[targetLang] = translated;
+                    p[f] = obj;
+                }
+            }
+        });
     });
     allProducts.forEach(function(p) {
         if (!p) return;
@@ -3434,7 +3717,7 @@ window.autoTranslateProducts = autoTranslateProducts;
 function translatePage(lang) {
     document.querySelectorAll('[data-ar][data-en][data-fr]:not(#userName):not(#userEmail)').forEach(el => {
         const t = el.getAttribute('data-' + lang);
-        if (t) el.textContent = t;
+        if (t) { if (t.indexOf('<') !== -1 && t.indexOf('>') !== -1) el.innerHTML = t; else el.textContent = t; }
     });
     document.querySelectorAll('[data-ar-placeholder][data-en-placeholder][data-fr-placeholder]').forEach(el => {
         el.placeholder = el.getAttribute('data-' + lang + '-placeholder');
@@ -3451,7 +3734,7 @@ function translatePage(lang) {
     document.querySelectorAll('[data-ar][data-en]:not([data-fr]):not(#userName):not(#userEmail)').forEach(el => {
         let t = el.getAttribute('data-' + lang);
         if (lang === 'fr' && !t) t = el.getAttribute('data-en');
-        if (t) el.textContent = t;
+        if (t) { if (t.indexOf('<') !== -1 && t.indexOf('>') !== -1) el.innerHTML = t; else el.textContent = t; }
     });
     document.querySelectorAll('[data-ar-placeholder][data-en-placeholder]:not([data-fr-placeholder])').forEach(el => {
         let t = el.getAttribute('data-' + lang + '-placeholder');
@@ -5238,20 +5521,80 @@ window.loadAdminCustomers = async function() {
     try {
         const usersData = await DB.get('users');
         const customers = [];
+        const seenUids = new Set();
         if (usersData && typeof usersData === 'object') {
             for (const [uid, u] of Object.entries(usersData)) {
                 if (u && typeof u === 'object') {
+                    seenUids.add(uid);
                     customers.push({
                         uid: uid,
                         name: u.name || u.displayName || '',
                         email: u.email || '',
                         phone: u.phone || u.phoneNumber || '',
+                        avatar: u.avatar || u.photoURL || '',
+                        country: u.country || '',
+                        ip: u.ip || u.lastIP || '',
                         createdAt: u.createdAt || 0,
-                        country: u.country || ''
+                        orderCount: 0
                     });
                 }
             }
         }
+        // Also extract guest customers from orders (who may not be in users/)
+        try {
+            const ordersData = await DB.get('orders');
+            if (ordersData && typeof ordersData === 'object') {
+                for (const [, o] of Object.entries(ordersData)) {
+                    if (!o || o.status === 'trashed') continue;
+                    var oName = o.customerName || '';
+                    var oEmail = o.customerEmail || '';
+                    var oPhone = o.customerPhone || '';
+                    var oUid = o.userId || o.customerUid || '';
+                    if (!oName && !oEmail && !oPhone && !oUid) continue;
+                    // Try to match existing user by uid, email, phone, or name
+                    var matched = null;
+                    if (oUid) {
+                        matched = customers.find(c => c.uid === oUid);
+                    }
+                    if (!matched && oEmail) {
+                        matched = customers.find(c => c.email && c.email.toLowerCase() === oEmail.toLowerCase());
+                    }
+                    if (!matched && oPhone) {
+                        matched = customers.find(c => c.phone && c.phone === oPhone);
+                    }
+                    if (!matched && oName) {
+                        matched = customers.find(c => c.name && c.name === oName);
+                    }
+                    if (matched) {
+                        // Merge: update missing fields from order data
+                        if (!matched.name && oName) matched.name = oName;
+                        if (!matched.email && oEmail) matched.email = oEmail;
+                        if (!matched.phone && oPhone) matched.phone = oPhone;
+                        if (!matched.avatar && (o.customerAvatar || '')) matched.avatar = o.customerAvatar;
+                        if (!matched.ip && (o.ip || o.customerIP || '')) matched.ip = o.ip || o.customerIP;
+                        if (!matched.country && (o.country || o.userCountry || '')) matched.country = o.country || o.userCountry;
+                        if (oUid && oUid !== matched.uid && !seenUids.has(oUid)) { seenUids.add(oUid); }
+                        var oDate = o.orderDate || o.createdAt || 0;
+                        if (oDate > (matched.createdAt || 0)) matched.createdAt = oDate;
+                    } else {
+                        // New guest customer
+                        var guestUid = oUid || ('guest_' + (oEmail || oPhone || oName).replace(/[^a-zA-Z0-9]/g, '_'));
+                        seenUids.add(guestUid);
+                        customers.push({
+                            uid: guestUid,
+                            name: oName,
+                            email: oEmail,
+                            phone: oPhone,
+                            createdAt: o.orderDate || o.createdAt || 0,
+                            country: o.country || o.userCountry || '',
+                            ip: o.ip || o.customerIP || '',
+                            avatar: o.customerAvatar || '',
+                            orderCount: 0
+                        });
+                    }
+                }
+            }
+        } catch(e) { console.warn('Error extracting guests from orders:', e); }
         window._allCustomers = customers;
         const countEl = document.getElementById('sidebarCustomersCount');
         if (countEl) countEl.textContent = customers.length;
@@ -5271,14 +5614,26 @@ window.applyCustomersFilter = async function() {
     try {
         const ordersData = await DB.get('orders');
         const orderCounts = {};
+        const orderEmails = {};
+        const orderPhones = {};
         if (ordersData && typeof ordersData === 'object') {
             for (const [, o] of Object.entries(ordersData)) {
                 if (o && o.userId) {
                     orderCounts[o.userId] = (orderCounts[o.userId] || 0) + 1;
                 }
+                if (o && o.customerEmail) {
+                    orderEmails[o.customerEmail.toLowerCase()] = (orderEmails[o.customerEmail.toLowerCase()] || 0) + 1;
+                }
+                if (o && o.customerPhone) {
+                    orderPhones[o.customerPhone] = (orderPhones[o.customerPhone] || 0) + 1;
+                }
             }
         }
-        filtered.forEach(c => { c.orderCount = orderCounts[c.uid] || 0; });
+        filtered.forEach(c => {
+            c.orderCount = orderCounts[c.uid] || 0;
+            if (!c.orderCount && c.email) c.orderCount = orderEmails[c.email.toLowerCase()] || 0;
+            if (!c.orderCount && c.phone) c.orderCount = orderPhones[c.phone] || 0;
+        });
     } catch(e) {}
 
     // Filter by status
@@ -5350,35 +5705,57 @@ window._renderCustomersTable = function(customers) {
         const dateStr = dt && !isNaN(dt.getTime()) ? dt.toLocaleDateString(_rctI18n.locale, { year:'numeric', month:'short', day:'numeric' }) : '—';
         const emailMasked = c.email ? c.email.replace(/(.{2})(.*)(@.*)/, '$1***$3') : '—';
         const phoneDisplay = c.phone || '—';
+        const countryDisplay = c.country || '';
+    const countryFlag = countryDisplay ? '<img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/flags/4x3/' + countryDisplay.toLowerCase() + '.svg" style="width:20px;height:15px;border-radius:3px;object-fit:cover;vertical-align:middle;margin-inline-end:4px;" onerror="this.style.display=\'none\'">' : '';
+    const countryFinal = countryDisplay ? countryFlag + countryDisplay.toUpperCase() : '—';
+        const ipDisplay = c.ip || '—';
         const nameInitial = (c.name || '?').charAt(0).toUpperCase();
+        const avatarHtml = c.avatar
+            ? '<img src="' + c.avatar + '" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(147,51,234,0.3);flex-shrink:0;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#ec4899);display:none;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.1em;flex-shrink:0;">' + nameInitial + '</div>'
+            : '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#ec4899);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.1em;flex-shrink:0;">' + nameInitial + '</div>';
         const orderBadge = c.orderCount > 0
-            ? `<span style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:4px 12px;border-radius:20px;font-weight:800;font-size:0.85em;">${c.orderCount} ${_rctI18n.order}</span>`
-            : `<span style="background:rgba(100,100,100,0.2);color:#999;padding:4px 12px;border-radius:20px;font-weight:700;font-size:0.85em;">0</span>`;
+            ? `<span style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:4px 12px;border-radius:20px;font-weight:900;font-size:0.85em;">${c.orderCount} ${_rctI18n.order}</span>`
+            : `<span style="background:rgba(100,100,100,0.2);color:#fff;padding:4px 12px;border-radius:20px;font-weight:900;font-size:0.85em;">0</span>`;
 
         return `
         <tr style="border-bottom:1px solid var(--border-color);transition:background 0.2s;" onmouseover="this.style.background='rgba(147,51,234,0.05)'" onmouseout="this.style.background=''">
-            <td style="text-align:center;font-weight:800;color:var(--text-secondary);width:50px;">${i + 1}</td>
+            <td style="text-align:center;font-weight:900;color:#fff;width:50px;">${i + 1}</td>
             <td style="text-align:center;">
-                <div style="display:flex;align-items:center;gap:12px;justify-content:center;">
-                    <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#ec4899);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.1em;flex-shrink:0;">${nameInitial}</div>
-                    <span style="font-weight:800;color:var(--text-primary);">${c.name || _rctI18n.notSpecified}</span>
+                <div style="display:flex;align-items:center;justify-content:center;">${avatarHtml}</div>
+            </td>
+            <td style="text-align:center;">
+                <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
+                    <i class="fas fa-user" style="color:var(--primary);font-size:0.85em;"></i>
+                    <span style="font-weight:900;color:#fff;">${c.name || _rctI18n.notSpecified}</span>
                 </div>
             </td>
             <td style="text-align:center;">
                 <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
                     <i class="fas fa-envelope" style="color:var(--primary);font-size:0.85em;"></i>
-                    <span style="font-weight:600;color:var(--text-primary);font-size:0.9em;" title="${c.email || ''}">${c.email || '—'}</span>
+                    <span style="font-weight:800;color:#fff;font-size:0.9em;" title="${c.email || ''}">${emailMasked}</span>
                 </div>
             </td>
             <td style="text-align:center;">
                 <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
                     <i class="fas fa-phone" style="color:#10b981;font-size:0.85em;"></i>
-                    <span style="font-weight:600;color:var(--text-primary);font-size:0.9em;direction:ltr;">${phoneDisplay}</span>
+                    <span style="font-weight:800;color:#fff;font-size:0.9em;direction:ltr;">${phoneDisplay}</span>
+                </div>
+            </td>
+            <td style="text-align:center;">
+                <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
+                    <i class="fas fa-globe" style="color:#f59e0b;font-size:0.85em;"></i>
+                    <span style="font-weight:800;color:#fff;font-size:0.9em;">${countryFinal}</span>
+                </div>
+            </td>
+            <td style="text-align:center;">
+                <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
+                    <i class="fas fa-network-wired" style="color:#6366f1;font-size:0.85em;"></i>
+                    <span style="font-weight:800;color:#fff;font-size:0.9em;direction:ltr;font-family:monospace;">${ipDisplay}</span>
                 </div>
             </td>
             <td style="text-align:center;">${orderBadge}</td>
             <td style="text-align:center;">
-                <span style="color:var(--text-secondary);font-size:0.85em;font-weight:600;">${dateStr}</span>
+                <span style="color:#fff;font-size:0.85em;font-weight:900;">${dateStr}</span>
             </td>
             <td style="text-align:center;">
                 <div style="display:flex;gap:8px;justify-content:center;">
@@ -5425,11 +5802,13 @@ window.viewCustomerDetails = async function(uid) {
     var _vcdLang = document.documentElement.lang || 'ar';
     var _vcdI18n = {
         customerNotFound: _vcdLang === 'ar' ? 'لم يتم العثور على بيانات العميل' : _vcdLang === 'en' ? 'Customer not found' : 'Client introuvable',
+        guestUser: _vcdLang === 'ar' ? 'عميل ضيف' : _vcdLang === 'en' ? 'Guest Customer' : 'Client invité',
         notSpecified: _vcdLang === 'ar' ? 'غير محدد' : _vcdLang === 'en' ? 'N/A' : 'N/A',
         name: _vcdLang === 'ar' ? 'الاسم:' : _vcdLang === 'en' ? 'Name:' : 'Nom:',
         email: _vcdLang === 'ar' ? 'البريد:' : _vcdLang === 'en' ? 'Email:' : 'E-mail:',
         phone: _vcdLang === 'ar' ? 'الهاتف:' : _vcdLang === 'en' ? 'Phone:' : 'Téléphone:',
         country: _vcdLang === 'ar' ? 'الدولة:' : _vcdLang === 'en' ? 'Country:' : 'Pays:',
+        ip: _vcdLang === 'ar' ? 'عنوان IP:' : _vcdLang === 'en' ? 'IP Address:' : 'Adresse IP:',
         registered: _vcdLang === 'ar' ? 'التسجيل:' : _vcdLang === 'en' ? 'Registered:' : 'Inscrit le:',
         orders: _vcdLang === 'ar' ? 'الطلبات' : _vcdLang === 'en' ? 'Orders' : 'Commandes',
         order: _vcdLang === 'ar' ? 'طلب' : _vcdLang === 'en' ? 'order' : 'commande',
@@ -5442,25 +5821,45 @@ window.viewCustomerDetails = async function(uid) {
         confirmed: _vcdLang === 'ar' ? 'مؤكد' : _vcdLang === 'en' ? 'Confirmed' : 'Confirmé',
         rejected: _vcdLang === 'ar' ? 'مرفوض' : _vcdLang === 'en' ? 'Rejected' : 'Rejeté',
         suspended: _vcdLang === 'ar' ? 'معلق' : _vcdLang === 'en' ? 'Suspended' : 'Suspendu',
+        guestLabel: _vcdLang === 'ar' ? 'ضيف (غير مسجل)' : _vcdLang === 'en' ? 'Guest (unregistered)' : 'Invité (non inscrit)',
         locale: _vcdLang === 'ar' ? 'ar-EG' : _vcdLang === 'en' ? 'en-US' : 'fr-FR'
     };
     try {
-        const uData = await DB.get(`users/${uid}`);
-        if (!uData) { showToast('❌', _vcdI18n.customerNotFound, 'error'); return; }
-
-        // Fetch user orders
+        let uData = await DB.get('users/' + uid);
         let userOrders = [];
-        try {
-            const ordersData = await DB.get('orders');
-            if (ordersData && typeof ordersData === 'object') {
-                for (const [oid, o] of Object.entries(ordersData)) {
-                    if (o && o.userId === uid) {
-                        userOrders.push({ id: oid, ...o });
-                    }
+        const ordersData = await DB.get('orders');
+        const matchedCustomer = (window._allCustomers || []).find(c => c.uid === uid);
+        const emailForMatch = (matchedCustomer?.email || uData?.email || '').toLowerCase();
+        const phoneForMatch = matchedCustomer?.phone || uData?.phone || '';
+        if (ordersData && typeof ordersData === 'object') {
+            for (const [oid, o] of Object.entries(ordersData)) {
+                if (!o) continue;
+                if (o.userId === uid) {
+                    userOrders.push({ id: oid, ...o });
+                } else if (emailForMatch && o.customerEmail && o.customerEmail.toLowerCase() === emailForMatch) {
+                    userOrders.push({ id: oid, ...o });
+                } else if (phoneForMatch && o.customerPhone && o.customerPhone === phoneForMatch) {
+                    userOrders.push({ id: oid, ...o });
                 }
             }
-        } catch(e) {}
-
+        }
+        if (!uData) {
+            if (matchedCustomer) {
+                uData = { name: matchedCustomer.name, email: matchedCustomer.email, phone: matchedCustomer.phone, country: matchedCustomer.country, ip: matchedCustomer.ip, avatar: matchedCustomer.avatar, createdAt: matchedCustomer.createdAt };
+            }
+        }
+        if (!uData) { showToast('❌', _vcdI18n.customerNotFound, 'error'); return; }
+        if (!uData.name && matchedCustomer?.name) uData.name = matchedCustomer.name;
+        if (!uData.name && userOrders.length > 0) {
+            for (const o of userOrders) { if (o.customerName) { uData.name = o.customerName; break; } }
+        }
+        if (!uData.name && uData.email) uData.name = uData.email.split('@')[0];
+        if (userOrders.length > 0 && (!uData.country || !uData.ip)) {
+            for (const o of userOrders) {
+                if (!uData.country && (o.userCountry || o.country)) uData.country = o.userCountry || o.country;
+                if (!uData.ip && (o.ip || o.customerIP)) uData.ip = o.ip || o.customerIP;
+            }
+        }
         const dt = uData.createdAt ? new Date(uData.createdAt) : null;
         const dateStr = dt && !isNaN(dt.getTime()) ? dt.toLocaleDateString(_vcdI18n.locale, { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
         const confirmedTotal = userOrders.filter(o => o.status === 'confirmed').reduce((s, o) => s + parseFloat(o.price || 0), 0);
@@ -5487,6 +5886,10 @@ window.viewCustomerDetails = async function(uid) {
         }
 
         const nameInitial = (uData.name || '?').charAt(0).toUpperCase();
+        const avatarSrc = uData.avatar || uData.photoURL || '';
+        const iconHtml = avatarSrc
+            ? '<img src="' + avatarSrc + '" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:3px solid rgba(147,51,234,0.3);" onerror="this.outerHTML=\'<div style=&quot;width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#ec4899);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:2em;margin:0 auto;&quot;>' + nameInitial + '</div>\'">'
+            : '<div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#ec4899);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:2em;margin:0 auto;">' + nameInitial + '</div>';
 
         const modal = document.getElementById('customModalOverlay');
         const icon = document.getElementById('modalIcon');
@@ -5494,22 +5897,43 @@ window.viewCustomerDetails = async function(uid) {
         const msg = document.getElementById('modalMessage');
         const btns = document.getElementById('modalButtons');
 
-        icon.innerHTML = '<div style="width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#ec4899);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:2em;margin:0 auto;">' + nameInitial + '</div>';
-        title.innerHTML = '<span style="color:var(--text-primary);">' + (uData.name || _vcdI18n.notSpecified) + '</span>';
-        msg.innerHTML = '<div style="text-align:start;font-size:0.92em;line-height:1.9;color:var(--text-secondary);direction:rtl;">' +
-            '<div style="display:grid;grid-template-columns:auto 1fr;gap:6px 16px;padding:14px;background:rgba(147,51,234,0.05);border-radius:12px;border:1px solid rgba(147,51,234,0.15);margin-bottom:12px;">' +
-            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-user"></i> ' + _vcdI18n.name + '</span><span style="font-weight:700;color:var(--text-primary);">' + (uData.name || '—') + '</span>' +
-            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-envelope"></i> ' + _vcdI18n.email + '</span><span style="font-weight:700;color:var(--text-primary);word-break:break-all;">' + (uData.email || '—') + '</span>' +
-            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-phone"></i> ' + _vcdI18n.phone + '</span><span style="font-weight:700;color:var(--text-primary);direction:ltr;">' + (uData.phone || '—') + '</span>' +
-            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-globe"></i> ' + _vcdI18n.country + '</span><span style="font-weight:700;color:var(--text-primary);">' + (uData.country || '—') + '</span>' +
-            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-calendar"></i> ' + _vcdI18n.registered + '</span><span style="font-weight:700;color:var(--text-primary);">' + dateStr + '</span>' +
-            '<span style="font-weight:900;color:var(--primary);"><i class="fas fa-shopping-cart"></i> ' + _vcdI18n.orders + ':</span><span style="font-weight:700;color:var(--text-primary);">' + userOrders.length + ' ' + _vcdI18n.order + ' (' + _vcdI18n.confirmedTotal + ' ' + confirmedTotal.toFixed(0) + ' EGP)</span>' +
-            '</div>' +
-            '<div style="padding:10px 14px;background:rgba(239,68,68,0.08);border-radius:10px;border:1px solid rgba(239,68,68,0.2);margin-top:10px;"><i class="fas fa-info-circle" style="color:#f87171;"></i> <strong style="color:#fca5a5;">' + _vcdI18n.note + '</strong> <span style="color:#fca5a5;">' + _vcdI18n.passwordNote + '</span></div>' +
-            ordersHtml +
-            '</div>';
-        btns.innerHTML = '<button onclick="document.getElementById(\'customModalOverlay\').classList.remove(\'active\')" style="padding:12px 30px;border-radius:12px;background:var(--gradient-primary);color:white;border:none;font-weight:800;cursor:pointer;font-size:1em;font-family:inherit;">' + _vcdI18n.close + '</button>';
+        icon.innerHTML = '';
+        icon.style.display = 'none';
+        title.innerHTML = '<div style="display:flex;align-items:center;gap:12px;">' + iconHtml + '<span style="color:var(--text-primary);font-size:1.15em;">' + (uData.name || _vcdI18n.guestUser) + '</span></div>';
+        const _cc = (uData.country || '').toUpperCase();
+        const _flagHtml = _cc ? '<img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/flags/4x3/' + _cc.toLowerCase() + '.svg" style="width:22px;height:16px;border-radius:3px;object-fit:cover;" onerror="this.style.display=\'none\'">' : '';
+        const _nameVal = uData.name || '—';
+        const _emailVal = uData.email || '—';
+        const _phoneVal = uData.phone || '—';
+        const _countryVal = _cc ? _flagHtml + '  ' + _cc : '—';
+        const _ipVal = uData.ip || '—';
+        const _dateVal = dateStr;
+
+        function _detailRow(icon, iconColor, label, value) {
+            return '<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--card-bg);border-radius:8px;border:1px solid var(--border-color);">' +
+                '<div style="width:28px;height:28px;border-radius:8px;background:' + iconColor + '15;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas ' + icon + '" style="color:' + iconColor + ';font-size:0.75em;"></i></div>' +
+                '<div style="flex:1;min-width:0;">' +
+                    '<div style="font-size:0.68em;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:1px;">' + label + '</div>' +
+                    '<div style="font-weight:900;font-size:0.88em;color:#fff;word-break:break-word;direction:ltr;text-align:start;">' + value + '</div>' +
+                '</div></div>';
+        }
+
+        msg.innerHTML = `
+        <div style="text-align:start;font-size:0.9em;color:var(--text-secondary);direction:rtl;max-height:60vh;overflow-y:auto;padding:2px;">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+                ${_detailRow('fa-user', '#9333ea', _vcdI18n.name, _nameVal)}
+                ${_detailRow('fa-envelope', '#9333ea', _vcdI18n.email, '<span style="word-break:break-all;">' + _emailVal + '</span>')}
+                ${_detailRow('fa-phone', '#9333ea', _vcdI18n.phone, _phoneVal)}
+                ${_detailRow('fa-globe', '#f59e0b', _vcdI18n.country, '<span style="display:inline-flex;align-items:center;gap:6px;">' + _countryVal + '</span>')}
+                ${_detailRow('fa-network-wired', '#6366f1', _vcdI18n.ip, '<span style="font-family:monospace;">' + _ipVal + '</span>')}
+                ${_detailRow('fa-calendar', '#10b981', _vcdI18n.registered, '<span style="font-weight:900;color:#fff;">' + _dateVal + '</span>')}
+                ${_detailRow('fa-shopping-cart', '#9333ea', _vcdI18n.orders, '<span style="font-weight:900;color:#fff;">' + userOrders.length + ' ' + _vcdI18n.order + '</span> <span style="color:#fff;font-size:0.82em;opacity:0.8;">(' + _vcdI18n.confirmedTotal + ' ' + confirmedTotal.toFixed(0) + ' EGP)</span>')}
+            </div>
+            ${ordersHtml}
+        </div>`;
+        btns.innerHTML = '<button onclick="document.getElementById(\'customModalOverlay\').classList.remove(\'active\')" style="padding:10px 28px;border-radius:10px;background:var(--gradient-primary);color:white;border:none;font-weight:800;cursor:pointer;font-size:0.95em;font-family:inherit;">' + _vcdI18n.close + '</button>';
         modal.classList.add('active');
+        modal.onclick = function(e) { if (e.target === modal) modal.classList.remove('active'); };
     } catch(e) {
         console.error('viewCustomerDetails error:', e);
         showToast('❌', _vcdI18n.errorLoading, 'error');
@@ -5629,33 +6053,32 @@ function initAddProductForm() {
                 const url = r.display_url || r.url;
                 productImages.push(url);
                 renderImagePreviews();
-                showToast('✅', currentLang === 'ar' ? 'تم رفع الصورة' : currentLang === 'en' ? 'Image uploaded' : 'Image téléchargée', 'success');
+                _showFormNotification('addProductForm', 'success', currentLang === 'ar' ? '✅ تم رفع الصورة بنجاح' : currentLang === 'en' ? '✅ Image uploaded successfully' : '✅ Image téléchargée avec succès');
             } catch (e) {
-                showToast('❌', 'Upload failed', 'error');
+                _showFormNotification('addProductForm', 'error', currentLang === 'ar' ? '❌ فشل رفع الصورة' : currentLang === 'en' ? '❌ Upload failed' : '❌ Échec du téléchargement');
             }
             this.value = '';
         });
     }
 
-    // Video file upload
-    const videoFileInput = document.getElementById('productVideoFileInput');
-    const videoUrlInput = document.getElementById('productVideoUrl');
+    var videoFileInput = document.getElementById('productVideoFileInput');
+    var videoUrlInput = document.getElementById('productVideoUrl');
     if (videoFileInput) {
         videoFileInput.addEventListener('change', async function () {
-            const f = this.files[0];
+            var f = this.files[0];
             if (!f) return;
-            if (f.size > 50 * 1024 * 1024) {
-                showToast('❌', currentLang === 'ar' ? 'الحد الأقصى 50 ميجابايت' : currentLang === 'en' ? 'Max 50MB' : 'Max 50 Mo', 'error');
+            if (f.size > 100 * 1024 * 1024) {
+                _showFormNotification('addProductForm', 'error', currentLang === 'ar' ? '❌ الحد الأقصى 100 ميجابايت' : currentLang === 'en' ? '❌ Max 100MB' : '❌ Max 100 Mo');
                 this.value = '';
                 return;
             }
             try {
-                const r = await uploadToImgBB(f);
-                const url = r.display_url || r.url;
+                var url = await uploadVideoToFirebase(f);
                 if (videoUrlInput) videoUrlInput.value = url;
-                showToast('✅', currentLang === 'ar' ? 'تم رفع الفيديو' : currentLang === 'en' ? 'Video uploaded' : 'Vidéo téléchargée', 'success');
+                _showFormNotification('addProductForm', 'success', currentLang === 'ar' ? '✅ تم رفع الفيديو بنجاح' : currentLang === 'en' ? '✅ Video uploaded successfully' : '✅ Vidéo téléchargée avec succès');
             } catch (e) {
-                showToast('❌', 'Upload failed', 'error');
+                console.error('Video upload failed:', e);
+                _showFormNotification('addProductForm', 'error', currentLang === 'ar' ? '❌ فشل رفع الفيديو' : currentLang === 'en' ? '❌ Video upload failed' : '❌ Échec du téléchargement');
             }
             this.value = '';
         });
@@ -6222,31 +6645,30 @@ function initEditForms() {
                     window.__editImages = window.__editImages || [];
                     window.__editImages.push(newUrl);
                     renderEditImagePreviews();
-                    showToast('✅', currentLang === 'ar' ? 'تم رفع الصورة' : currentLang === 'en' ? 'Uploaded' : 'Téléchargé', 'success');
-                } catch (e) { showToast('❌', 'Upload failed', 'error'); }
+                    _showFormNotification('editProductForm', 'success', currentLang === 'ar' ? '✅ تم رفع الصورة بنجاح' : currentLang === 'en' ? '✅ Image uploaded successfully' : '✅ Image téléchargée avec succès');
+                } catch (e) { _showFormNotification('editProductForm', 'error', currentLang === 'ar' ? '❌ فشل رفع الصورة' : currentLang === 'en' ? '❌ Upload failed' : '❌ Échec du téléchargement'); }
                 this.value = '';
             });
         }
 
-        // Edit video file upload
-        const editVideoFileInput = document.getElementById('editProductVideoFileInput');
-        const editVideoUrlInput = document.getElementById('editProductVideoUrl');
+        var editVideoFileInput = document.getElementById('editProductVideoFileInput');
+        var editVideoUrlInput = document.getElementById('editProductVideoUrl');
         if (editVideoFileInput) {
             editVideoFileInput.addEventListener('change', async function () {
-                const f = this.files[0];
+                var f = this.files[0];
                 if (!f) return;
-                if (f.size > 50 * 1024 * 1024) {
-                    showToast('❌', currentLang === 'ar' ? 'الحد الأقصى 50 ميجابايت' : currentLang === 'en' ? 'Max 50MB' : 'Max 50 Mo', 'error');
+                if (f.size > 100 * 1024 * 1024) {
+                    _showFormNotification('editProductForm', 'error', currentLang === 'ar' ? '❌ الحد الأقصى 100 ميجابايت' : currentLang === 'en' ? '❌ Max 100MB' : '❌ Max 100 Mo');
                     this.value = '';
                     return;
                 }
                 try {
-                    const r = await uploadToImgBB(f);
-                    const url = r.display_url || r.url;
+                    var url = await uploadVideoToFirebase(f);
                     if (editVideoUrlInput) editVideoUrlInput.value = url;
-                    showToast('✅', currentLang === 'ar' ? 'تم رفع الفيديو' : currentLang === 'en' ? 'Video uploaded' : 'Vidéo téléchargée', 'success');
+                    _showFormNotification('editProductForm', 'success', currentLang === 'ar' ? '✅ تم رفع الفيديو بنجاح' : currentLang === 'en' ? '✅ Video uploaded successfully' : '✅ Vidéo téléchargée avec succès');
                 } catch (e) {
-                    showToast('❌', 'Upload failed', 'error');
+                    console.error('Video upload failed:', e);
+                    _showFormNotification('editProductForm', 'error', currentLang === 'ar' ? '❌ فشل رفع الفيديو' : currentLang === 'en' ? '❌ Video upload failed' : '❌ Échec du téléchargement');
                 }
                 this.value = '';
             });
@@ -7432,17 +7854,17 @@ window.renderCartPage = function() {
         const catKey = full.category || item.category || '';
         const catName = APP_CONFIG.categories[lang]?.[catKey] || full.categoryName || item.categoryName || catKey;
         const catEmoji = catEmojis[catKey] || '📦';
-        const desc = (full.description || item.description || '').substring(0, 120);
+        const desc = (getProductText(full, 'description', lang) || getProductText(item, 'description', lang) || '').substring(0, 120);
         const hasOldPrice = oldPrice > price;
         const saveAmount = hasOldPrice ? (oldPrice - price) * qty : 0;
-        const badges = generateBadges ? generateBadges(full) : '';
+        const badges = generateBadges ? generateBadges(full, lang) : '';
         html += `
             <div class="cart-item reveal">
                 <div class="item-image-wrap"><div class="item-image" style="cursor:pointer;" onclick="window.location.href='product-details.html?id=${item.id}'">${item.image ? `<img src="${item.image}" alt="${item.title}">` : `<i class="fas ${full.icon||item.icon||'fa-box'}"></i>`}</div>${badges}</div>
                 <div class="item-details">
                     <div class="item-header">
                         <div class="item-header-left">
-                            <h3 class="item-title">${item.title}</h3>
+                            <h3 class="item-title">${getProductText(full, 'title', lang) || item.title}</h3>
                             <span class="item-category">${catEmoji} ${catName}</span>
                         </div>
                     </div>
@@ -7655,19 +8077,21 @@ window.renderWishlistPage = function() {
 
 window.addAllToCart = function() {
     if (userWishlist.length === 0) return;
+    var _wlLang = currentLang || 'ar';
     let count = 0;
     userWishlist.forEach(item => { if (!isInCart(item.id)) { addToCart(item.id); count++; } });
-    if(count > 0) showToast('✅', `تم إضافة ${count} منتج للسلة`, 'success');
-    else showToast('ℹ️', 'جميع المنتجات موجودة في السلة بالفعل', 'info');
+    if(count > 0) showToast('✅', _wlLang==='ar'?'تم إضافة '+count+' منتج للسلة':_wlLang==='en'?count+' products added to cart':count+' produits ajoutés au panier', 'success');
+    else showToast('ℹ️', _wlLang==='ar'?'جميع المنتجات موجودة في السلة بالفعل':_wlLang==='en'?'All products already in cart':'Tous les produits déjà dans le panier', 'info');
 };
 
 window.clearWishlistLocal = async function() {
-    if (!confirm('⚠️ هل أنت متأكد من مسح جميع المنتجات من المفضلة؟')) return;
+    var _wlLang = currentLang || 'ar';
+    if (!confirm(_wlLang==='ar'?'⚠️ هل أنت متأكد من مسح جميع المنتجات من المفضلة؟':_wlLang==='en'?'⚠️ Are you sure you want to clear all wishlist items?':'⚠️ Voulez-vous vraiment vider la liste ?')) return;
     userWishlist = [];
     if (currentUser) await DB.remove(`wishlists/${currentUser.uid}`);
     localStorage.setItem(STORAGE_KEYS.wishlist, '[]');
     renderWishlistPage(); updateWishlistBadge(); loadWishlistDropdown();
-    showToast('✅', 'تم مسح المفضلة', 'success');
+    showToast('✅', _wlLang==='ar'?'تم مسح المفضلة':_wlLang==='en'?'Wishlist cleared':'Liste vidée', 'success');
 };
 
 // --- 📦 صفحة الطلبات (Orders) ---
@@ -8372,7 +8796,10 @@ window.handleUserLogin = async function(e) {
     
     try {
         const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
-        await signInWithEmailAndPassword(auth, email, pass);
+        const loginCred = await signInWithEmailAndPassword(auth, email, pass);
+        const visitorInfo = await getVisitorInfo();
+        try { if (loginCred.user?.uid) await DB.set('users/' + loginCred.user.uid + '/ip', visitorInfo.ip); } catch(e) {}
+        try { if (loginCred.user?.uid) await DB.set('users/' + loginCred.user.uid + '/country', visitorInfo.country); } catch(e) {}
         showToast('✅', 'تم تسجيل الدخول بنجاح', 'success');
         setTimeout(() => window.location.href = sessionStorage.getItem('redirectAfterLogin') || 'index.html', 1000);
     } catch (error) {
@@ -8410,7 +8837,8 @@ window.handleUserRegister = async function(e) {
         const { createUserWithEmailAndPassword, updateProfile } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
         await updateProfile(cred.user, { displayName: name });
-        await DB.set(`users/${cred.user.uid}`, { uid: cred.user.uid, name, email, phone, createdAt: Date.now() });
+        const visitorInfo = await getVisitorInfo();
+        await DB.set(`users/${cred.user.uid}`, { uid: cred.user.uid, name, email, phone, createdAt: Date.now(), ip: visitorInfo.ip, country: visitorInfo.country, avatar: '' });
         showToast('✅', 'تم إنشاء الحساب بنجاح', 'success');
         setTimeout(() => window.location.href = 'index.html', 1000);
     } catch (error) {
@@ -8531,8 +8959,8 @@ async function saveAuthUserToDatabase(user) {
     try {
         const userRef = `users/${user.uid}`;
         const existingData = await DB.get(userRef);
-        const userData = { uid: user.uid, email: user.email, displayName: user.displayName || user.email?.split('@')[0] || 'User', photoURL: existingData?.photoURL || user.photoURL || '', emailVerified: user.emailVerified, provider: user.providerData?.[0]?.providerId || 'unknown', createdAt: existingData?.createdAt || Date.now(), lastLogin: Date.now(), wishlist: existingData?.wishlist || {}, cart: existingData?.cart || {}, orders: existingData?.orders || {}, metadata: { userAgent: navigator.userAgent, language: navigator.language, platform: navigator.platform } };
-        await DB.set(userRef, userData);
+        const userData = { uid: user.uid, email: user.email, displayName: existingData?.name || user.displayName || user.email?.split('@')[0] || 'User', photoURL: existingData?.photoURL || user.photoURL || '', emailVerified: user.emailVerified, provider: user.providerData?.[0]?.providerId || 'unknown', createdAt: existingData?.createdAt || Date.now(), lastLogin: Date.now(), name: existingData?.name || user.displayName || '', phone: existingData?.phone || '', ip: existingData?.ip || '', country: existingData?.country || '', avatar: existingData?.avatar || existingData?.photoURL || user.photoURL || '', wishlist: existingData?.wishlist || {}, cart: existingData?.cart || {}, orders: existingData?.orders || {}, metadata: existingData?.metadata || { userAgent: navigator.userAgent, language: navigator.language, platform: navigator.platform } };
+        await DB.update(userRef, userData);
         return userData;
     } catch (error) { console.error('DB save error:', error); return { uid: user.uid, email: user.email, displayName: user.displayName || 'User', photoURL: user.photoURL || '', emailVerified: true }; }
 }

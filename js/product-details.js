@@ -78,7 +78,7 @@ async function loadAllProducts() {
         console.warn('⚠️ Database not available, loading from localStorage');
         const localData = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
         if (localData.products) {
-            allProducts = Object.entries(localData.products).map(([id, data]) => ({ ...data, id }));
+            allProducts = Object.entries(localData.products).map(([id, data]) => ({ ...data, id })).filter(x => x && typeof x === 'object' && x.title && x.status !== 'trashed');
         }
         return allProducts;
     }
@@ -89,7 +89,7 @@ async function loadAllProducts() {
             allProducts = Object.entries(productsData).map(([id, data]) => ({
                 ...data,
                 id: id
-            }));
+            })).filter(x => x && typeof x === 'object' && x.title && x.status !== 'trashed');
             console.log('✅ All products loaded:', allProducts.length);
             return allProducts;
         } else {
@@ -218,6 +218,8 @@ function displayProduct() {
     if (loadingEl) loadingEl.style.display = 'none';
     if (contentEl) contentEl.style.display = '';
 
+    var lang = window.currentLang || document.documentElement.lang || 'ar';
+
     const categoryNames = {
         ar: { books: 'كتب إلكترونية', excel: 'ملفات Excel', bundles: 'باقات شاملة' },
         en: { books: 'E-Books', excel: 'Excel Files', bundles: 'Bundles' }
@@ -300,7 +302,7 @@ function displayProduct() {
 
         if (currentImages.length > 0) {
             var mainSrc = currentImages[currentImageIndex];
-            var badgesHtml = (typeof window.generateBadges === 'function') ? window.generateBadges(currentProduct) : '';
+            var badgesHtml = (typeof window.generateBadges === 'function') ? window.generateBadges(currentProduct, lang) : '';
             mainImageContainer.innerHTML = `
                 ${badgesHtml}
                 <img src="${mainSrc}" alt="${_pdText('title')}" class="main-image" id="mainImage">
@@ -326,7 +328,7 @@ function displayProduct() {
             }
         } else {
             const icon = currentProduct.icon || categoryIcons[currentProduct.category] || 'fa-box';
-            var badgesHtml = (typeof window.generateBadges === 'function') ? window.generateBadges(currentProduct) : '';
+            var badgesHtml = (typeof window.generateBadges === 'function') ? window.generateBadges(currentProduct, lang) : '';
             mainImageContainer.innerHTML = `
                 ${badgesHtml}
                 <i class="fas ${icon} image-placeholder"></i>
@@ -345,17 +347,21 @@ function displayProduct() {
     // Show video if present
     var videoSection = document.getElementById('productVideoSection');
     if (currentProduct.video && currentProduct.video.trim()) {
+        var videoUrl = currentProduct.video.trim();
         var videoId = '';
-        var vMatch = currentProduct.video.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+        var vMatch = videoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/);
         if (vMatch) videoId = vMatch[1];
-        if (videoId) {
-            if (videoSection) {
-                videoSection.style.display = 'block';
-                var videoFrame = videoSection.querySelector('iframe');
-                if (videoFrame) videoFrame.src = 'https://www.youtube.com/embed/' + videoId;
+
+        if (videoSection) {
+            videoSection.style.display = 'block';
+            var wrapper = videoSection.querySelector('.video-wrapper');
+            if (wrapper) {
+                if (videoId) {
+                    wrapper.innerHTML = '<iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + videoId + '" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>';
+                } else {
+                    wrapper.innerHTML = '<video style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000;" controls src="' + videoUrl + '"></video>';
+                }
             }
-        } else if (videoSection) {
-            videoSection.style.display = 'none';
         }
     } else if (videoSection) {
         videoSection.style.display = 'none';
@@ -370,8 +376,8 @@ function displayProduct() {
     syncHeaderBadges();
     setTimeout(function(){ updateWishlistStatus(); updateCartStatus(); syncHeaderBadges(); }, 1500);
 
+    loadRelatedProducts();
 
-    // Populate dynamic tabs
     populateProductTabs();
 
     // Apply language
@@ -508,7 +514,12 @@ function positionPdBadges(img) {
     var renderW = natW * scale, renderH = natH * scale;
     var offsetX = (cr.width - renderW) / 2, offsetY = (cr.height - renderH) / 2;
     var imgTop = cr.top + offsetY, imgRight = cr.right - offsetX;
-    bc.style.cssText = 'position:absolute!important;top:'+(imgTop-cr.top)+'px!important;right:'+(cr.right-imgRight)+'px!important;left:auto!important;z-index:10!important';
+    var isRtl = document.documentElement.dir === 'rtl' || document.documentElement.lang === 'ar';
+    if (isRtl) {
+        bc.style.cssText = 'position:absolute!important;top:'+(imgTop-cr.top)+'px!important;right:'+(cr.right-imgRight)+'px!important;left:auto!important;z-index:10!important';
+    } else {
+        bc.style.cssText = 'position:absolute!important;top:'+(imgTop-cr.top)+'px!important;left:'+(cr.right-imgRight)+'px!important;right:auto!important;z-index:10!important';
+    }
 }
 
 // ==================== CHECK WISHLIST / CART STATUS ====================
@@ -688,27 +699,23 @@ async function loadRelatedProducts() {
             
             if (relatedSection && relatedGrid) {
                 relatedSection.style.display = 'block';
+                var lang = window.currentLang || document.documentElement.lang || 'ar';
+                var uc = localStorage.getItem('userCountry') || 'EG';
+                relatedGrid.className = 'products-grid';
 
-                relatedGrid.innerHTML = relatedProducts.map(product => {
-                    const price = typeof getProductPrice === 'function' ? getProductPrice(product) : (product.priceEGP || 0);
-                    const currency = typeof getUserCurrency === 'function' ? getUserCurrency().symbol : (currentLang === 'ar' ? 'جنيه' : currentLang === 'en' ? 'EGP' : 'EGP');
-                    const hasDiscount = product.oldPrice && (typeof getProductOldPrice === 'function' ? getProductOldPrice(product) : 0) > price;
-                    var rlTitle = typeof window.getProductText === 'function' ? window.getProductText(product, 'title', currentLang) : (typeof product.title === 'string' ? product.title : product.title?.ar || '');
-                    
-                    return `
-                        <div class="related-card" onclick="window.location.href='product-details.html?id=${product.id}'">
-                            ${hasDiscount ? '<div class="related-badge">خصم</div>' : ''}
-                            <div class="related-image">
-                                ${product.image 
-                                    ? `<img src="${product.image}" alt="${rlTitle}">` 
-                                    : `<i class="fas ${product.icon || 'fa-box'}" style="font-size: 4em; color: var(--primary);"></i>`
-                                }
-                            </div>
-                            <h3 class="related-title">${rlTitle}</h3>
-                            <div class="related-price">${price} ${currency}</div>
-                        </div>
-                    `;
-                }).join('');
+                if (typeof window.generateProductCardHTML === 'function') {
+                    relatedGrid.innerHTML = relatedProducts.map(function(product, i) {
+                        return window.generateProductCardHTML(product, i, { lang: lang, userCountry: uc });
+                    }).join('');
+                } else {
+                    relatedGrid.innerHTML = relatedProducts.map(function(product) {
+                        var rlTitle = typeof window.getProductText === 'function' ? window.getProductText(product, 'title', lang) : '';
+                        return '<div class="related-card" onclick="window.location.href=\'product-details.html?id=' + product.id + '\'">' +
+                            '<div class="related-image">' + (product.image ? '<img src="' + product.image + '" alt="' + rlTitle + '">' : '<i class="fas ' + (product.icon || 'fa-box') + '" style="font-size:4em;color:var(--primary)"></i>') + '</div>' +
+                            '<h3 class="related-title">' + rlTitle + '</h3></div>';
+                    }).join('');
+                }
+                setTimeout(function(){ if (typeof window.revealDynamicContent === 'function') window.revealDynamicContent(); }, 50);
             }
         }
     } catch (error) {
@@ -1030,6 +1037,7 @@ window.toggleLanguage = function() {
 
 function applyLanguage() {
     document.querySelectorAll('[data-ar]').forEach(element => {
+        if (element.id === 'productTitle' || element.id === 'fullDescription' || element.id === 'breadcrumbProduct' || element.id === 'breadcrumbCategoryText' || element.id === 'productDescription') return;
         element.textContent = element.getAttribute(`data-${currentLang}`);
     });
     
@@ -1087,20 +1095,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     await waitForFirebase();
     await detectUserLocation();
     await loadProduct();
-    if (currentProduct && window.currentLang !== 'ar') {
-        if (typeof window.autoTranslateProducts === 'function') {
-            await window.autoTranslateProducts(window.currentLang);
-        }
-        if (typeof window._translateProductField === 'function') {
-            await window._translateProductField(currentProduct, 'title', window.currentLang);
-            await window._translateProductField(currentProduct, 'description', window.currentLang);
-        }
-        if (typeof window._translateProductArrayField === 'function') {
-            await window._translateProductArrayField(currentProduct, 'features', window.currentLang);
-            await window._translateProductArrayField(currentProduct, 'requirements', window.currentLang);
-            await window._translateProductArrayField(currentProduct, 'faq', window.currentLang);
-        }
-    }
     if (currentProduct) displayProduct();
     applyLanguage();
     if (auth && auth.currentUser) {
@@ -1108,7 +1102,34 @@ window.addEventListener('DOMContentLoaded', async () => {
     } else {
         if (typeof updateUIForGuest === 'function') updateUIForGuest();
     }
-    // Re-apply dynamic breadcrumb after applyLanguage (which overwrites data-ar content)
+    if (currentProduct && window.currentLang !== 'ar') {
+        if (typeof window._translateTextArTo === 'function') {
+            var titleAr = typeof currentProduct.title === 'object' ? (currentProduct.title?.ar || '') : (typeof currentProduct.title === 'string' ? currentProduct.title : '');
+            var descAr = typeof currentProduct.description === 'object' ? (currentProduct.description?.ar || '') : (typeof currentProduct.description === 'string' ? currentProduct.description : '');
+            if (titleAr && _isArabic(titleAr)) {
+                var newTitleEn = await _translateTextArTo(titleAr, 'en');
+                var newTitleFr = await _translateTextArTo(titleAr, 'fr');
+                if (typeof currentProduct.title === 'object') {
+                    if (newTitleEn) currentProduct.title.en = newTitleEn;
+                    if (newTitleFr) currentProduct.title.fr = newTitleFr;
+                } else {
+                    currentProduct.title = { ar: titleAr, en: newTitleEn || titleAr, fr: newTitleFr || titleAr };
+                }
+            }
+            if (descAr && _isArabic(descAr)) {
+                var newDescEn = await _translateTextArTo(descAr, 'en');
+                var newDescFr = await _translateTextArTo(descAr, 'fr');
+                if (typeof currentProduct.description === 'object') {
+                    if (newDescEn) currentProduct.description.en = newDescEn;
+                    if (newDescFr) currentProduct.description.fr = newDescFr;
+                } else {
+                    currentProduct.description = { ar: descAr, en: newDescEn || descAr, fr: newDescFr || descAr };
+                }
+            }
+        }
+        displayProduct();
+        loadRelatedProducts();
+    }
     if (currentProduct) {
         var _bp = document.getElementById('breadcrumbProduct');
         if (_bp) _bp.textContent = _pdText('title');

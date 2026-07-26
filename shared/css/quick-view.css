@@ -88,7 +88,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: all 0.3s ease;
     z-index: 100;
     line-height: 1;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
@@ -98,17 +98,12 @@
 .qv-close-btn:hover {
     background: rgba(239, 68, 68, 0.85);
     border-color: rgba(239, 68, 68, 0.5);
-    transform: rotate(90deg) scale(1.1);
+    transform: scale(1.1);
     box-shadow: 0 6px 25px rgba(239, 68, 68, 0.5);
 }
 
 .qv-close-btn:active {
-    transform: rotate(90deg) scale(0.95);
-}
-
-body[dir="rtl"] .qv-close-btn {
-    left: auto;
-    right: 16px;
+    transform: scale(0.95);
 }
 .qv-image-section {
     display: flex;
@@ -119,15 +114,25 @@ body[dir="rtl"] .qv-close-btn {
     overflow: hidden;
     min-height: 320px;
     border: 2px solid var(--border-color);
-    transition: box-shadow 0.4s ease;
     padding: 0;
+    transition: border-color 0.4s ease, outline-color 0.4s ease, box-shadow 0.4s ease;
+    outline: 3px solid transparent;
+    outline-offset: 0;
+}
+
+.qv-image-section:hover {
+    border-color: var(--primary);
+    outline-color: rgba(147, 51, 234, 0.5);
+    box-shadow: 0 0 50px rgba(147, 51, 234, 0.35), 0 0 80px rgba(147, 51, 234, 0.12);
 }
 
 .qv-image-wrap { 
     position: relative;
-    display: inline-block; 
-    max-width: 460px;
-    transition: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 }
 
 .qv-image-wrap .badge-column { 
@@ -150,27 +155,11 @@ body[dir="rtl"] .qv-image-wrap .badge-column {
     width: 100%;
     height: auto;
     display: block;
-    transition: none;
-    transform: none;
+    transition: transform 0.5s ease;
 }
 
-.qv-image-wrap { 
-    position: relative; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    width: 100%; 
-    height: 100%;
-    transition: none;
-}
-
-.qv-image-section:hover .qv-image-wrap {
-    transform: scale(1) !important;
-}
-
-.qv-image-section:hover {
-    box-shadow: inset 0 0 60px rgba(147, 51, 234, 0.25);
-    border-color: var(--primary);
+.qv-image-section:hover .qv-image-wrap img {
+    transform: scale(1.08);
 }
 
 .qv-icon-placeholder {
@@ -200,7 +189,7 @@ body[dir="rtl"] .qv-image-wrap .badge-column {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition: all 0.3s ease;
     z-index: 5;
 }
 
@@ -212,7 +201,7 @@ body[dir="rtl"] .qv-wishlist-btn {
 .qv-wishlist-btn:hover {
     background: rgba(239, 68, 68, 0.9);
     border-color: #ef4444;
-    transform: scale(1.15);
+    transform: scale(1.1);
 }
 
 .qv-wishlist-btn.active {
@@ -228,12 +217,6 @@ body[dir="rtl"] .qv-wishlist-btn {
 .qv-image-section img {
     max-width: 95%; 
     max-height: 95%;
-    transition: none;
-    transform: none;
-}
-
-.qv-image-section:hover img {
-    transform: none !important;
 }
 
 .qv-details-section {
@@ -597,9 +580,6 @@ body[dir="rtl"] .qv-wishlist-btn {
         top: 12px; left: 12px;
         width: 38px; height: 38px;
         font-size: 1em;
-    }
-    body[dir="rtl"] .qv-close-btn {
-        left: auto; right: 12px;
     }
     .qv-btn-cart, .qv-btn-buy, .qv-btn-details {
         padding: 12px 16px;

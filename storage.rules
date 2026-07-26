@@ -10,6 +10,14 @@ service firebase.storage {
                    && request.resource.contentType.matches('image/(jpeg|jpg|png|gif|webp|bmp)');
       allow delete: if true;
     }
+
+    // Product Videos - فيديو المنتجات
+    match /videos/{videoId} {
+      allow read: if true;
+      allow write: if request.resource.size < 200 * 1024 * 1024
+                   && request.resource.contentType.matches('video/.*');
+      allow delete: if true;
+    }
     
     // Orders/Transfer Proofs - إيصالات التحويل
     match /orders/{imageId} {

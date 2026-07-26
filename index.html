@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -56,7 +56,7 @@
     <link rel="stylesheet" href="shared/css/toast.css?v=5">
     <link rel="stylesheet" href="shared/css/header.css?v=23">
     <link rel="stylesheet" href="shared/css/footer.css?v=10">
-    <link rel="stylesheet" href="shared/css/quick-view.css?v=22">
+    <link rel="stylesheet" href="shared/css/quick-view.css?v=23">
     <link rel="stylesheet" href="shared/css/components.css?v=9">
     <style>
 /* ╔══════════════════════════════════════════════════════════════════════════════════╗
@@ -883,27 +883,22 @@ body.light-mode .quick-view-modal {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    z-index: 100;
+    transition: all 0.3s ease;
+    z-index: 200;
     line-height: 1;
     box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
     font-family: inherit;
 }
 
-body[dir="rtl"] .qv-close-btn {
-    left: auto;
-    right: 12px;
-}
-
 .qv-close-btn:hover {
     background: linear-gradient(135deg, #dc2626, #b91c1c);
-    transform: rotate(90deg) scale(1.15);
+    transform: scale(1.1);
     box-shadow: 0 6px 25px rgba(239, 68, 68, 0.6);
     border-color: rgba(255, 255, 255, 0.4);
 }
 
 .qv-close-btn:active {
-    transform: rotate(90deg) scale(0.95);
+    transform: scale(0.95);
 }
 
 /* ════════════════════════════════════════
@@ -918,13 +913,29 @@ body[dir="rtl"] .qv-close-btn {
     border-radius: 22px 0 0 22px;
     overflow: hidden;
     min-height: 320px;
-    border-right: 2px solid var(--border-color);
+    border: 2px solid var(--border-color);
+    padding: 0;
+    transition: border-color 0.4s ease, outline-color 0.4s ease, box-shadow 0.4s ease;
+    outline: 3px solid transparent;
+    outline-offset: 0;
+}
+
+.qv-image-section:hover {
+    border-color: var(--primary);
+    outline-color: rgba(147, 51, 234, 0.5);
+    box-shadow: 0 0 50px rgba(147, 51, 234, 0.35), 0 0 80px rgba(147, 51, 234, 0.12);
 }
 
 body[dir="rtl"] .qv-image-section {
     border-radius: 0 22px 22px 0;
-    border-right: none;
-    border-left: 2px solid var(--border-color);
+}
+
+.qv-image-section .qv-image-wrap {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .qv-image-section img {
@@ -932,11 +943,11 @@ body[dir="rtl"] .qv-image-section {
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.5s ease;
 }
 
-.qv-image-section img:hover {
-    transform: scale(1.06);
+.qv-image-section:hover img {
+    transform: scale(1.08);
 }
 
 .qv-icon-placeholder {
@@ -965,7 +976,7 @@ body[dir="rtl"] .qv-image-section {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition: all 0.3s ease;
     z-index: 5;
 }
 
@@ -977,7 +988,7 @@ body[dir="rtl"] .qv-wishlist-btn {
 .qv-wishlist-btn:hover {
     background: rgba(239, 68, 68, 0.9);
     border-color: #ef4444;
-    transform: scale(1.15);
+    transform: scale(1.1);
 }
 
 .qv-wishlist-btn.active {
@@ -1379,11 +1390,6 @@ body[dir="rtl"] .qv-wishlist-btn {
         width: 42px;
         height: 42px;
         font-size: 1.15em;
-    }
-
-    body[dir="rtl"] .qv-close-btn {
-        left: auto;
-        right: 10px;
     }
 
     .qv-btn-cart,
@@ -2257,7 +2263,7 @@ body[dir="rtl"] .qv-wishlist-btn {
 
     <!-- Main JavaScript -->
     <script src="js/include.js?v=21"></script>
-    <script src="js/app.js?v=20260724k"></script>
+    <script src="js/app.js?v=20260726t"></script>
     <script>
 document.addEventListener('DOMContentLoaded', function () {
     var heroHeadline = document.querySelector('.hero-headline');

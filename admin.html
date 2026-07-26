@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -979,9 +979,12 @@
                                 <thead>
                                     <tr>
                                         <th style="text-align:center;">#</th>
+                                        <th style="text-align:center;"><span data-ar="الصورة" data-en="Avatar" data-fr="Photo">الصورة</span></th>
                                         <th style="text-align:center;"><span data-ar="الاسم" data-en="Name" data-fr="Nom">الاسم</span></th>
                                         <th style="text-align:center;"><span data-ar="البريد الإلكتروني" data-en="Email" data-fr="Email">البريد الإلكتروني</span></th>
                                         <th style="text-align:center;"><span data-ar="رقم الهاتف" data-en="Phone" data-fr="Téléphone">رقم الهاتف</span></th>
+                                        <th style="text-align:center;"><span data-ar="الدولة" data-en="Country" data-fr="Pays">الدولة</span></th>
+                                        <th style="text-align:center;"><span data-ar="IP" data-en="IP" data-fr="IP">IP</span></th>
                                         <th style="text-align:center;"><span data-ar="الطلبات" data-en="Orders" data-fr="Commandes">الطلبات</span></th>
                                         <th style="text-align:center;"><span data-ar="تاريخ التسجيل" data-en="Registration Date" data-fr="Date d'inscription">تاريخ التسجيل</span></th>
                                         <th style="text-align:center;"><span data-ar="إجراءات" data-en="Actions" data-fr="Actions">إجراءات</span></th>
@@ -1372,14 +1375,14 @@
                                 <span data-ar="فيديو المنتج" data-en="Product Video" data-fr="Vidéo du produit">فيديو المنتج</span>
                             </label>
                             <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-                                <input type="url" id="editProductVideoUrl" style="flex:2;min-width:200px;" data-ar-placeholder="رابط YouTube (اختياري)" data-en-placeholder="YouTube URL (optional)" placeholder="https://www.youtube.com/watch?v=...">
+                                <input type="url" id="editProductVideoUrl" style="flex:2;min-width:200px;" data-ar-placeholder="رابط YouTube أو رابط مباشر (اختياري)" data-en-placeholder="YouTube URL or direct link (optional)" placeholder="https://www.youtube.com/watch?v=...">
                                 <button type="button" class="add-more-image-btn" style="flex-shrink:0;padding:10px 16px;font-size:13px;" onclick="document.getElementById('editProductVideoFileInput').click()">
                                     <i class="fas fa-upload"></i>
                                     <span data-ar="رفع فيديو" data-en="Upload Video" data-fr="Téléverser une vidéo">رفع فيديو</span>
                                 </button>
                                 <input type="file" id="editProductVideoFileInput" accept="video/*" style="display:none;">
                             </div>
-                            <small style="color:var(--text-secondary);display:block;margin-top:4px;font-size:12px;" data-ar="يمكنك إما لصق رابط YouTube أو رفع ملف فيديو من جهازك" data-en="Either paste a YouTube link or upload a video file" data-fr="Collez un lien YouTube ou téléversez une vidéo">يمكنك إما لصق رابط YouTube أو رفع ملف فيديو من جهازك</small>
+                            <small style="color:var(--text-secondary);display:block;margin-top:4px;font-size:12px;" data-ar="يمكنك لصق رابط أو رفع ملف فيديو من جهازك" data-en="Paste a link or upload a video file from your device" data-fr="Collez un lien ou téléversez une vidéo depuis votre appareil">يمكنك لصق رابط أو رفع ملف فيديو من جهازك</small>
                         </div>
                         <input type="hidden" id="editProductImagesData" value="[]">
                     </div>
@@ -1579,6 +1582,7 @@
                             <span data-ar="المميزات (واحد في كل سطر)" data-en="Features (one per line)" data-fr="Caractéristiques (une par ligne)">المميزات (واحد في كل سطر)</span>
                         </label>
                         <textarea id="editProductFeaturesAr" rows="3" placeholder="اكتب المميزات هنا، كل سطر = ميزة واحدة" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
+                        <div class="suggestion-container" id="editFeaturesSuggestions" data-for="editProductFeaturesAr" data-type="features" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
                     </div>
 
                     <div class="form-group" style="margin-top:16px;">
@@ -1587,6 +1591,7 @@
                             <span data-ar="المتطلبات (واحد في كل سطر)" data-en="Requirements (one per line)" data-fr="Prérequis (un par ligne)">المتطلبات (واحد في كل سطر)</span>
                         </label>
                         <textarea id="editProductRequirementsAr" rows="3" placeholder="اكتب المتطلبات هنا" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
+                        <div class="suggestion-container" id="editRequirementsSuggestions" data-for="editProductRequirementsAr" data-type="requirements" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
                     </div>
 
                     <div class="form-group" style="margin-top:16px;">
@@ -1595,6 +1600,7 @@
                             <span data-ar="الأسئلة الشائعة (Q | A في كل سطر)" data-en="FAQ (Q | A per line)" data-fr="FAQ (Q | R par ligne)">الأسئلة الشائعة (سؤال | جواب في كل سطر)</span>
                         </label>
                         <textarea id="editProductFAQAr" rows="3" placeholder="اكتب الأسئلة هنا، كل سطر = سؤال | جواب" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
+                        <div class="suggestion-container" id="editFAQSuggestions" data-for="editProductFAQAr" data-type="faq" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
                     </div>
                 </div>
 
@@ -1966,7 +1972,7 @@
     </div>
 
     <!-- Main JavaScript -->
-    <script src="js/app.js?v=20260724k"></script>
+    <script src="js/app.js?v=20260726p"></script>
     <script>
         document.querySelector('.admin-main')?.addEventListener('click', function(e) {
             var s = document.getElementById('adminSidebar');
@@ -2257,7 +2263,9 @@ function closeCatModal() {
 function saveCat(e) {
     e.preventDefault();
     var cats = getCats();
-    var editIdx = parseInt(document.getElementById('catEditIndex').value) || -1;
+    var editIdx = parseInt(document.getElementById('catEditIndex').value);
+    var isEdit = !isNaN(editIdx) && editIdx >= 0;
+    editIdx = isEdit ? editIdx : -1;
     var key = document.getElementById('catKey').value.trim().toLowerCase().replace(/\s+/g,'_');
     var order = parseInt(document.getElementById('catOrder').value) || 99;
     var icon = document.getElementById('catIcon').value.trim() || '📦';
@@ -2267,7 +2275,7 @@ function saveCat(e) {
     var labelFr = document.getElementById('catLabelFr').value.trim();
     if (!key || !labelAr || !labelEn || !labelFr) { showToast('املأ جميع الحقول المطلوبة','error'); return; }
     var obj = { key:key, icon:icon, image:image||'', label:{ar:labelAr,en:labelEn,fr:labelFr}, enabled:true, order:order };
-    if (editIdx >= 0) {
+    if (isEdit) {
         cats[editIdx] = obj;
     } else {
         var exists = cats.some(function(c){return c.key === key;});
@@ -2277,7 +2285,7 @@ function saveCat(e) {
     setCats(cats);
     renderCatsTable();
     closeCatModal();
-    showToast(editIdx>=0?'تم تحديث التصنيف':'تمت إضافة التصنيف','success');
+    showToast(isEdit?'تم تحديث التصنيف':'تمت إضافة التصنيف','success');
 }
 function editCat(index) {
     openCatModal(index);
@@ -2430,18 +2438,18 @@ window.deleteCat = deleteCat; window.toggleCat = toggleCat; window.syncCatsToCon
                         <span data-ar="فيديو المنتج" data-en="Product Video" data-fr="Vidéo du produit">فيديو المنتج</span>
                     </label>
                     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-                        <input type="url" id="productVideoUrl" style="flex:2;min-width:200px;" data-ar-placeholder="رابط YouTube (اختياري)" data-en-placeholder="YouTube URL (optional)" placeholder="https://www.youtube.com/watch?v=...">
+                        <input type="url" id="productVideoUrl" style="flex:2;min-width:200px;" data-ar-placeholder="رابط YouTube أو رابط مباشر (اختياري)" data-en-placeholder="YouTube URL or direct link (optional)" placeholder="https://www.youtube.com/watch?v=...">
                         <button type="button" class="add-more-image-btn" style="flex-shrink:0;padding:10px 16px;font-size:13px;" onclick="document.getElementById('productVideoFileInput').click()">
                             <i class="fas fa-upload"></i>
                             <span data-ar="رفع فيديو" data-en="Upload Video" data-fr="Téléverser une vidéo">رفع فيديو</span>
                         </button>
                         <input type="file" id="productVideoFileInput" accept="video/*" style="display:none;">
                     </div>
-                    <small style="color:var(--text-secondary);display:block;margin-top:4px;font-size:12px;" data-ar="يمكنك إما لصق رابط YouTube أو رفع ملف فيديو من جهازك" data-en="Either paste a YouTube link or upload a video file" data-fr="Collez un lien YouTube ou téléversez une vidéo">يمكنك إما لصق رابط YouTube أو رفع ملف فيديو من جهازك</small>
+                    <small style="color:var(--text-secondary);display:block;margin-top:4px;font-size:12px;" data-ar="يمكنك لصق رابط أو رفع ملف فيديو من جهازك" data-en="Paste a link or upload a video file from your device" data-fr="Collez un lien ou téléversez une vidéo depuis votre appareil">يمكنك لصق رابط أو رفع ملف فيديو من جهازك</small>
                 </div>
-                <input type="hidden" id="productImagesData" value="[]">
+                    <input type="hidden" id="productImagesData" value="[]">
+                </div>
             </div>
-        </div>
 
         <!-- Basic Info -->
         <div class="admin-form-card">
@@ -2640,6 +2648,7 @@ window.deleteCat = deleteCat; window.toggleCat = toggleCat; window.syncCatsToCon
                     <span data-ar="المميزات (واحد في كل سطر)" data-en="Features (one per line)" data-fr="Caractéristiques (une par ligne)">المميزات (واحد في كل سطر)</span>
                 </label>
                 <textarea id="productFeaturesAr" rows="4" placeholder="اكتب المميزات هنا، كل سطر = ميزة واحدة" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
+                <div class="suggestion-container" id="addFeaturesSuggestions" data-for="productFeaturesAr" data-type="features" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
             </div>
 
             <div class="form-group" style="margin-top:16px;">
@@ -2648,6 +2657,7 @@ window.deleteCat = deleteCat; window.toggleCat = toggleCat; window.syncCatsToCon
                     <span data-ar="المتطلبات (واحد في كل سطر)" data-en="Requirements (one per line)" data-fr="Prérequis (un par ligne)">المتطلبات (واحد في كل سطر)</span>
                 </label>
                 <textarea id="productRequirementsAr" rows="3" placeholder="اكتب المتطلبات هنا، كل سطر = متطلب واحد" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
+                <div class="suggestion-container" id="addRequirementsSuggestions" data-for="productRequirementsAr" data-type="requirements" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
             </div>
 
             <div class="form-group" style="margin-top:16px;">
@@ -2656,6 +2666,7 @@ window.deleteCat = deleteCat; window.toggleCat = toggleCat; window.syncCatsToCon
                     <span data-ar="الأسئلة الشائعة (Q | A في كل سطر)" data-en="FAQ (Q | A per line)" data-fr="FAQ (Q | R par ligne)">الأسئلة الشائعة (سؤال | جواب في كل سطر)</span>
                 </label>
                 <textarea id="productFAQAr" rows="3" placeholder="اكتب الأسئلة الشائعة هنا، كل سطر = سؤال | جواب" style="width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border-color);background:var(--bg-card);font-size:1em;resize:vertical;"></textarea>
+                <div class="suggestion-container" id="addFAQSuggestions" data-for="productFAQAr" data-type="faq" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
             </div>
         </div>
 
