@@ -388,103 +388,45 @@ body[dir="ltr"] .lang-option:hover {
 
 .action-badge {
     position: absolute;
-    top: -10px;
-    right: -10px;
-    min-width: 30px;
-    height: 30px;
-    padding: 0 8px;
-    border-radius: 15px;
+    top: -7px;
+    right: -7px;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    border-radius: 999px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 900;
     z-index: 10;
-    border: 3px solid var(--bg-primary);
+    border: none;
     color: white;
     line-height: 1;
     white-space: nowrap;
-    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    font-family: -apple-system, Arial, sans-serif;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.6);
-    animation: badgePulseDefault 2s ease-in-out infinite;
+    transition: transform 0.3s ease;
+    font-family: 'Cairo', 'Tajawal', 'Segoe UI', sans-serif;
+    background: #dc2626;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.5);
 }
 
 .action-btn-wrapper:hover .action-badge {
-    transform: scale(1.18);
+    transform: scale(1.15);
 }
 
 #notificationsDropdown .action-badge {
-    background: linear-gradient(135deg, #f59e0b, #ea580c);
-    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.6);
-    animation: notifPulse 2s ease-in-out infinite;
+    background: #d97706;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.5);
 }
 
 #wishlistDropdown .action-badge {
-    background: linear-gradient(135deg, #ec4899, #db2777);
-    box-shadow: 0 4px 15px rgba(236, 72, 153, 0.6);
-    animation: wishPulse 2s ease-in-out infinite;
+    background: #dc2626;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.5);
 }
 
 #cartDropdown .action-badge {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.7);
-    animation: cartPulse 2s ease-in-out infinite;
-}
-
-@keyframes badgePulseDefault {
-
-    0%,
-    100% {
-        transform: scale(1);
-    }
-
-    50% {
-        transform: scale(1.1);
-    }
-}
-
-@keyframes notifPulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-        box-shadow: 0 3px 12px rgba(245, 158, 11, 0.6);
-    }
-
-    50% {
-        transform: scale(1.12);
-        box-shadow: 0 4px 18px rgba(245, 158, 11, 0.8), 0 0 0 3px rgba(245, 158, 11, 0.12);
-    }
-}
-
-@keyframes wishPulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-        box-shadow: 0 3px 12px rgba(236, 72, 153, 0.6);
-    }
-
-    50% {
-        transform: scale(1.12);
-        box-shadow: 0 4px 18px rgba(236, 72, 153, 0.8), 0 0 0 3px rgba(236, 72, 153, 0.12);
-    }
-}
-
-@keyframes cartPulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-        box-shadow: 0 3px 12px rgba(168, 85, 247, 0.6);
-    }
-
-    50% {
-        transform: scale(1.12);
-        box-shadow: 0 4px 18px rgba(168, 85, 247, 0.8), 0 0 0 3px rgba(168, 85, 247, 0.12);
-    }
+    background: #9333ea;
+    box-shadow: 0 2px 8px rgba(147, 51, 234, 0.5);
 }
 
 .action-badge.bump {
@@ -1689,13 +1631,13 @@ body[dir="ltr"] .cart-item:hover {
     }
 
     .action-badge {
-        min-width: 24px;
-        height: 24px;
-        font-size: 0.75em;
-        top: -8px;
-        right: -8px;
+        min-width: 28px;
+        height: 28px;
+        font-size: 0.8em;
+        top: -9px;
+        right: -9px;
         border-width: 2px;
-        padding: 0 6px;
+        padding: 0 7px;
     }
 
     .lang-switch {
@@ -1836,11 +1778,11 @@ body[dir="ltr"] .cart-item:hover {
     }
 
     .action-badge {
-        min-width: 22px;
-        height: 22px;
-        font-size: 0.7em;
-        top: -7px;
-        right: -7px;
+        min-width: 26px;
+        height: 26px;
+        font-size: 0.75em;
+        top: -8px;
+        right: -8px;
     }
 
     .lang-switch {
@@ -1874,9 +1816,10 @@ body[dir="ltr"] .cart-item:hover {
     }
 
     .action-badge {
-        min-width: 20px;
-        height: 20px;
-        font-size: 0.65em;
+        min-width: 28px;
+        height: 28px;
+        font-size: 0.85em;
+        font-weight: 900;
         top: -6px;
         right: -6px;
     }
@@ -2097,6 +2040,27 @@ body[dir="ltr"] .cart-item:hover {
     right: auto;
     left: auto;
     transform: none;
+    min-width: 26px;
+    height: 26px;
+    padding: 0 7px;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.3px;
+}
+
+#wishlistBadgeMobile {
+    background: #dc2626;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.5);
+}
+
+#cartBadgeMobile {
+    background: #9333ea;
+    box-shadow: 0 2px 8px rgba(147, 51, 234, 0.5);
+}
+
+#ordersBadgeMobile {
+    background: #dc2626;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.5);
 }
 
 body[dir="ltr"] .mobile-action-btn .action-badge {
@@ -2171,6 +2135,45 @@ body[dir="ltr"] .mobile-lang-indicator {
         font-size: 1em;
         border-radius: 14px;
         border-width: 1.5px;
+    }
+
+    /* Smaller buttons for account/switch/logout on mobile */
+    .nav-menu .mobile-action-item.logged-in-only .mobile-action-btn {
+        padding: 9px 16px;
+        font-size: 0.85em;
+        gap: 10px;
+        border-radius: 10px;
+    }
+    .nav-menu .mobile-action-item.logged-in-only .mobile-action-btn i {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9em;
+        border-radius: 8px;
+    }
+
+    /* Red logout button on mobile */
+    .nav-menu .mobile-action-item#logoutMobile .mobile-action-btn {
+        border-color: rgba(239, 68, 68, 0.25);
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.05);
+    }
+    .nav-menu .mobile-action-item#logoutMobile .mobile-action-btn i {
+        color: #ef4444;
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+    }
+    .nav-menu .mobile-action-item#logoutMobile .mobile-action-btn::before {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+    .nav-menu .mobile-action-item#logoutMobile .mobile-action-btn:hover {
+        color: white;
+        border-color: transparent;
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 8px 20px -4px rgba(239, 68, 68, 0.4);
+    }
+    .nav-menu .mobile-action-item#logoutMobile .mobile-action-btn:hover i {
+        color: white;
+        background: transparent;
     }
 }
 

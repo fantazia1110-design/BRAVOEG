@@ -184,6 +184,10 @@ window.loadPaymentMethods = async function() {
     }
     Object.entries(window.paymentMethods).sort((a, b) => (a[1].order || 0) - (b[1].order || 0)).forEach(([k, m], i) => {
         if (m.order === undefined) { m.order = i; }
+        if (m.name && m.name.ar && (!m.name.en || m.name.en === m.name.ar) && currentLang !== 'ar') {
+            _translateTextArTo(m.name.ar, 'en').then(en => { if (m.name) m.name.en = en; }).catch(() => {});
+            _translateTextArTo(m.name.ar, 'fr').then(fr => { if (m.name) m.name.fr = fr; }).catch(() => {});
+        }
     });
     renderPaymentMethodsAdmin();
     populatePaymentMethodFilters();
@@ -516,6 +520,20 @@ window.submitEditPaymentForm = async function() {
     closeEditPaymentModal();
     renderPaymentMethodsAdmin();
     showToast('✅', (document.documentElement.lang === 'ar' ? 'تم حفظ التغييرات' : document.documentElement.lang === 'en' ? 'Changes saved' : 'Modifications sauvegardées'), 'success');
+    (async function() {
+        try {
+            const [enName, frName] = await Promise.all([_translateTextArTo(nameAr, 'en'), _translateTextArTo(nameAr, 'fr')]);
+            update.name.en = enName;
+            update.name.fr = frName;
+            if (instAr.length) {
+                const [enInst, frInst] = await Promise.all([_translateTextArTo(instAr.join('\n'), 'en'), _translateTextArTo(instAr.join('\n'), 'fr')]);
+                update.instructions.en = enInst.split('\n').filter(s => s.trim());
+                update.instructions.fr = frInst.split('\n').filter(s => s.trim());
+            }
+            window.paymentMethods[id] = { ...window.paymentMethods[id], ...update };
+            await DB.update(`settings/paymentMethods/${id}`, update);
+        } catch (e) { console.warn('Auto-translate payment failed:', e); }
+    })();
 };
 
 window.deletePaymentMethod = async function(id) {
@@ -1339,30 +1357,40 @@ async function markAllAsRead() { if (!currentUser || !userNotifications.length) 
 
 // ==================== PRODUCTS ====================
 async function loadAllProducts() {
-    try { const p = await DB.get('products'); console.log('🔍 loadAllProducts DB.get returned:', p ? (typeof p === 'object' ? Object.keys(p).length + ' keys' : typeof p) : 'null'); if (p && typeof p === 'object') { allProducts = Object.entries(p).map(([id, d]) => ({ ...d, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed'); if (currentLang && currentLang !== 'ar' && typeof _applyCachedTranslations === 'function') _applyCachedTranslations(allProducts, currentLang); console.log('🔍 allProducts after filter:', allProducts.length); updateStats(); return allProducts; } return []; }
-    catch (e) { console.error('Error loading products:', e); return []; }
+    try {
+        const localData = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+        if (localData.products && typeof localData.products === 'object') {
+            allProducts = Object.entries(localData.products).map(([id, d]) => ({ ...d, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed');
+            if (currentLang && currentLang !== 'ar' && typeof _applyCachedTranslations === 'function') _applyCachedTranslations(allProducts, currentLang);
+            updateStats();
+        }
+        return allProducts;
+    } catch (e) { console.error('Error loading products:', e); return []; }
 }
 
+let _lastProductsHash = '';
+function _productsHash(prods) {
+    if (!prods || !prods.length) return '';
+    return prods.length + '|' + (prods[0] && prods[0].id || '') + '|' + (prods[prods.length - 1] && prods[prods.length - 1].id || '');
+}
 function listenToProducts() { 
     let debounceTimer;
     DB.on('products', (data) => { 
-        console.log('🔍 listenToProducts callback, data:', data ? (typeof data === 'object' ? Object.keys(data).length + ' keys' : typeof data) : 'null');
         if (data && typeof data === 'object') { 
-            allProducts = Object.entries(data).map(([id, p]) => ({ ...p, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed'); 
+            var newData = Object.entries(data).map(([id, p]) => ({ ...p, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed'); 
+            var newHash = _productsHash(newData);
+            var isSame = (newHash === _lastProductsHash && newData.length === allProducts.length);
+            allProducts = newData;
+            _lastProductsHash = newHash;
             if (currentLang && currentLang !== 'ar' && typeof _applyCachedTranslations === 'function') _applyCachedTranslations(allProducts, currentLang);
-            console.log('🔍 allProducts after listenToProducts:', allProducts.length);
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(function() { 
+                if (isSame) return;
+                if (window.displayProducts) displayProducts();
                 if (currentLang !== 'ar' && typeof autoTranslateProducts === 'function') {
-                    autoTranslateProducts(currentLang).then(function() { 
-                        if (window.displayProducts) displayProducts();
-                    }).catch(function() { 
-                        if (window.displayProducts) displayProducts();
-                    });
-                } else {
-                    if (window.displayProducts) displayProducts(); 
+                    autoTranslateProducts(currentLang).catch(function() {});
                 }
-            }, 50);
+            }, 0);
             updateStats(); 
         } 
     }); 
@@ -2125,9 +2153,13 @@ async function getCheckoutOrderData() {
                 productTitle: decodeURIComponent(u.get('title') || (currentLang === 'ar' ? 'منتج' : currentLang === 'en' ? 'Product' : 'Produit')), 
                 price: u.get('price'), 
                 currency: (rawCurr === 'EGP' || rawCurr === 'جنيه') ? 'EGP' : (rawCurr || 'EGP'),
-                productImage: prod ? (prod.image || '') : '',
-                productCategory: prod ? (prod.category || '') : ''
+                productImage: decodeURIComponent(u.get('image') || ''),
+                productCategory: decodeURIComponent(u.get('category') || '')
             };
+            if ((!checkoutOrderData.productImage || !checkoutOrderData.productCategory) && allProducts.length > 0) {
+                var p2 = allProducts.find(function(p) { return String(p.id) === String(pid); });
+                if (p2) { if (!checkoutOrderData.productImage) checkoutOrderData.productImage = p2.image || ''; if (!checkoutOrderData.productCategory) checkoutOrderData.productCategory = p2.category || ''; }
+            }
         } else {
             const saved = sessionStorage.getItem('cartCheckout');
             if (saved) { 
@@ -2198,7 +2230,7 @@ async function getCheckoutOrderData() {
                         price: rebuiltTotal,
                         currency: cur2,
                         userCountry: userCountry,
-                        productTitle: `${userCart.length} ${currentLang === 'ar' ? 'منتجات من السلة' : currentLang === 'en' ? 'items from cart' : 'articles du panier'}`,
+                        productTitle: `${userCart.length} ${_ckI18n(currentLang).cartItems}`,
                         productId: 'cart_checkout'
                     };
                     console.log("✅ [Checkout] تم تحديث بيانات الطلب من السلة المحدثة.");
@@ -2219,6 +2251,48 @@ async function getCheckoutOrderData() {
     } catch (e) { console.error('Error loading checkout data:', e); }
 }
 
+function _ckI18n(lang) {
+    var t = {
+        ar: {
+            currency: 'جنيه', price: 'السعر', qty: 'الكمية', summary: 'ملخص الطلب', total: 'الإجمالي',
+            items: 'عدد المنتجات', paymentDetails: 'تفاصيل الدفع', receiver: 'اسم المستلم:',
+            country: 'الدولة:', phone: 'رقم الهاتف:', email: 'البريد:', account: 'رقم الحساب:',
+            name: 'اسم الحساب:', qrCode: 'رمز QR', cartItems: 'منتجات من السلة',
+            uploading: 'جاري الرفع...', uploadCancelled: 'تم إلغاء الرفع', copyFailed: 'فشل النسخ',
+            copied: 'تم النسخ', selectPayment: 'اختر طريقة الدفع', uploadReceipt: 'إثبات الدفع (الإيصال)',
+            clickToUpload: 'اضغط لرفع الإيصال', max5MB: 'حد أقصى 5 ميجا',
+            confirmSend: 'تأكيد وإرسال الطلب', fullName: 'الاسم الكامل *',
+            emailAddr: 'البريد الإلكتروني *', phoneWhatsApp: 'رقم الهاتف (واتساب) *',
+            mustSelect: 'يجب اختيار طريقة الدفع وتعبئة جميع البيانات'
+        },
+        en: {
+            currency: 'EGP', price: 'Price', qty: 'Qty', summary: 'Order Summary', total: 'Total',
+            items: 'Items', paymentDetails: 'Payment Details', receiver: 'Receiver:',
+            country: 'Country:', phone: 'Phone:', email: 'Email:', account: 'Account:',
+            name: 'Name:', qrCode: 'QR Code', cartItems: 'items from cart',
+            uploading: 'Uploading...', uploadCancelled: 'Upload cancelled', copyFailed: 'Copy failed!',
+            copied: 'Copied', selectPayment: 'Choose Payment Method', uploadReceipt: 'Payment Proof (Receipt)',
+            clickToUpload: 'Click to upload receipt', max5MB: 'Max 5MB',
+            confirmSend: 'Confirm & Send Order', fullName: 'Full Name *',
+            emailAddr: 'Email Address *', phoneWhatsApp: 'Phone (WhatsApp) *',
+            mustSelect: 'You must select a payment method and complete all details'
+        },
+        fr: {
+            currency: 'EGP', price: 'Prix', qty: 'Qté', summary: 'Récapitulatif', total: 'Total',
+            items: 'Articles', paymentDetails: 'Détails du paiement', receiver: 'Destinataire :',
+            country: 'Pays :', phone: 'Téléphone :', email: 'Email :', account: 'Compte :',
+            name: 'Nom :', qrCode: 'Code QR', cartItems: 'articles du panier',
+            uploading: 'Téléchargement...', uploadCancelled: 'Téléchargement annulé', copyFailed: 'Échec de la copie !',
+            copied: 'Copié', selectPayment: 'Choisir le mode de paiement', uploadReceipt: 'Preuve de paiement (Reçu)',
+            clickToUpload: 'Cliquez pour télécharger le reçu', max5MB: 'Max 5 Mo',
+            confirmSend: 'Confirmer et envoyer la commande', fullName: 'Nom complet *',
+            emailAddr: 'Adresse Email *', phoneWhatsApp: 'Téléphone (WhatsApp) *',
+            mustSelect: 'Vous devez choisir un mode de paiement et remplir tous les détails'
+        }
+    };
+    return t[lang] || t.ar;
+}
+
 function displayCheckoutOrderSummary() {
     var card = document.querySelector('.order-summary');
     if (!card) return;
@@ -2227,7 +2301,8 @@ function displayCheckoutOrderSummary() {
     if (!checkoutOrderData || Object.keys(checkoutOrderData).length === 0) { return; }
     
     let currency = checkoutOrderData.currency || '';
-    let currencyDisplay = currency === 'EGP' ? (currentLang === 'ar' ? 'جنيه' : 'EGP') : 'USD';
+    let ckT = _ckI18n(currentLang);
+    let currencyDisplay = currency === 'EGP' ? ckT.currency : 'USD';
     let finalPrice = checkoutOrderData.price;
 
     if (checkoutOrderData.isMultipleItems && (!finalPrice || isNaN(finalPrice))) {
@@ -2246,11 +2321,11 @@ function displayCheckoutOrderSummary() {
     }
 
     var catEmojis = { books: '📚', software: '💻', formulas: '🧪', courses: '🎓' };
-    var arLabel = currentLang === 'ar' ? 'السعر' : currentLang === 'en' ? 'Price' : 'Prix';
-    var arQty = currentLang === 'ar' ? 'الكمية' : currentLang === 'en' ? 'Qty' : 'Qté';
-    var sumTitleAr = currentLang === 'ar' ? 'ملخص الطلب' : currentLang === 'en' ? 'Order Summary' : 'Récapitulatif';
-    var totalAr = currentLang === 'ar' ? 'الإجمالي' : currentLang === 'en' ? 'Total' : 'Total';
-    var itemsAr = currentLang === 'ar' ? 'عدد المنتجات' : currentLang === 'en' ? 'Items' : 'Articles';
+    var arLabel = ckT.price;
+    var arQty = ckT.qty;
+    var sumTitleAr = ckT.summary;
+    var totalAr = ckT.total;
+    var itemsAr = ckT.items;
 
     var productHtml = '';
     var totalQty = 0;
@@ -2278,7 +2353,7 @@ function displayCheckoutOrderSummary() {
                 '<div class="checkout-item-image">' + imgHtml + '</div>' +
                 '<div class="checkout-item-details">' +
                     '<div class="checkout-item-category">' + ce + ' ' + cn + '</div>' +
-                    '<div class="checkout-item-price"><span class="price-label">' + arLabel + '</span><span class="price-value">' + p + ' ' + currencyDisplay + '</span></div>' +
+                    '<div class="checkout-item-price"><span class="price-label">' + arLabel + '</span><div class="price-num-row"><span class="price-number">' + p + '</span><span class="price-currency">' + currencyDisplay + '</span></div></div>' +
                 '</div>' +
                 '<div class="checkout-item-qty">' +
                     '<span class="qty-label">' + arQty + '</span>' +
@@ -2306,7 +2381,7 @@ function displayCheckoutOrderSummary() {
             '<div class="checkout-item-image">' + imgHtml + '</div>' +
             '<div class="checkout-item-details">' +
                 '<div class="checkout-item-category">' + ce + ' ' + cn + '</div>' +
-                '<div class="checkout-item-price"><span class="price-label">' + arLabel + '</span><span class="price-value">' + finalPrice + ' ' + currencyDisplay + '</span></div>' +
+                '<div class="checkout-item-price"><span class="price-label">' + arLabel + '</span><div class="price-num-row"><span class="price-number">' + finalPrice + '</span><span class="price-currency">' + currencyDisplay + '</span></div></div>' +
             '</div>' +
             '<div class="checkout-item-qty">' +
                 '<span class="qty-label">' + arQty + '</span>' +
@@ -2349,6 +2424,27 @@ function displayPaymentMethods() {
     const langFallback = function(obj) { return obj[currentLang] || obj.en || obj.ar || ''; };
     grid.innerHTML = activeMethods.map(([k, m]) => `<div class="payment-method" data-payment="${k}"><img src="${m.logo || ''}" alt="${langFallback(m.name)}" class="payment-logo"><div class="payment-name">${langFallback(m.name)}</div></div>`).join('');
     document.querySelectorAll('.payment-method').forEach(el => { el.addEventListener('click', function () { selectPaymentMethod(this.getAttribute('data-payment')); }); });
+    if (currentLang !== 'ar') {
+        let needsTranslate = false;
+        activeMethods.forEach(([k, m]) => {
+            if (m.name && m.name.ar && m.name[currentLang] === m.name.ar) {
+                needsTranslate = true;
+                _translateTextArTo(m.name.ar, currentLang).then(t => {
+                    m.name[currentLang] = t;
+                    const nameEl = grid.querySelector(`[data-payment="${k}"] .payment-name`);
+                    if (nameEl) nameEl.textContent = t;
+                }).catch(() => {});
+            }
+            if (m.instructions && m.instructions.ar) {
+                const curInst = m.instructions[currentLang];
+                if (!curInst || (Array.isArray(curInst) && curInst[0] === m.instructions.ar[0])) {
+                    _translateTextArTo(m.instructions.ar.join('\n'), currentLang).then(t => {
+                        m.instructions[currentLang] = t.split('\n').filter(s => s.trim());
+                    }).catch(() => {});
+                }
+            }
+        });
+    }
 }
 
 function selectPaymentMethod(key) {
@@ -2358,33 +2454,34 @@ function selectPaymentMethod(key) {
     document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
     document.querySelector(`[data-payment="${key}"]`)?.classList.add('selected');
     const d = document.getElementById('paymentDetails'); if (!d) return;
-    let h = `<h2 class="section-title"><span class="section-title-text">${currentLang === 'ar' ? 'تفاصيل الدفع' : currentLang === 'en' ? 'Payment Details' : 'Détails du paiement'}</span><span class="emoji">📋</span></h2><ul class="instructions-list">`;
+    var ckT = _ckI18n(currentLang);
+    let h = `<h2 class="section-title"><span class="section-title-text">${ckT.paymentDetails}</span><span class="emoji">📋</span></h2><ul class="instructions-list">`;
     let instList = m.instructions[currentLang] || m.instructions.en || m.instructions.ar || [];
     instList.forEach((inst, i) => { h += `<li><strong>${i + 1}.</strong> ${inst}</li>`; });
     h += '</ul><div style="margin-top:25px">';
-    if (m.receiverName) h += `<div class="detail-item"><span class="detail-label">${currentLang === 'ar' ? 'اسم المستلم:' : currentLang === 'en' ? 'Receiver:' : 'Destinataire :'}</span><div class="detail-value"><span>${m.receiverName}</span><button class="copy-btn" onclick="copyToClipboard('${m.receiverName}', this)"><i class="fas fa-copy"></i></button></div></div>`;
-    if (m.country) h += `<div class="detail-item"><span class="detail-label">${currentLang === 'ar' ? 'الدولة:' : currentLang === 'en' ? 'Country:' : 'Pays :'}</span><span class="detail-value">${m.country}</span></div>`;
-    if (m.phoneNumber) h += `<div class="detail-item"><span class="detail-label">${currentLang === 'ar' ? 'رقم الهاتف:' : currentLang === 'en' ? 'Phone:' : 'Téléphone :'}</span><div class="detail-value"><span dir="ltr">${m.phoneNumber}</span><button class="copy-btn" onclick="copyToClipboard('${m.phoneNumber}', this)"><i class="fas fa-copy"></i></button></div></div>`;
-    if (m.email) h += `<div class="detail-item"><span class="detail-label">${currentLang === 'ar' ? 'البريد:' : currentLang === 'en' ? 'Email:' : 'Email :'}</span><div class="detail-value"><span>${m.email}</span><button class="copy-btn" onclick="copyToClipboard('${m.email}', this)"><i class="fas fa-copy"></i></button></div></div>`;
-    if (m.accountNumber) h += `<div class="detail-item"><span class="detail-label">${currentLang === 'ar' ? 'رقم الحساب:' : currentLang === 'en' ? 'Account:' : 'Compte :'}</span><div class="detail-value"><span dir="ltr">${m.accountNumber}</span><button class="copy-btn" onclick="copyToClipboard('${m.accountNumber}', this)"><i class="fas fa-copy"></i></button></div></div>`;
+    if (m.receiverName) h += `<div class="detail-item detail-item-full"><span class="detail-label">${ckT.receiver}</span><div class="detail-value"><span>${m.receiverName}</span></div><button class="copy-btn copy-btn-bottom" onclick="copyToClipboard('${m.receiverName}', this)"><i class="fas fa-copy"></i></button></div>`;
+    if (m.country) h += `<div class="detail-item"><span class="detail-label">${ckT.country}</span><span class="detail-value">${m.country}</span></div>`;
+    if (m.phoneNumber) h += `<div class="detail-item"><span class="detail-label">${ckT.phone}</span><div class="detail-value"><span dir="ltr">${m.phoneNumber}</span><button class="copy-btn" onclick="copyToClipboard('${m.phoneNumber}', this)"><i class="fas fa-copy"></i></button></div></div>`;
+    if (m.email) h += `<div class="detail-item"><span class="detail-label">${ckT.email}</span><div class="detail-value"><span>${m.email}</span><button class="copy-btn" onclick="copyToClipboard('${m.email}', this)"><i class="fas fa-copy"></i></button></div></div>`;
+    if (m.accountNumber) h += `<div class="detail-item"><span class="detail-label">${ckT.account}</span><div class="detail-value"><span dir="ltr">${m.accountNumber}</span><button class="copy-btn" onclick="copyToClipboard('${m.accountNumber}', this)"><i class="fas fa-copy"></i></button></div></div>`;
     if (m.iban) h += `<div class="detail-item"><span class="detail-label">IBAN:</span><div class="detail-value"><span dir="ltr">${m.iban}</span><button class="copy-btn" onclick="copyToClipboard('${m.iban}', this)"><i class="fas fa-copy"></i></button></div></div>`;
-    if (m.accountName) h += `<div class="detail-item"><span class="detail-label">${currentLang === 'ar' ? 'اسم الحساب:' : currentLang === 'en' ? 'Name:' : 'Nom :'}</span><div class="detail-value"><span>${m.accountName}</span><button class="copy-btn" onclick="copyToClipboard('${m.accountName}', this)"><i class="fas fa-copy"></i></button></div></div>`;
+    if (m.accountName) h += `<div class="detail-item detail-item-full"><span class="detail-label">${ckT.name}</span><div class="detail-value"><span>${m.accountName}</span></div><button class="copy-btn copy-btn-bottom" onclick="copyToClipboard('${m.accountName}', this)"><i class="fas fa-copy"></i></button></div>`;
     if (m.binanceID) h += `<div class="detail-item"><span class="detail-label">Binance ID:</span><div class="detail-value"><span>${m.binanceID}</span><button class="copy-btn" onclick="copyToClipboard('${m.binanceID}', this)"><i class="fas fa-copy"></i></button></div></div>`;
     if (m.walletAddress) h += `<div class="detail-item"><span class="detail-label">Wallet:</span><div class="detail-value"><span style="font-size:0.8em;word-break:break-all">${m.walletAddress}</span><button class="copy-btn" onclick="copyToClipboard('${m.walletAddress}', this)"><i class="fas fa-copy"></i></button></div></div>`;
     if (m.redotID) h += `<div class="detail-item"><span class="detail-label">Redot ID:</span><div class="detail-value"><span>${m.redotID}</span><button class="copy-btn" onclick="copyToClipboard('${m.redotID}', this)"><i class="fas fa-copy"></i></button></div></div>`;
-    if (m.qrCode && m.qrActive !== false) h += `<div style="text-align:center;margin-top:25px"><h4 style="margin-bottom:15px">${currentLang === 'ar' ? 'رمز QR' : currentLang === 'en' ? 'QR Code' : 'Code QR'}</h4><img src="${m.qrCode}" alt="QR" class="qr-code"></div>`;
+    if (m.qrCode && m.qrActive !== false) h += `<div style="text-align:center;margin-top:25px"><h4 style="margin-bottom:15px">${ckT.qrCode}</h4><img src="${m.qrCode}" alt="QR" class="qr-code"></div>`;
     h += '</div>'; d.innerHTML = h; d.classList.add('show');
     const cs = document.getElementById('customerInfoSection'); if (cs) cs.style.display = 'block';
     const s2 = document.getElementById('step2'); if (s2) s2.classList.add('active');
     setTimeout(() => { d.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 300);
 }
 
-function copyToClipboard(text, btn) { if (!btn) btn = event?.currentTarget; const doCopy = function(t) { if (btn) { const o = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; btn.style.background = 'linear-gradient(135deg,#10b981,#059669)'; setTimeout(() => { btn.innerHTML = o; btn.style.background = ''; }, 2000); } showToast(currentLang === 'ar' ? 'تم النسخ' : currentLang === 'en' ? 'Copied' : 'Copié', text, 'success'); }; try { navigator.clipboard.writeText(text).then(doCopy).catch(function() { fallbackCopy(text, btn); }); } catch(e) { fallbackCopy(text, btn); } } function fallbackCopy(text, btn) { var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); if (btn) { const o = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; btn.style.background = 'linear-gradient(135deg,#10b981,#059669)'; setTimeout(() => { btn.innerHTML = o; btn.style.background = ''; }, 2000); } showToast(currentLang === 'ar' ? 'تم النسخ' : currentLang === 'en' ? 'Copied' : 'Copié', text, 'success'); } catch(e) { alert(currentLang === 'ar' ? 'فشل النسخ' : currentLang === 'en' ? 'Copy failed!' : 'Échec de la copie !'); } document.body.removeChild(ta); }
+function copyToClipboard(text, btn) { if (!btn) btn = event?.currentTarget; var ckT = _ckI18n(currentLang); const doCopy = function(t) { if (btn) { const o = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; btn.style.background = 'linear-gradient(135deg,#10b981,#059669)'; setTimeout(() => { btn.innerHTML = o; btn.style.background = ''; }, 2000); } showToast(ckT.copied, text, 'success'); }; try { navigator.clipboard.writeText(text).then(doCopy).catch(function() { fallbackCopy(text, btn); }); } catch(e) { fallbackCopy(text, btn); } } function fallbackCopy(text, btn) { var ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); var ckT2 = _ckI18n(currentLang); try { document.execCommand('copy'); if (btn) { const o = btn.innerHTML; btn.innerHTML = '<i class="fas fa-check"></i>'; btn.style.background = 'linear-gradient(135deg,#10b981,#059669)'; setTimeout(() => { btn.innerHTML = o; btn.style.background = ''; }, 2000); } showToast(ckT2.copied, text, 'success'); } catch(e) { alert(ckT2.copyFailed); } document.body.removeChild(ta); }
 
 function handleCheckoutFileUpload(e) {
     const f = e.target.files[0]; if (!f) return;
-    if (f.size > 5 * 1024 * 1024) { alert('Max 5MB'); e.target.value = ''; return; }
-    if (!f.type.startsWith('image/') && f.type !== 'application/pdf') { alert('Image only'); e.target.value = ''; return; }
+    if (f.size > 5 * 1024 * 1024) { alert(_ckI18n(currentLang).max5MB); e.target.value = ''; return; }
+    if (!f.type.startsWith('image/') && f.type !== 'application/pdf') { alert(currentLang === 'ar' ? 'صور فقط' : currentLang === 'en' ? 'Image only' : 'Image uniquement'); e.target.value = ''; return; }
     uploadedFile = f;
     const fu = document.getElementById('fileUpload');
     if (fu) { fu.classList.add('has-file'); const ft = fu.querySelector('.file-text'), fs = fu.querySelector('.file-size'); if (ft) ft.textContent = `✅ ${f.name}`; if (fs) fs.textContent = `${(f.size / 1024 / 1024).toFixed(2)} MB`; }
@@ -2413,12 +2510,12 @@ function _showUploadProgress(label, totalBytes) {
     var ov = document.createElement('div');
     ov.className = 'upload-progress-overlay';
     ov.id = 'uploadProgressOverlay';
-    ov.innerHTML = '<div class="upload-progress-close" id="uploadProgressClose" title="إلغاء">&#10005;</div><div class="upload-progress-ring"><svg width="120" height="120"><defs><linearGradient id="uploadGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#9333ea"/><stop offset="100%" style="stop-color:#c084fc"/></linearGradient></defs><circle class="ring-bg" cx="60" cy="60" r="54" stroke-dasharray="' + circ + '" stroke-dashoffset="0"></circle><circle class="ring-fg" cx="60" cy="60" r="54" stroke-dasharray="' + circ + '" stroke-dashoffset="' + circ + '"></circle></svg><div class="upload-progress-pct">0%</div></div><div class="upload-progress-label">' + (label || 'جاري الرفع...') + '</div><div class="upload-progress-size">0 MB / ' + totalMB + ' MB</div>';
+    ov.innerHTML = '<div class="upload-progress-close" id="uploadProgressClose" title="إلغاء">&#10005;</div><div class="upload-progress-ring"><svg width="120" height="120"><defs><linearGradient id="uploadGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#9333ea"/><stop offset="100%" style="stop-color:#c084fc"/></linearGradient></defs><circle class="ring-bg" cx="60" cy="60" r="54" stroke-dasharray="' + circ + '" stroke-dashoffset="0"></circle><circle class="ring-fg" cx="60" cy="60" r="54" stroke-dasharray="' + circ + '" stroke-dashoffset="' + circ + '"></circle></svg><div class="upload-progress-pct">0%</div></div><div class="upload-progress-label">' + (label || _ckI18n(currentLang).uploading) + '</div><div class="upload-progress-size">0 MB / ' + totalMB + ' MB</div>';
     document.body.appendChild(ov);
     document.getElementById('uploadProgressClose').addEventListener('click', function() {
         if (window._uploadAbortController) { window._uploadAbortController.abort(); window._uploadAbortController = null; }
         _hideUploadProgress();
-        showToast('❌', currentLang === 'ar' ? 'تم إلغاء الرفع' : currentLang === 'en' ? 'Upload cancelled' : 'Téléchargement annulé', 'error');
+        showToast('❌', _ckI18n(currentLang).uploadCancelled, 'error');
     });
     window._uploadProgressStart = Date.now();
     return ov;
@@ -7634,6 +7731,43 @@ async function initializeApp() {
     initializeThemeAndLanguage();
     initLangDropdown();
     initCatsFromStorage();
+
+    // FAST PATH: load products from localStorage and display IMMEDIATELY
+    await loadAllProducts();
+    // Also load wishlist & cart from localStorage for instant rendering
+    loadGuestData();
+    if (typeof displayProducts === 'function' && document.getElementById('productsGrid')) {
+        try { var _cat = new URLSearchParams(window.location.search).get('category') || new URLSearchParams(window.location.search).get('cat'); if (_cat && typeof selectCategory === 'function') selectCategory(_cat); } catch(e) {}
+        displayProducts();
+        _lastProductsHash = _productsHash(allProducts);
+    }
+    if (window.location.pathname.toLowerCase().includes('wishlist') && window.renderWishlistPage) {
+        window.renderWishlistPage();
+    }
+    if (document.getElementById('cartPageContent') && window.renderCartPage) {
+        window.renderCartPage();
+    }
+    if (typeof initializeParticles === 'function') initializeParticles();
+
+    // FAST SIDEBAR: check auth state from localStorage immediately
+    (function() {
+        var storedUser = localStorage.getItem(STORAGE_KEYS.user);
+        if (storedUser) {
+            try {
+                var u = JSON.parse(storedUser);
+                if (u && (u.uid || u.userId)) {
+                    var sm = document.getElementById('switchAccountMobile'), lmob = document.getElementById('logoutMobile'), amob = document.getElementById('accountMobile');
+                    if (sm) sm.classList.add('is-visible'); if (lmob) lmob.classList.add('is-visible'); if (amob) amob.classList.add('is-visible');
+                    var loginM = document.getElementById('loginMobile'), regM = document.getElementById('registerMobile');
+                    if (loginM) loginM.classList.add('is-hidden'); if (regM) regM.classList.add('is-hidden');
+                }
+            } catch(e) {}
+        }
+    })();
+
+    hideLoadingScreen();
+
+    // SLOW PATH: Firebase, settings, auth (non-blocking for products)
     await initializeFirebase();
     await loadSystemSettings(); 
     await initializeAuth(); 
@@ -7771,12 +7905,9 @@ async function initializeApp() {
                                     console.log('✅ Firebase recovered', Object.keys(_v).length, 'products');
                                     allProducts = Object.entries(_v).map(function(e){ return { ...e[1], id: e[0] }; }).filter(function(x){ return x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed'; });
                                     if (window.currentLang !== 'ar' && typeof autoTranslateProducts === 'function') {
-                                        autoTranslateProducts(window.currentLang).then(function() {
-                                            if (typeof displayProducts === 'function') displayProducts();
-                                        }).catch(function() {
-                                            if (typeof displayProducts === 'function') displayProducts();
-                                        });
-                                    } else if (typeof displayProducts === 'function') displayProducts();
+                                        autoTranslateProducts(window.currentLang).catch(function() {});
+                                    }
+                                    if (typeof displayProducts === 'function') displayProducts();
                                 }
                             }
                         }).catch(function(){});
@@ -7789,22 +7920,18 @@ async function initializeApp() {
     await loadAllProducts();
     cleanCorruptedProducts().catch(function(){});
     listenToProducts();
-    if (currentLang !== 'ar' && allProducts.length > 0) {
-        await autoTranslateProducts(currentLang);
-    }
-    if (typeof displayProducts === 'function' && document.getElementById('productsGrid')) {
-        try { var _cat = new URLSearchParams(window.location.search).get('category') || new URLSearchParams(window.location.search).get('cat'); if (_cat && typeof selectCategory === 'function') selectCategory(_cat); } catch(e) {}
-        displayProducts();
-        console.log('✅ displayProducts called, allProducts.length:', allProducts.length);
-    }
     if (document.getElementById('cartPageContent') && window.renderCartPage) {
         window.renderCartPage();
     }
     if (window.location.pathname.toLowerCase().includes('wishlist') && window.renderWishlistPage) {
         window.renderWishlistPage();
     }
-    setActiveMenuItem(); initializeDropdowns(); initializeParticles(); checkAdmin();
-    if (window.location.pathname.includes('checkout')) initializeCheckoutPage();
+    if (currentLang !== 'ar' && allProducts.length > 0) {
+        autoTranslateProducts(currentLang).catch(function(){});
+    }
+    setActiveMenuItem(); initializeDropdowns(); checkAdmin();
+    if (typeof initializeParticles === 'function') initializeParticles();
+    if (window.location.pathname.includes('checkout') && typeof getCheckoutOrderData === 'function') getCheckoutOrderData();
 
     if (document.body.classList.contains('admin-page')) { checkAdminLoginStatus(); initAdminLogin(); 
 initAddProductForm(); initEditForms(); renderAllSuggestionChips(); }
@@ -7813,7 +7940,7 @@ initAddProductForm(); initEditForms(); renderAllSuggestionChips(); }
 
     const statsBar = document.querySelector('.hero-stats-bar');
     if (statsBar) { const obs = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) { animateCounters(); obs.unobserve(entry.target); } }); }, { threshold: 0.3 }); obs.observe(statsBar); }
-    setTimeout(hideLoadingScreen, 1500);
+    hideLoadingScreen();
     setupRouter();
     console.log('✅ BRAVO Store initialized');
 }
@@ -7821,9 +7948,13 @@ initAddProductForm(); initEditForms(); renderAllSuggestionChips(); }
 // ==================== PAGE CONTROLLERS (UNIFIED SYSTEM) ====================
 
 // --- 🛒 صفحة السلة (Cart) ---
+let _lastCartHash = '';
 window.renderCartPage = function() {
     const c = document.getElementById('cartPageContent');
     if (!c) return;
+    var cartHash = userCart.map(function(i){ return i.id + ':' + (i.quantity||1); }).join(',');
+    if (cartHash === _lastCartHash) return;
+    _lastCartHash = cartHash;
     const lang = currentLang || 'ar';
     
     // تنظيف السلة من العناصر التالفة (حماية الواجهة)
@@ -8034,11 +8165,15 @@ window.proceedToCheckoutLocal = function() {
 };
 
 // --- ❤️ صفحة المفضلة (Wishlist) ---
+let _lastWishlistHash = '';
 window.renderWishlistPage = function() {
     const grid = document.getElementById('productsGrid');
     const empty = document.getElementById('emptyState');
     const actions = document.getElementById('wishlistActions');
     if (!grid || !actions) return;
+    var wlHash = userWishlist.map(function(i){ return i.id; }).join(',');
+    if (wlHash === _lastWishlistHash) return;
+    _lastWishlistHash = wlHash;
     if (userWishlist.length === 0) { 
         grid.style.display = 'none'; if (actions) actions.style.display = 'none'; if (empty) empty.style.display = 'block'; 
         return; 

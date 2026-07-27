@@ -744,11 +744,8 @@ window.buyNow = function() {
     const priceValue = typeof getProductPrice === 'function' ? getProductPrice(currentProduct) : (currentProduct.priceEGP || 0);
     const priceCurrency = typeof getUserCurrency === 'function' ? getUserCurrency().currency : 'EGP';
     
-    const checkoutUrl = `checkout.html?` +
-        `product=${currentProduct.id}` +
-        `        &title=${encodeURIComponent(_pdText('title'))}` +
-        `&price=${priceValue}` +
-        `&currency=${priceCurrency}`;
+    const productImg = (currentProduct.image || (currentProduct.images && currentProduct.images[0]) || '');
+    const checkoutUrl = `checkout.html?product=${currentProduct.id}&title=${encodeURIComponent(_pdText('title'))}&price=${priceValue}&currency=${priceCurrency}&image=${encodeURIComponent(productImg)}&category=${encodeURIComponent(currentProduct.category || '')}`;
     
     console.log('➡️ Redirecting to:', checkoutUrl);
     window.location.href = checkoutUrl;
