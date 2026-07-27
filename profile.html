@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>الملف الشخصي - BRAVO Store 👤</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <link rel="stylesheet" href="shared/css/global.css?v=15">
+    <link rel="stylesheet" href="shared/css/toast.css?v=5">
+    <link rel="stylesheet" href="shared/css/header.css?v=29">
+    <link rel="stylesheet" href="shared/css/footer.css?v=15">
+    <link rel="stylesheet" href="shared/css/responsive.css?v=15">
+    <link rel="stylesheet" href="shared/css/components.css?v=15">
+    <link rel="stylesheet" href="shared/css/reveal.css?v=1">
+    <link rel="stylesheet" href="shared/css/quick-view.css?v=22">
+    <link rel="stylesheet" href="css/profile.css?v=51">
+    <style>
+        .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .profile-avatar-large.has-avatar i.fa-user { display: none !important; }
+        .profile-avatar-large.has-avatar img { display: block !important; }
+        .profile-avatar-large.has-avatar .avatar-letter,
+        .profile-avatar-large.has-avatar .default-avatar-svg { display: none !important; }
+        .profile-avatar-large.has-avatar .default-avatar-svg { display: none !important; }
+        .default-avatar-svg { width: 80px; height: 80px; opacity: 0.6; display: block; }
+        .profile-avatar-large .default-avatar-svg { display: block; }
+        .profile-avatar-large { cursor: pointer; position: relative; }
+        .delete-avatar-btn { position: absolute; top: 0; left: 0; width: 26px; height: 26px; border-radius: 50%; background: #ef4444; color: #fff; border: 2px solid var(--bg-primary, #1a0b2e); cursor: pointer; font-size: 16px; font-weight: 700; display: none; align-items: center; justify-content: center; z-index: 6; transition: transform 0.2s, background 0.2s; font-family: 'Poppins', sans-serif; padding: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+        .delete-avatar-btn:hover { transform: scale(1.15); background: #dc2626; }
+        .profile-avatar-large .avatar-overlay { position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; z-index: 4; color: #fff; pointer-events: none; gap: 4px; backdrop-filter: blur(1px); }
+        .profile-avatar-large:hover .avatar-overlay { opacity: 1; }
+        .avatar-overlay i { font-size: 28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .avatar-overlay .overlay-text { font-size: 11px; font-weight: 600; font-family: 'Cairo', sans-serif; opacity: 0.9; }
+        .section-title { display: flex; align-items: center; justify-content: center; font-weight: 900; text-align: center; margin-bottom: 25px; position: relative; cursor: default; }
+        .section-title > span { display: inline-block; white-space: nowrap; background: linear-gradient(135deg, #9333ea 0%, #f59e0b 50%, #9333ea 100%); background-size: 300% 100%; background-position: 0% 50%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: textGradientShift 5s ease-in-out infinite !important; transition: transform 0.3s ease; }
+        .section-title > span .icon-natural { background: none !important; -webkit-text-fill-color: initial !important; font-family: "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji" !important; display: inline-block; }
+        .section-title:hover > span { transform: scale(1.05) perspective(1000px) rotateX(10deg) !important; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: var(--card-bg); border: 2px solid var(--border-color); border-radius: 20px; width: 90%; max-width: 420px; padding: 30px; box-shadow: 0 25px 80px rgba(0,0,0,0.6); animation: modalIn 0.3s ease; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        #modalTitle span { background: linear-gradient(135deg, #9333ea, #f59e0b, #9333ea); background-size: 300% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        #modalTitle { font-size: 1.4em; font-weight: 900; }
+        .modal-close { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.08); border: none; color: var(--text-secondary); font-size: 1.3em; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
+        .modal-close:hover { background: rgba(255,255,255,0.15); color: white; transform: rotate(90deg); }
+        .modal-body { margin-bottom: 25px; }
+        .modal-body label { display: block; color: var(--text-secondary); font-weight: 600; margin-bottom: 8px; font-size: 0.9em; }
+        .modal-body input { width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.06); border: 2px solid var(--border-color); border-radius: 12px; color: white; font-size: 1.05em; font-family: inherit; transition: all 0.3s; outline: none; box-sizing: border-box; }
+        .modal-body input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(147,51,234,0.2); }
+        .modal-body input::placeholder { color: var(--text-secondary); }
+        .modal-footer { display: flex; gap: 12px; }
+        .modal-btn { flex: 1; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 1em; cursor: pointer; transition: all 0.3s; font-family: inherit; border: none; }
+        .modal-btn-cancel { background: rgba(255,255,255,0.08); color: var(--text-secondary); }
+        .modal-btn-cancel:hover { background: rgba(255,255,255,0.15); color: white; }
+        .modal-btn-confirm { background: var(--gradient-primary); color: white; box-shadow: 0 4px 15px rgba(147,51,234,0.3); }
+        .modal-btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(147,51,234,0.5); }
+        .phone-input-wrapper { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .phone-input-wrapper input[type="tel"] { flex: 1; direction: ltr; text-align: left; padding: 14px 18px; background: rgba(255,255,255,0.06); border: 2px solid var(--border-color); border-radius: 12px; color: white; font-size: 1.05em; font-family: inherit; outline: none; box-sizing: border-box; transition: all 0.3s; }
+        .phone-input-wrapper input[type="tel"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(147,51,234,0.2); }
+        .phone-input-wrapper input[type="tel"]::placeholder { color: var(--text-secondary); }
+        @media (max-width: 992px) { .order-header-btn { display: none !important; } }
+    </style>
+</head>
+<body class="profile-page">
+    <!-- Particles Background -->
+    <canvas id="particles" aria-hidden="true"></canvas>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
+
+    <!-- Dropdown Overlay -->
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    <header role="banner">
+        <nav role="navigation" aria-label="Main Navigation">
+            <!-- Logo -->
+            <a href="index.html" class="logo" aria-label="BRAVO Home">
+                <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO Logo" class="logo-img" width="55" height="55">
+                <span class="logo-text">BRAVO</span>
+            </a>
+            
+            <ul class="nav-menu" id="navMenu" role="menubar">
+    
+    <!-- Mobile: divider -->
+    <li class="nav-menu-divider" role="separator"><span data-ar="الحساب" data-en="Account" data-fr="Compte">الحساب</span></li>
+
+    <!-- Mobile: حسابي -->
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn" href="Profile.html">
+            <i class="fas fa-user"></i>
+            <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
+        </a>
+    </li>
+
+    <!-- Mobile: طلباتي -->
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn" href="orders.html">
+            <i class="fas fa-box"></i>
+            <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+            <span class="action-badge" id="ordersBadgeMobile">0</span>
+        </a>
+    </li>
+
+    <!-- Mobile: divider -->
+    <li class="nav-menu-divider" role="separator"><span data-ar="الصفحات الرئيسية" data-en="Main Pages" data-fr="Pages principales">الصفحات الرئيسية</span></li>
+
+    <!-- الرئيسية -->
+            <li role="none">
+                <a href="index.html" role="menuitem">
+                    <i class="fas fa-house-chimney" aria-hidden="true"></i>
+                    <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span>
+                </a>
+            </li>
+
+            <!-- الصفحات الشرطية تظهر هنا فقط عند فتحها -->
+            <li class="conditional-nav-item nav-item-wishlist" data-page="wishlist.html" style="display:none;">
+                <a href="Wishlist.html" role="menuitem">
+                    <i class="fas fa-heart"></i>
+                    <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                    <span class="action-badge" id="wishlistBadge">0</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-cart" data-page="cart.html" style="display:none;">
+                <a href="cart.html" role="menuitem">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                    <span class="action-badge" id="cartBadge">0</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-checkout" data-page="checkout.html" style="display:none;">
+                <a href="checkout.html" role="menuitem">
+                    <i class="fas fa-credit-card"></i>
+                    <span data-ar="إتمام الشراء" data-en="Checkout" data-fr="Paiement">إتمام الشراء</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-profile" data-page="profile.html" style="display:none;">
+                <a href="Profile.html" role="menuitem">
+                    <i class="fas fa-user"></i>
+                    <span data-ar="حسابي" data-en="My Account" data-fr="Mon Compte">حسابي</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-orders" data-page="orders.html" style="display:none;">
+                <a href="orders.html" role="menuitem">
+                    <i class="fas fa-box"></i>
+                    <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+                </a>
+            </li>
+
+            <!-- المنتجات -->
+            <li role="none">
+                <a href="products.html" role="menuitem">
+                    <i class="fas fa-store" aria-hidden="true"></i> 
+                    <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span>
+                </a>
+            </li>
+            
+            <!-- من نحن -->
+            <li role="none">
+                <a href="about.html" role="menuitem">
+                    <i class="fas fa-users-gear" aria-hidden="true"></i> 
+                    <span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span>
+                </a>
+            </li>
+            
+            <!-- تواصل معنا -->
+            <li role="none">
+                <a href="contact.html" role="menuitem">
+                    <i class="fas fa-headset" aria-hidden="true"></i> 
+                    <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span>
+                </a>
+            </li>
+
+
+    <!-- Mobile: divider -->
+    <li class="nav-menu-divider" role="separator"><span data-ar="التسوق" data-en="Shopping" data-fr="Achats">التسوق</span></li>
+
+    <!-- Mobile: wishlist -->
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn" href="Wishlist.html">
+            <i class="fas fa-heart"></i>
+            <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+            <span class="action-badge" id="wishlistBadgeMobile">0</span>
+        </a>
+    </li>
+
+    <!-- Mobile: cart -->
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn" href="cart.html">
+            <i class="fas fa-shopping-cart"></i>
+            <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+            <span class="action-badge" id="cartBadgeMobile">0</span>
+        </a>
+    </li>
+
+    <!-- Mobile: notifications -->
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn" href="javascript:toggleDropdown('notificationsDropdown')">
+            <i class="fas fa-bell"></i>
+            <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+            <span class="action-badge" id="notificationsBadgeMobile">0</span>
+        </a>
+    </li>
+
+    <!-- Mobile: language -->
+    <li class="nav-menu-divider" role="separator"><span data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span></li>
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn" href="javascript:toggleLanguage()">
+            <i class="fas fa-globe"></i>
+            <span id="mobileLangText"><span class="flag-icon">🇪🇬</span> <span data-ar="العربية" data-en="English" data-fr="Français">العربية</span></span>
+        </a>
+    </li>
+
+</ul>
+            <!-- Action Buttons -->
+            <div class="nav-actions">
+                
+                <!-- Theme Toggle -->
+                
+
+                <!-- Language Switch -->
+                <div class="action-btn-wrapper">
+                    <button class="action-btn lang-switch" onclick="toggleLanguage()" aria-label="تبديل اللغة">
+                        <span id="langText">EN</span>
+                    </button>
+                    <span class="action-label" data-ar="اللغة" data-en="Language" data-fr="Langue">اللغة</span>
+                </div>
+
+                <!-- Notifications -->
+                <div class="action-btn-wrapper dropdown" id="notificationsDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('notificationsDropdown')" aria-label="الإشعارات" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-bell" aria-hidden="true"></i>
+                        <span class="action-badge" id="notificationsBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                    <div class="dropdown-menu" id="notificationsMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4>
+                                <i class="fas fa-bell" aria-hidden="true"></i> 
+                                <span data-ar="الإشعارات" data-en="Notifications" data-fr="Notifications">الإشعارات</span>
+                            </h4>
+                        </div>
+                        <div class="dropdown-content" id="notificationsContent"></div>
+                        <div class="dropdown-footer">
+                            <button class="dropdown-btn" onclick="markAllAsRead()">
+                                <span data-ar="تعليم الكل كمقروء" data-en="Mark all as read" data-fr="Tout lire">تعليم الكل كمقروء</span>
+                                <span class="emoji">✅</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wishlist -->
+                <div class="action-btn-wrapper dropdown" id="wishlistDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('wishlistDropdown')" aria-label="المفضلة" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-heart" aria-hidden="true"></i>
+                        <span class="action-badge" id="wishlistBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                    <div class="dropdown-menu" id="wishlistMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4>
+                                <i class="fas fa-heart" aria-hidden="true"></i> 
+                                <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
+                            </h4>
+                        </div>
+                        <div class="dropdown-content" id="wishlistContent"></div>
+                        <div class="dropdown-footer">
+                            <a href="wishlist.html" class="dropdown-btn">
+                                <span data-ar="عرض الكل" data-en="View All" data-fr="Voir tout">عرض الكل</span>
+                                <span class="emoji">❤️</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders (hidden on mobile) -->
+                <div class="action-btn-wrapper desktop-only">
+                    <a href="orders.html" class="action-btn" aria-label="طلباتي">
+                        <i class="fas fa-box" aria-hidden="true"></i>
+                        <span class="action-badge" id="ordersBadge" style="display: none;">0</span>
+                    </a>
+                    <span class="action-label" data-ar="طلباتي" data-en="Orders" data-fr="Commandes">طلباتي</span>
+                </div>
+
+                <!-- Cart -->
+                <div class="action-btn-wrapper dropdown" id="cartDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('cartDropdown')" aria-label="سلة التسوق" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        <span class="action-badge" id="cartBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                    <div class="dropdown-menu" id="cartMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4>
+                                <i class="fas fa-shopping-cart" aria-hidden="true"></i> 
+                                <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                            </h4>
+                        </div>
+                        <div class="dropdown-content" id="cartContent"></div>
+                        <div class="dropdown-footer">
+                            <a href="cart.html" class="dropdown-btn dropdown-btn-cart">
+                                <span data-ar="السلة" data-en="Cart" data-fr="Panier">السلة</span>
+                                <span class="emoji">🛒</span>
+                            </a>
+                            <a href="checkout.html" class="dropdown-btn dropdown-btn-checkout">
+                                <span data-ar="إتمام الشراء" data-en="Checkout" data-fr="Paiement">إتمام الشراء</span>
+                                <span class="emoji">💳</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Menu -->
+                <div class="action-btn-wrapper dropdown" id="userDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('userDropdown')" aria-label="حسابي" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                    </button>
+                    <span class="action-label" data-ar="حسابي" data-en="Account" data-fr="Compte">حسابي</span>
+                    <div class="dropdown-menu" id="userMenu" role="menu">
+                        <div class="user-info" id="userInfo">
+                            <div class="user-avatar" id="userAvatar">
+                                <i class="fas fa-user" aria-hidden="true"></i>
+                            </div>
+                            <div class="user-details">
+                                <h4 id="userName" data-ar="زائر" data-en="Guest" data-fr="Invité">زائر</h4>
+                                <p id="userEmail" data-ar="سجل الدخول للمتابعة" data-en="Login to continue" data-fr="Connectez-vous">سجل الدخول للمتابعة</p>
+                            </div>
+                        </div>
+                        <div class="user-menu-content" id="guestMenuContent">
+                            <a href="auth.html" class="user-menu-item">
+                                <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                                <span data-ar="تسجيل الدخول" data-en="Login" data-fr="Connexion">تسجيل الدخول</span>
+                            </a>
+                            <a href="auth.html?mode=register" class="user-menu-item">
+                                <i class="fas fa-user-plus" aria-hidden="true"></i>
+                                <span data-ar="إنشاء حساب جديد" data-en="Create Account" data-fr="Créer un compte">إنشاء حساب جديد</span>
+                            </a>
+                        </div>
+                        <div class="user-menu-content" id="loggedInMenuContent" style="display: none;"></div>
+                        <div class="dropdown-footer" id="logoutSection" style="display: none;">
+                            <button class="dropdown-btn logout-btn" onclick="handleLogout()">
+                                <span data-ar="تسجيل الخروج" data-en="Logout" data-fr="Déconnexion">تسجيل الخروج</span>
+                                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Toggle -->
+                <div class="action-btn-wrapper mobile-menu-toggle">
+                    <button class="action-btn" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
+                        <i class="fas fa-bars" id="mobileMenuIcon" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <!-- Admin Button -->
+                <a href="admin.html" class="admin-btn" id="adminBtn" style="display: none;" aria-label="لوحة التحكم">
+                    <i class="fas fa-user-shield" aria-hidden="true"></i>
+                    <span data-ar="لوحة التحكم" data-en="Admin" data-fr="Admin">لوحة التحكم</span>
+                </a>
+                
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="breadcrumb reveal">
+            <a href="index.html"><i class="fas fa-home home-icon"></i> <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span></a>
+            <i class="fas fa-chevron-left chevron"></i>
+            <span class="current" data-ar="الملف الشخصي" data-en="Profile" data-fr="Profil">الملف الشخصي</span>
+        </div>
+
+        <div class="page-hero-wrapper reveal">
+            <h1>
+                <span class="hero-headline typing-done"><span data-ar="الملف الشخصي" data-en="Profile" data-fr="Profil">الملف الشخصي</span> <span class="emoji">👤</span></span>
+            </h1>
+            <p class="page-subtitle" data-ar="إدارة معلوماتك الشخصية وإعدادات حسابك" data-en="Manage your personal information and account settings" data-fr="Gérez vos informations personnelles et les paramètres de votre compte">إدارة معلوماتك الشخصية وإعدادات حسابك</p>
+        </div>
+
+        <div class="profile-container">
+            <!-- Sidebar -->
+            <div class="profile-sidebar" data-reveal="fadeInLeft">
+                <div class="profile-avatar-section">
+                    <div class="profile-avatar-large" id="profileAvatarLarge" onclick="changeAvatar()" title="تغيير الصورة الشخصية">
+                        <div class="avatar-overlay"><i class="fas fa-camera"></i><span class="overlay-text">تغيير</span></div>
+                        <img id="profileAvatarImg" src="" alt="Avatar" style="display:none">
+                        <span id="profileAvatarLetter" class="default-avatar-svg">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </span>
+                        <i class="fas fa-user" id="profileAvatarIcon" style="display:none"></i>
+                        <div class="online-badge"></div>
+                        <button class="delete-avatar-btn" id="deleteAvatarBtn" onclick="event.stopPropagation();deleteAvatar()" title="حذف الصورة" style="display:none">&times;</button>
+                    </div>
+                    <div class="user-name-section">
+                        <h2 id="sidebarUserName"></h2>
+                        <script>try{var _n=localStorage.getItem('userDisplayName')||(JSON.parse(localStorage.getItem('profileData')||'{}').displayName);if(_n)document.getElementById('sidebarUserName').textContent=_n}catch(e){}</script>
+                        <p id="sidebarUserEmail"></p>
+                        <script>try{var _e=localStorage.getItem('userEmail')||(JSON.parse(localStorage.getItem('profileData')||'{}').email);if(_e)document.getElementById('sidebarUserEmail').textContent=_e}catch(e){}</script>
+                    </div>
+                    <button class="change-avatar-btn" onclick="event.stopPropagation();changeAvatar()"><i class="fas fa-camera"></i> تغيير الصورة الشخصية</button>
+                </div>
+                <!-- end profile-avatar-section -->
+
+                <div class="profile-stats">
+                    <div class="stat-box">
+                        <div class="number" id="totalOrders">0</div>
+                        <div class="label">إجمالي الطلبات</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="totalSpent">0</div>
+                        <div class="label">إجمالي المشتريات</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="wishlistCount">0</div>
+                        <div class="label">المفضلة</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="number" id="memberDays">0</div>
+                        <div class="label">يوم عضوية</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="profile-main" data-reveal="fadeInRight">
+                    <div class="section-title"><span>المعلومات الشخصية <span class="icon-natural">👤</span></span></div>
+
+                <div class="info-grid">
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-user"></i>
+                            الاسم الكامل
+                        </div>
+                        <div class="info-value" id="displayNameValue"></div>
+                        <script>try{var _d=JSON.parse(localStorage.getItem('profileData')||'{}');if(_d.displayName)document.getElementById('displayNameValue').textContent=_d.displayName}catch(e){}</script>
+                        <button class="edit-btn" onclick="editField('displayName')">
+                            <i class="fas fa-edit"></i> تعديل
+                        </button>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-envelope"></i>
+                            البريد الإلكتروني
+                        </div>
+                        <div class="info-value" id="emailValue">-</div>
+                        <button class="edit-btn" onclick="editField('email')">
+                            <i class="fas fa-edit"></i> تعديل
+                        </button>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-phone"></i>
+                            رقم الهاتف
+                        </div>
+                        <div class="info-value" id="phoneValue"></div>
+                        
+                        <button class="edit-btn" onclick="editField('phoneNumber')">
+                            <i class="fas fa-edit"></i> إضافة
+                        </button>
+                    </div>
+
+                    <div class="info-row">
+                        <div class="info-label">
+                            <i class="fas fa-key"></i>
+                            كلمة المرور
+                        </div>
+                        <div class="info-value">••••••••••</div>
+                        <button class="edit-btn" onclick="changePassword()">
+                            <i class="fas fa-key"></i> تغيير
+                        </button>
+                    </div>
+
+                    <div class="info-row verified-row">
+                        <div class="info-label">
+                            <i class="fas fa-shield-alt"></i>
+                            حالة التحقق
+                        </div>
+                        <div class="info-value" id="verifiedStatus">
+                            <span class="status-badge verified">
+                                <i class="fas fa-check-circle"></i>
+                                تم التحقق ✅
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Section -->
+                <div class="action-section">
+                    <div class="section-title">
+                        <span>الإجراءات السريعة <span class="icon-natural">⚡</span></span>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="action-btn btn-primary-action" onclick="window.location.href='orders.html'">
+                            <i class="fas fa-shopping-bag"></i>
+                            عرض طلباتي
+                        </button>
+                        <button class="action-btn btn-danger-action" onclick="deleteAccount()">
+                            <i class="fas fa-trash-alt"></i>
+                            حذف الحساب
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO">
+                        <span>BRAVO</span>
+                    </div>
+                    <p data-ar="المنصة الأولى لتعليم الصناعات الكيميائية" data-en="The #1 Platform for Chemical Industries" data-fr="La plateforme n°1 pour les industries chimiques">المنصة الأولى لتعليم الصناعات الكيميائية</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="روابط سريعة" data-en="Quick Links" data-fr="Liens rapides">روابط سريعة</h4>
+                    <ul>
+                        <li><a href="index.html"><i class="fas fa-angle-left"></i> <span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span></a></li>
+                        <li><a href="products.html"><i class="fas fa-angle-left"></i> <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span></a></li>
+                        <li><a href="about.html"><i class="fas fa-angle-left"></i> <span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span></a></li>
+                        <li><a href="contact.html"><i class="fas fa-angle-left"></i> <span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span></a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="أقسام المتجر" data-en="Categories" data-fr="Catégories">أقسام المتجر</h4>
+                    <ul>
+                        <li><a href="products.html?cat=books"><span class="emoji">📚</span> <span data-ar="كتب" data-en="Books" data-fr="Livres">كتب</span></a></li>
+                        <li><a href="products.html?cat=software"><span class="emoji">💻</span> <span data-ar="برامج" data-en="Software" data-fr="Logiciels">برامج</span></a></li>
+                        <li><a href="products.html?cat=formulas"><span class="emoji">🧪</span> <span data-ar="تركيبات" data-en="Formulas" data-fr="Formules">تركيبات</span></a></li>
+                        <li><a href="products.html?cat=courses"><span class="emoji">🎓</span> <span data-ar="كورسات" data-en="Courses" data-fr="Cours">كورسات</span></a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="تواصل" data-en="Contact" data-fr="Contact">تواصل</h4>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-phone"></i> <span dir="ltr">+20 101 285 3829</span></li>
+                        <li><i class="fas fa-envelope"></i> info@bravo.com</li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span data-ar="القاهرة، مصر" data-en="Cairo, Egypt" data-fr="Le Caire, Égypte">القاهرة، مصر</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 BRAVO Store. <span data-ar="جميع الحقوق محفوظة" data-en="All rights reserved" data-fr="Tous droits réservés">جميع الحقوق محفوظة</span>.</p>
+                <div class="payment-methods">
+                    <i class="fas fa-credit-card"></i>
+                    <i class="fab fa-cc-paypal"></i>
+                    <i class="fab fa-bitcoin"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top -->
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- WhatsApp Float -->
+    <a href="https://wa.me/201012853829?text=مرحباً، أريد الاستفسار" 
+       class="whatsapp-float" 
+       target="_blank" 
+       title="تواصل معنا عبر واتساب">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
+    <!-- Main JavaScript -->
+    <script src="js/include.js?v=21"></script>
+    <script src="js/app.js?v=20260727cbt"></script>
+    <script type="module" src="firebase-config.js"></script>
+    <script>initPageHero();</script>
+    <script>
+    function revealElement(el) {
+        if (!el || el.classList.contains('revealed')) return;
+        var rect = el.getBoundingClientRect();
+        var isVisible = rect.top < window.innerHeight - 60 && rect.bottom > 0;
+        if (isVisible) {
+            el.classList.add('revealed');
+        }
+    }
+    function checkReveals() {
+        document.querySelectorAll('.reveal:not(.revealed)').forEach(revealElement);
+        document.querySelectorAll('[data-reveal]:not(.revealed)').forEach(revealElement);
+    }
+    window.addEventListener('scroll', checkReveals, { passive: true });
+    setInterval(checkReveals, 500);
+    checkReveals();
+    setTimeout(checkReveals, 500);
+    setTimeout(checkReveals, 2000);
+    setTimeout(checkReveals, 5000);
+    </script>
+
+
+    <script>
+    var editFieldName = '';
+    function openModal(field) {
+        editFieldName = field;
+        var overlay = document.getElementById('editModalOverlay');
+        var input = document.getElementById('modalInput');
+        var inputP = document.getElementById('modalInputPhone');
+        var label = document.getElementById('modalLabel');
+        var labels = {displayName:'الاسم الكامل',email:'البريد الإلكتروني',phoneNumber:'رقم الهاتف'};
+        document.getElementById('modalTitleText').textContent = 'تعديل ' + (labels[field] || field);
+        label.textContent = labels[field] || field;
+        var idMap = {displayName:'displayNameValue',email:'emailValue',phoneNumber:'phoneValue'};
+        var el = document.getElementById(idMap[field]);
+        var current = el ? el.textContent : '';
+        if (!current || current === '-' || current.indexOf('تحميل') !== -1 || current.indexOf('محدد') !== -1) current = '';
+        var pw = document.getElementById('phoneWrapper');
+        if (field === 'email') { input.type = 'email'; input.placeholder = 'أدخل البريد الإلكتروني'; input.style.display=''; if(pw)pw.style.display='none'; input.value = current; }
+        else if (field === 'phoneNumber') { input.style.display='none'; if(pw)pw.style.display='flex'; inputP.type = 'tel'; inputP.placeholder = 'أدخل رقم الهاتف'; inputP.value = current; }
+        else { input.type = 'text'; input.placeholder = 'أدخل القيمة'; input.style.display=''; if(pw)pw.style.display='none'; input.value = current; }
+        overlay.classList.add('active');
+        var activeInput = field === 'phoneNumber' ? inputP : input;
+        setTimeout(function(){ activeInput.focus(); activeInput.select(); }, 100);
+    }
+    function closeModal() {
+        document.getElementById('editModalOverlay').classList.remove('active');
+    }
+    function setCookie(name, val, days) { try { var d = new Date(); d.setTime(d.getTime() + days * 86400000); document.cookie = encodeURIComponent(name) + '=' + encodeURIComponent(val) + ';expires=' + d.toUTCString() + ';path=/'; } catch(e) {} }
+    function getCookie(name) { try { return decodeURIComponent(document.cookie.split('; ').find(function(r){return r.startsWith(encodeURIComponent(name)+'=')})?.split('=')[1] || ''); } catch(e) { return ''; } }
+    function saveAll() {
+        try {
+            var d = JSON.parse(localStorage.getItem('profileData') || '{}');
+            var e1 = document.getElementById('displayNameValue'); if (e1) { var t = e1.textContent; if (t && t !== 'غير محدد' && t !== '-' && t.indexOf('تحميل') === -1) { d.displayName = t; localStorage.setItem('userDisplayName', t); } }
+            var e2 = document.getElementById('emailValue'); if (e2) { var t = e2.textContent; if (t && t !== 'غير محدد' && t !== '-' && t.indexOf('تحميل') === -1) { d.email = t; localStorage.setItem('userEmail', t); } }
+            var e3 = document.getElementById('phoneValue'); if (e3) { var t = e3.textContent; if (t && t !== 'غير محدد' && t !== '-' && t.indexOf('تحميل') === -1) { d.phoneNumber = t; localStorage.setItem('phone_saved', t); setCookie('phone_saved', t, 365); } }
+            var _a = localStorage.getItem('userAvatar'); if (_a) d.avatar = _a;
+            localStorage.setItem('profileData', JSON.stringify(d));
+            saveProfileToFirebase({ displayName: d.displayName, email: d.email, phoneNumber: d.phoneNumber });
+        } catch(e) {}
+    }
+    function confirmEdit() {
+        var field = editFieldName;
+        var input = field === 'phoneNumber' ? document.getElementById('modalInputPhone') : document.getElementById('modalInput');
+        if (!input) return;
+        var val = input.value.trim();
+        if (!val) { input.focus(); return; }
+        var el = document.getElementById('displayNameValue');
+        if (field === 'displayName' && el) el.textContent = val;
+        el = document.getElementById('emailValue');
+        if (field === 'email' && el) el.textContent = val;
+        el = document.getElementById('phoneValue');
+        if (field === 'phoneNumber' && el) { el.textContent = val; try { localStorage.setItem('phone_saved', val); } catch(e) {} }
+        saveAll();
+        closeModal();
+    }
+    async function loadProfileData() {
+        try {
+            var d = JSON.parse(localStorage.getItem('profileData') || '{}');
+            var fb = await loadProfileFromFirebase();
+            if (fb) {
+                if (fb.displayName && !d.displayName) d.displayName = fb.displayName;
+                if (fb.email && !d.email) d.email = fb.email;
+                if (fb.phoneNumber && !d.phoneNumber) d.phoneNumber = fb.phoneNumber;
+                if (fb.avatar && fb.avatar.startsWith('http')) { d.avatarFirebase = fb.avatar; }
+                localStorage.setItem('profileData', JSON.stringify(d));
+            }
+            var e1 = document.getElementById('displayNameValue'); if (e1 && d.displayName) e1.textContent = d.displayName;
+            var e2 = document.getElementById('emailValue'); if (e2 && d.email) e2.textContent = d.email;
+            var e3 = document.getElementById('phoneValue'); if (e3 && d.phoneNumber && (e3.textContent === '-' || e3.textContent === 'غير محدد' || !e3.textContent)) e3.textContent = d.phoneNumber;
+            if (fb && window.currentUser && window.currentUser.uid) {
+                var bravo = localStorage.getItem('bravoUserId');
+                if (bravo && bravo !== window.currentUser.uid) {
+                    try {
+                        var oldSnap = await window.firebaseGet(window.firebaseRef(window.database, 'users/' + bravo));
+                        if (oldSnap.exists()) {
+                            var oldData = oldSnap.val();
+                            var merged = {};
+                            for (var k in fb) merged[k] = fb[k];
+                            for (var k in oldData) if (!merged[k]) merged[k] = oldData[k];
+                            merged.updatedAt = Date.now();
+                            await window.firebaseSet(window.firebaseRef(window.database, 'users/' + window.currentUser.uid), merged);
+                            await window.firebaseRemove(window.firebaseRef(window.database, 'users/' + bravo));
+                        }
+                    } catch(e) {}
+                    try { localStorage.removeItem('bravoUserId'); } catch(e) {}
+                    try { localStorage.setItem('bravoUserId', window.currentUser.uid); } catch(e) {}
+                }
+            }
+        } catch(e) {}
+    }
+    setTimeout(loadProfileData, 1000);
+    [3000, 5000, 8000].forEach(function(t){ setTimeout(loadProfileData, t); });
+    window.addEventListener('beforeunload', saveAll);
+    try { localStorage.setItem('_test', 'works'); if (localStorage.getItem('_test') === 'works') { var _te = document.createElement('div'); _te.id = '_testPass'; } } catch(e) {}
+    function changePassword() {
+        var overlay = document.getElementById('editModalOverlay');
+        document.getElementById('modalTitleText').textContent = 'تغيير كلمة المرور';
+        document.getElementById('modalLabel').textContent = 'كلمة المرور الجديدة';
+        var input = document.getElementById('modalInput');
+        input.type = 'password';
+        input.value = '';
+        input.placeholder = 'أدخل كلمة المرور الجديدة';
+        editFieldName = 'password';
+        overlay.classList.add('active');
+        setTimeout(function(){ input.focus(); }, 100);
+    }
+    function editField(field) { openModal(field); }
+    function getUserId() {
+        if (window.currentUser && window.currentUser.uid) return window.currentUser.uid;
+        var uid = localStorage.getItem('bravoUserId');
+        if (!uid) { uid = 'user_' + Date.now() + '_' + Math.random().toString(36).slice(2,8); localStorage.setItem('bravoUserId', uid); }
+        return uid;
+    }
+    async function uploadAvatarToFirebase(file) {
+        try {
+            if (!window.firebaseUploadBytes || !window.firebaseStorageRef || !window.firebaseGetDownloadURL) {
+                console.warn('Firebase Storage not ready, using local only');
+                return null;
+            }
+            var uid = getUserId();
+            var timestamp = Date.now();
+            var ext = file.name ? file.name.split('.').pop() : 'jpg';
+            var filePath = 'avatars/' + uid + '_' + timestamp + '.' + ext;
+            var storageRef = window.firebaseStorageRef(window.storage, filePath);
+            var snapshot = await window.firebaseUploadBytes(storageRef, file);
+            var url = await window.firebaseGetDownloadURL(snapshot.ref);
+            return url;
+        } catch(e) { console.error('Avatar upload failed:', e); return null; }
+    }
+    async function saveProfileToFirebase(data) {
+        try {
+            if (!window.firebaseRef) return;
+            var uid = getUserId();
+            var existing = {};
+            try { var s = await window.firebaseGet(window.firebaseRef(window.database, 'users/' + uid)); if (s.exists()) existing = s.val(); } catch(e) {}
+            var merged = {};
+            for (var k in existing) merged[k] = existing[k];
+            for (var k in data) merged[k] = data[k];
+            merged.updatedAt = Date.now();
+            await window.firebaseSet(window.firebaseRef(window.database, 'users/' + uid), merged);
+        } catch(e) { console.error('Firebase save error:', e); }
+    }
+    async function loadProfileFromFirebase() {
+        try {
+            if (!window.firebaseRef) return null;
+            var uid = getUserId();
+            var s = await window.firebaseGet(window.firebaseRef(window.database, 'users/' + uid));
+            return s.exists() ? s.val() : null;
+        } catch(e) { return null; }
+    }
+    function saveThumbnail(file, cb) {
+        if (window.createImageBitmap) {
+            createImageBitmap(file, { resizeWidth: 150, resizeHeight: 150, resizeQuality: 'high' }).then(function(bitmap) {
+                var c = document.createElement('canvas');
+                c.width = bitmap.width; c.height = bitmap.height;
+                c.getContext('2d').drawImage(bitmap, 0, 0);
+                cb(c.toDataURL('image/jpeg', 0.5));
+            }).catch(function(){ saveThumbnailFallback(file, cb); });
+        } else {
+            saveThumbnailFallback(file, cb);
+        }
+    }
+    function saveThumbnailFallback(file, cb) {
+        var r = new FileReader();
+        r.onload = function(ev) {
+            var dataUrl = ev.target.result;
+            var tmp = new Image();
+            var done = false;
+            tmp.onload = function() {
+                if (done) return; done = true;
+                var w = tmp.width, h = tmp.height;
+                if (w > 150) { h = h * 150 / w; w = 150; }
+                var c = document.createElement('canvas');
+                c.width = w|0; c.height = h|0;
+                c.getContext('2d').drawImage(tmp, 0, 0, w|0, h|0);
+                cb(c.toDataURL('image/jpeg', 0.5));
+            };
+            tmp.onerror = function(){ if (done) return; done = true; cb(null); };
+            tmp.src = dataUrl;
+        };
+        r.onerror = function(){ cb(null); };
+        r.readAsDataURL(file);
+    }
+    function changeAvatar() {
+        var input = document.getElementById('avatarFileInput');
+        if (!input) {
+            input = document.createElement('input');
+            input.id = 'avatarFileInput';
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.style.display = 'none';
+            input.onchange = function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+                var img = document.getElementById('profileAvatarImg');
+                var con = document.getElementById('profileAvatarLarge');
+                var objUrl = URL.createObjectURL(file);
+                if (img) img.src = objUrl;
+                if (con) con.classList.add('has-avatar');
+                saveThumbnail(file, function(smallUrl) {
+                    if (smallUrl) {
+                        try { localStorage.removeItem('userAvatarDeleted'); } catch(e) {}
+                        try { var pd = JSON.parse(localStorage.getItem('profileData') || '{}'); pd.avatar = smallUrl; localStorage.setItem('profileData', JSON.stringify(pd)); } catch(e) {}
+                        var existing = localStorage.getItem('userAvatar');
+                        if (!existing) try { localStorage.setItem('userAvatar', smallUrl); } catch(e) {}
+                        setAvatar(smallUrl);
+                    }
+                });
+                saveAvatar(null, file);
+            };
+            document.body.appendChild(input);
+        }
+        input.click();
+    }
+    window.escapeUrl = function(s){
+        return s.replace(/"/g,'&quot;').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    };
+    async function saveAvatar(dataUrl, file) {
+        try {
+            if (file) {
+                var url = await uploadAvatarToFirebase(file);
+                if (url) {
+                    var d = JSON.parse(localStorage.getItem('profileData') || '{}');
+                    d.avatarFirebase = url;
+                    delete d.avatar;
+                    localStorage.setItem('profileData', JSON.stringify(d));
+                    try { localStorage.setItem('userAvatar', url); } catch(e) {}
+                    setAvatar(url);
+                    await saveProfileToFirebase({ avatar: url, photoURL: url, avatarUpdatedAt: Date.now() });
+                }
+            }
+        } catch(e) { console.error('Save avatar error:', e); }
+    }
+    function downloadData() {
+        var data = {};
+        var fields = {displayName:'الاسم الكامل',email:'البريد الإلكتروني',phoneNumber:'رقم الهاتف'};
+        var idMap2 = {displayName:'displayNameValue',email:'emailValue',phoneNumber:'phoneValue'};
+        for (var key in fields) {
+            var el = document.getElementById(idMap2[key]);
+            data[fields[key]] = el ? el.textContent : '-';
+        }
+        var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'بياناتي.json'; a.click();
+        URL.revokeObjectURL(url);
+    }
+    function deleteAccount() {
+        if (confirm('⚠️ هل أنت متأكد من حذف الحساب؟ لا يمكن التراجع عن هذا الإجراء.\n\n⚠️ الصورة الشخصية والعناصر الأخرى في قاعدة البيانات ستبقى للأمان.')) {
+            var uid = localStorage.getItem('bravoUserId');
+            localStorage.clear();
+            if (uid) localStorage.setItem('bravoUserId', uid);
+            window.location.href = 'auth.html';
+        }
+    }
+    </script>
+
+    <script>
+    function syncHeaderAvatar(url){
+        var ha = document.getElementById('userAvatar');
+        if (!ha) return;
+        if (url && url !== 'null' && url !== '') {
+            ha.innerHTML = '<img src="' + url.replace(/"/g,'&quot;') + '" alt="Avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%"><div class="online-indicator"></div>';
+        } else {
+            var name = (document.getElementById('sidebarUserName')||{}).textContent || localStorage.getItem('userDisplayName') || 'U';
+            ha.innerHTML = name.charAt(0).toUpperCase() + '<div class="online-indicator"></div>';
+        }
+    }
+    function showDefaultAvatar(){
+        var con = document.getElementById('profileAvatarLarge');
+        var img = document.getElementById('profileAvatarImg');
+        var svg = document.getElementById('profileAvatarLetter');
+        if (con) con.classList.remove('has-avatar');
+        if (img) { img.src = ''; img.style.display = 'none'; }
+        if (svg) svg.style.display = 'block';
+        var delBtn = document.getElementById('deleteAvatarBtn');
+        if (delBtn) delBtn.style.display = 'none';
+        syncHeaderAvatar(null);
+    }
+    function setAvatar(url){
+        if (!url) return;
+        var img = document.getElementById('profileAvatarImg');
+        var con = document.getElementById('profileAvatarLarge');
+        var svg = document.getElementById('profileAvatarLetter');
+        if (img) { img.src = url; img.style.display = ''; }
+        if (con) con.classList.add('has-avatar');
+        if (svg) svg.style.display = 'none';
+        var delBtn = document.getElementById('deleteAvatarBtn');
+        if (delBtn) delBtn.style.display = 'flex';
+        syncHeaderAvatar(url);
+    }
+    function loadAvatar(){
+        var _del = localStorage.getItem('userAvatarDeleted');
+        if (_del === '1') { showDefaultAvatar(); return; }
+        var u = localStorage.getItem('userAvatar');
+        if (u && u.indexOf('data:') === 0) { setAvatar(u); return; }
+        try {
+            var d = JSON.parse(localStorage.getItem('profileData') || '{}');
+            if (d.avatarFirebase && d.avatarFirebase.startsWith('http')) { setAvatar(d.avatarFirebase); return; }
+            if (d.avatar && d.avatar.indexOf('data:') === 0) { setAvatar(d.avatar); return; }
+        } catch(e) {}
+        showDefaultAvatar();
+    }
+    loadAvatar();
+    [100, 300, 500, 1000, 2000].forEach(function(t){ setTimeout(loadAvatar, t); });
+    function deleteAvatar(){
+        if (!confirm('هل أنت متأكد من حذف الصورة الشخصية؟')) return;
+        try { localStorage.removeItem('userAvatar'); } catch(e) {}
+        try { localStorage.setItem('userAvatarDeleted', '1'); } catch(e) {}
+        try {
+            var pd = JSON.parse(localStorage.getItem('profileData') || '{}');
+            delete pd.avatar; delete pd.avatarFirebase;
+            localStorage.setItem('profileData', JSON.stringify(pd));
+        } catch(e) {}
+        saveProfileToFirebase({ avatar: '', photoURL: '', avatarUpdatedAt: Date.now() });
+        showDefaultAvatar();
+    }
+    </script>
+    <script>
+    (function(){
+        var pv = document.getElementById('phoneValue');
+        if (!pv) return;
+        var saved = localStorage.getItem('phone_saved') || (JSON.parse(localStorage.getItem('profileData')||'{}').phoneNumber);
+        if (saved && saved !== 'غير محدد' && saved.indexOf('تحميل') === -1 && saved !== '-') {
+            pv.textContent = saved;
+            var pb = pv.parentNode ? pv.parentNode.querySelector('.edit-btn') : null;
+            if (pb) pb.innerHTML = '<i class="fas fa-edit"></i> تعديل';
+        }
+        new MutationObserver(function(){
+            var cur = pv.textContent;
+            var sv = localStorage.getItem('phone_saved') || (JSON.parse(localStorage.getItem('profileData')||'{}').phoneNumber);
+            if (cur === 'غير محدد' && sv && sv !== 'غير محدد') {
+                pv.textContent = sv;
+                var pb = pv.parentNode ? pv.parentNode.querySelector('.edit-btn') : null;
+                if (pb) pb.innerHTML = '<i class="fas fa-edit"></i> تعديل';
+            } else if (!cur && !sv) {
+                pv.textContent = 'غير محدد';
+                var pb = pv.parentNode ? pv.parentNode.querySelector('.edit-btn') : null;
+                if (pb && pb.innerHTML.indexOf('تعديل') === -1) pb.innerHTML = '<i class="fas fa-plus"></i> إضافة';
+            }
+        }).observe(pv, { childList: true, characterData: true, subtree: true });
+    })();
+    (function(){
+        function saveSidebar(){
+            var sn = document.getElementById('sidebarUserName');
+            var se = document.getElementById('sidebarUserEmail');
+            if (sn && sn.textContent) try { localStorage.setItem('userDisplayName', sn.textContent); } catch(e) {}
+            if (se && se.textContent) try { localStorage.setItem('userEmail', se.textContent); } catch(e) {}
+        }
+        saveSidebar();
+        var obs = new MutationObserver(saveSidebar);
+        var sn = document.getElementById('sidebarUserName');
+        var se = document.getElementById('sidebarUserEmail');
+        if (sn) obs.observe(sn, { childList: true, characterData: true, subtree: true });
+        if (se) obs.observe(se, { childList: true, characterData: true, subtree: true });
+    })();
+    </script>
+
+    <!-- Edit Modal -->
+    <div class="modal-overlay" id="editModalOverlay" onclick="if(event.target===this)closeModal()">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modalTitle"><span id="modalTitleText">تعديل</span> 👤</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label id="modalLabel">القيمة</label>
+                <div class="phone-input-wrapper" id="phoneWrapper" style="display:none;">
+                    <input type="tel" id="modalInputPhone" placeholder="أدخل رقم الهاتف" onkeydown="if(event.key==='Enter')confirmEdit()">
+                </div>
+                <input type="text" id="modalInput" placeholder="أدخل القيمة" onkeydown="if(event.key==='Enter')confirmEdit()">
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-confirm" onclick="confirmEdit()">حفظ</button>
+                <button class="modal-btn modal-btn-cancel" onclick="closeModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick View Modal Container -->
+    <div id="quickViewModal" class="quick-view-modal-overlay"></div>
+
+</body>
+</html>
+
+
