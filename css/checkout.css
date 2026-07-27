@@ -688,6 +688,9 @@ body.checkout-page {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 16px;
     margin-bottom: 30px;
+    max-width: 750px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .payment-method {
@@ -788,7 +791,9 @@ body.checkout-page {
     animation: slideDownAnim 0.5s ease;
     box-sizing: border-box;
     width: 100%;
-    max-width: 100%;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
     text-align: center;
 }
 
@@ -803,8 +808,10 @@ body.checkout-page {
 
 .detail-item {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
+    text-align: center;
+    gap: 6px;
     padding: 15px;
     background: var(--card-bg);
     border-radius: 12px;
@@ -834,7 +841,7 @@ body.checkout-page {
 .detail-item-full {
     flex-wrap: wrap;
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
     gap: 8px;
 }
 .detail-item-full .detail-label {
@@ -846,8 +853,8 @@ body.checkout-page {
     font-size: 1.1em;
 }
 .copy-btn-bottom {
-    align-self: flex-end;
-    margin-top: 0;
+    align-self: center;
+    margin-top: 4px;
 }
 
 .detail-item:hover {
@@ -858,8 +865,9 @@ body.checkout-page {
 
 .detail-label {
     font-weight: 800;
-    color: var(--text-primary);
-    font-size: 1em;
+    color: var(--text-secondary);
+    font-size: 0.85em;
+    text-align: center;
 }
 
 .detail-value {
@@ -868,6 +876,7 @@ body.checkout-page {
     color: var(--text-primary);
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
     word-break: break-word;
     overflow-wrap: anywhere;

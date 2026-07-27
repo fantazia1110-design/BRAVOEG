@@ -7776,8 +7776,9 @@ async function initializeApp() {
     await initializeAuth(); 
 
     // إعادة عرض طرق الدفع بعد تحميل البيانات من Firebase
-    if (window.location.pathname.includes('checkout') && typeof displayPaymentMethods === 'function') {
-        displayPaymentMethods();
+    if (window.location.pathname.includes('checkout')) {
+        if (typeof loadPaymentMethods === 'function') await loadPaymentMethods();
+        if (typeof displayPaymentMethods === 'function') displayPaymentMethods();
     }
     
     // Fallback: استعادة الجلسة من localStorage لو Firebase Auth مش متاح
