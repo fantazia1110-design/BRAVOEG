@@ -2248,6 +2248,9 @@ async function getCheckoutOrderData() {
         var remaining = Math.max(0, minDelay - elapsed);
         setTimeout(function() { displayCheckoutOrderSummary(); }, remaining);
         
+        // عرض طرق الدفع فوراً
+        displayPaymentMethods();
+        
     } catch (e) { console.error('Error loading checkout data:', e); }
 }
 
@@ -7771,6 +7774,11 @@ async function initializeApp() {
     await initializeFirebase();
     await loadSystemSettings(); 
     await initializeAuth(); 
+
+    // إعادة عرض طرق الدفع بعد تحميل البيانات من Firebase
+    if (window.location.pathname.includes('checkout') && typeof displayPaymentMethods === 'function') {
+        displayPaymentMethods();
+    }
     
     // Fallback: استعادة الجلسة من localStorage لو Firebase Auth مش متاح
     if (!currentUser) {
@@ -7931,7 +7939,7 @@ async function initializeApp() {
     }
     setActiveMenuItem(); initializeDropdowns(); checkAdmin();
     if (typeof initializeParticles === 'function') initializeParticles();
-    if (window.location.pathname.includes('checkout') && typeof getCheckoutOrderData === 'function') getCheckoutOrderData();
+    if (window.location.pathname.includes('checkout') && typeof getCheckoutOrderData === 'function') { if (typeof displayPaymentMethods === 'function') displayPaymentMethods(); getCheckoutOrderData(); }
 
     if (document.body.classList.contains('admin-page')) { checkAdminLoginStatus(); initAdminLogin(); 
 initAddProductForm(); initEditForms(); renderAllSuggestionChips(); }
