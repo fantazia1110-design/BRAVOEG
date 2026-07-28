@@ -2239,3 +2239,66 @@ body[dir="ltr"] .mobile-lang-indicator {
         opacity: 1 !important;
     }
 }
+
+/* 📱 Compact sidebar: smaller buttons, no scroll */
+@media (max-width: 768px) {
+    .nav-menu {
+        padding: 10px 12px 0 !important;
+    }
+    .nav-menu .nav-menu-divider {
+        padding: 2px 12px 0 !important;
+        margin-top: 2px !important;
+    }
+    .nav-menu .nav-menu-divider span {
+        font-size: 0.7em !important;
+    }
+    .nav-menu li {
+        margin-bottom: 2px !important;
+    }
+    .nav-menu a {
+        padding: 8px 12px !important;
+        font-size: 0.85em !important;
+        gap: 8px !important;
+        border-radius: 10px !important;
+    }
+    .nav-menu a i {
+        font-size: 0.95em !important;
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+    }
+    .nav-menu .mobile-action-btn {
+        padding: 8px 12px !important;
+        font-size: 0.85em !important;
+        gap: 8px !important;
+        border-radius: 10px !important;
+    }
+    .nav-menu .mobile-action-btn i {
+        width: 28px !important;
+        height: 28px !important;
+        font-size: 0.85em !important;
+        border-radius: 7px !important;
+    }
+    .nav-menu .mobile-action-item.logged-in-only .mobile-action-btn {
+        padding: 6px 10px !important;
+        font-size: 0.78em !important;
+        gap: 6px !important;
+        border-radius: 8px !important;
+    }
+    .nav-menu .mobile-action-item.logged-in-only .mobile-action-btn i {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 0.75em !important;
+        border-radius: 6px !important;
+    }
+    .nav-menu .mobile-action-btn .action-badge {
+        min-width: 20px !important;
+        height: 20px !important;
+        font-size: 10px !important;
+    }
+    #logoutMobile .mobile-action-btn .logout-icon-svg {
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px !important;
+    }
+}

@@ -1338,6 +1338,7 @@ function updateUIWithUser(user) {
     }
     const un = document.getElementById('userName'); if (un) un.textContent = user.displayName || user.email.split('@')[0];
     const ue = document.getElementById('userEmail'); if (ue) ue.textContent = user.email;
+    try { localStorage.setItem(STORAGE_KEYS.user, JSON.stringify({ uid: user.uid, email: user.email, displayName: user.displayName || '' })); } catch(e) {}
     const gm = document.getElementById('guestMenuContent'), lm = document.getElementById('loggedInMenuContent'), ls = document.getElementById('logoutSection');
     if (gm) gm.style.display = 'none';
     if (lm) { lm.style.display = 'block'; lm.innerHTML = `
@@ -4155,8 +4156,11 @@ function initAdminLogin() {
 
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
+        if (window._adminLoginSubmitting) return;
+        window._adminLoginSubmitting = true;
 
         if (isLockedOut()) {
+            window._adminLoginSubmitting = false;
             const rem = Math.ceil((lockoutTime - Date.now()) / 1000 / 60);
             showCustomModal('error', '🔒 ' + (currentLang === 'ar' ? 'الحساب مقفل' : currentLang === 'en' ? 'Locked' : 'Verrouillé'),
                 currentLang === 'ar' ? `انتظر ${rem} دقيقة` : currentLang === 'en' ? `Wait ${rem} min` : `Attendez ${rem} min`,
@@ -4173,6 +4177,7 @@ function initAdminLogin() {
             showToast(currentLang === 'ar' ? 'خطأ' : currentLang === 'en' ? 'Error' : 'Erreur',
                 currentLang === 'ar' ? 'يرجى ملء جميع الحقول!' : currentLang === 'en' ? 'Fill all fields!' : 'Remplissez tous les champs !', 'error');
             shakeElement(form);
+            window._adminLoginSubmitting = false;
             return;
         }
 
@@ -4203,16 +4208,19 @@ function initAdminLogin() {
             }
             pi.value = '';
             pi.focus();
+            window._adminLoginSubmitting = false;
             return;
         }
 
         // ✅ البيانات صح - دخول ناجح
         const btn = form.querySelector('.login-btn');
         adminLoginSuccess(btn, username);
+        window._adminLoginSubmitting = false;
     });
 }
 
 function adminLoginSuccess(btn, username) {
+    if (sessionStorage.getItem('bravoAdminLoggedIn') === 'true') return;
     loginAttempts = 0;
     sessionStorage.setItem('loginAttempts', '0');
     sessionStorage.setItem('lockoutTime', '0');
@@ -4270,11 +4278,10 @@ function logout() {
                 sessionStorage.removeItem('bravoAdminLoggedIn'); 
                 sessionStorage.removeItem('loginAttempts'); 
                 sessionStorage.removeItem('lockoutTime'); 
-                document.body.classList.add('login-state');
                 closeCustomModal(); 
-                showToast(currentLang === 'ar' ? 'تم الخروج' : currentLang === 'en' ? 'Logged Out' : 'Déconnecté', '✅', 'info'); 
                 await signOutAdminFirebase();
-                setTimeout(() => window.location.reload(), 800);
+                sessionStorage.setItem('bravoAdminJustLoggedOut', 'true');
+                window.location.href = 'admin.html';
             }; 
         }
         if (btns[1]) btns[1].onclick = closeCustomModal;
@@ -4466,6 +4473,15 @@ function loadAdminOrders() {
             orders = Object.entries(data).filter(([id, o]) => o && typeof o === 'object' && o.status !== 'trashed' && !_isHidden('orders', id));
             orders.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
         }
+        // Also merge orders from bravo_local_db (localStorage) - shows ALL orders even if not in Firebase
+        try {
+            var _lsO = JSON.parse(localStorage.getItem('bravo_local_db') || '{}').orders || {};
+            Object.entries(_lsO).forEach(([id, o]) => {
+                if (o && o.orderId && o.status !== 'trashed' && !_isHidden('orders', id) && !orders.find(([i]) => i === id)) {
+                    orders.push([id, { ...o, _isLocal: true }]);
+                }
+            });
+        } catch(e) {}
 
         // ── Enrich orders with product data (مثل initOrdersPage) ──
         for (const [id, o] of orders) {
@@ -4622,7 +4638,7 @@ function renderOrders(orders) {
             var _emptyLang = document.documentElement.lang || 'ar';
             staticEmpty.innerHTML = hasActiveFilters
                 ? `<i class="fas fa-filter" style="font-size:4em; color:var(--text-secondary); margin-bottom:15px; display:inline-block;"></i><h3 style="font-size:1.5em; font-weight:900; color:var(--text-secondary); margin-bottom:10px;">${_emptyLang === 'ar' ? 'لا توجد نتائج تطابق الفلاتر الحالية' : _emptyLang === 'en' ? 'No results match current filters' : 'Aucun résultat ne correspond aux filtres'}</h3>`
-                : `<i class="fas fa-shopping-cart" style="font-size:4em; color:var(--primary); margin-bottom:15px; display:inline-block;"></i><h3 style="font-size:1.5em; font-weight:900; color:var(--text-primary); margin-bottom:10px;">${_emptyLang === 'ar' ? 'لا توجد طلبات' : _emptyLang === 'en' ? 'No orders' : 'Aucune commande'}</h3>`;
+                : `<i class="fas fa-shopping-cart" style="font-size:4em; color:var(--primary); margin-bottom:15px; display:inline-block;"></i><h3 style="font-size:1.5em; font-weight:900; color:var(--text-primary); margin-bottom:10px;">${_emptyLang === 'ar' ? 'لا يوجد طلبات حتى الآن' : _emptyLang === 'en' ? 'No orders yet' : 'Aucune commande pour le moment'}</h3>`;
         }
         c.innerHTML = '';
         return; 
@@ -4660,7 +4676,7 @@ function renderOrders(orders) {
         delete: lang === 'ar' ? 'حذف' : lang === 'en' ? 'Delete' : 'Supprimer',
         copyId: lang === 'ar' ? 'نسخ الرقم' : lang === 'en' ? 'Copy ID' : 'Copier ID',
         noResults: lang === 'ar' ? 'لا توجد نتائج تطابق الفلاتر الحالية' : lang === 'en' ? 'No results match current filters' : 'Aucun résultat ne correspond aux filtres',
-        noOrders: lang === 'ar' ? 'لا توجد طلبات' : lang === 'en' ? 'No orders' : 'Aucune commande',
+        noOrders: lang === 'ar' ? 'لا يوجد طلبات حتى الآن' : lang === 'en' ? 'No orders yet' : 'Aucune commande pour le moment',
         unclassified: lang === 'ar' ? 'غير مصنف' : lang === 'en' ? 'Uncategorized' : 'Non classé',
         step1Title: lang === 'ar' ? 'تم إرسال الطلب' : lang === 'en' ? 'Order Placed' : 'Commande passée',
         step1Sub: lang === 'ar' ? 'تم استلام طلبك' : lang === 'en' ? 'Order received' : 'Commande reçue',
@@ -7898,6 +7914,30 @@ async function initializeApp() {
     initLangDropdown();
     initCatsFromStorage();
 
+    // ADMIN PAGE: skip front-end overhead, run only admin essentials
+    if (document.body.classList.contains('admin-page')) {
+        // Show logout toast if returning from logout
+        if (sessionStorage.getItem('bravoAdminJustLoggedOut') === 'true') {
+            sessionStorage.removeItem('bravoAdminJustLoggedOut');
+            showToast(currentLang === 'ar' ? 'تم الخروج' : currentLang === 'en' ? 'Logged Out' : 'Déconnecté', '✅', 'info');
+        }
+        // Login form handlers first (elements exist in login-state)
+        initAdminLogin();
+        if (typeof initializeParticles === 'function') initializeParticles();
+        hideLoadingScreen();
+        // Firebase + settings (needed for custom credentials + DB listeners)
+        await initializeFirebase();
+        await loadSystemSettings();
+        // Now check login status — Firebase ready, credentials loaded
+        checkAdminLoginStatus();
+        // Dashboard form init (elements only exist after login-state removed)
+        initAddProductForm();
+        initEditForms();
+        renderAllSuggestionChips();
+        console.log('✅ BRAVO Admin initialized');
+        return;
+    }
+
     // FAST PATH: load products from localStorage and display IMMEDIATELY
     await loadAllProducts();
     // Also load wishlist & cart from localStorage for instant rendering
@@ -8105,8 +8145,6 @@ async function initializeApp() {
     if (typeof initializeParticles === 'function') initializeParticles();
     if (window.location.pathname.includes('checkout') && typeof getCheckoutOrderData === 'function') { if (typeof displayPaymentMethods === 'function') displayPaymentMethods(); getCheckoutOrderData(); }
 
-    if (document.body.classList.contains('admin-page')) { checkAdminLoginStatus(); initAdminLogin(); 
-initAddProductForm(); initEditForms(); renderAllSuggestionChips(); }
     if (document.body.classList.contains('auth-page')) { initializeAuthPage(); }
     if (document.getElementById('ordersList') && window.initOrdersPage) { window.initOrdersPage(); }
 
@@ -8406,14 +8444,17 @@ let _ordersInitCalled = false;
 let _lastOrdersVersion = 0;
 window.initOrdersPage = async function() {
     if (_ordersInitCalled) return;
+    _ordersInitCalled = true;
+    // Hide loading instantly — show empty state while auth loads
+    const ls = document.getElementById('loadingState'); if(ls) ls.style.display = 'none';
+    window.renderOrdersList([]);
     if (!currentUser) {
         await new Promise(r => { let i = setInterval(() => { if (currentUser) { clearInterval(i); r(); } }, 50); setTimeout(() => { clearInterval(i); r(); }, 3000); });
         if (!currentUser) return window.location.href = 'auth.html?redirect=orders.html';
     }
-    _ordersInitCalled = true;
     window._lastOrdersDataHash = '';
     DB.on(`orders`, async (data) => {
-        const ls = document.getElementById('loadingState'); if(ls) ls.style.display = 'none';
+        const ls2 = document.getElementById('loadingState'); if(ls2) ls2.style.display = 'none';
         if (!data) { 
             window.renderOrdersList([]); 
             updateOrdersBadge();
@@ -9122,6 +9163,7 @@ window.handleUserLogin = async function(e) {
         try { if (loginCred.user?.uid) await DB.set('users/' + loginCred.user.uid + '/ip', visitorInfo.ip); } catch(e) {}
         try { if (loginCred.user?.uid) await DB.set('users/' + loginCred.user.uid + '/country', visitorInfo.country); } catch(e) {}
         showToast('✅', 'تم تسجيل الدخول بنجاح', 'success');
+        try { localStorage.setItem(STORAGE_KEYS.user, JSON.stringify({ uid: loginCred.user.uid, email: loginCred.user.email, displayName: loginCred.user.displayName || '' })); } catch(e) {}
         setTimeout(() => window.location.href = sessionStorage.getItem('redirectAfterLogin') || 'index.html', 1000);
     } catch (error) {
         const msgs = {
@@ -9161,6 +9203,7 @@ window.handleUserRegister = async function(e) {
         const visitorInfo = await getVisitorInfo();
         await DB.set(`users/${cred.user.uid}`, { uid: cred.user.uid, name, email, phone, createdAt: Date.now(), ip: visitorInfo.ip, country: visitorInfo.country, avatar: '' });
         showToast('✅', 'تم إنشاء الحساب بنجاح', 'success');
+        try { localStorage.setItem(STORAGE_KEYS.user, JSON.stringify({ uid: cred.user.uid, email: cred.user.email, displayName: name })); } catch(e) {}
         setTimeout(() => window.location.href = 'index.html', 1000);
     } catch (error) {
         const msgs = {
@@ -9661,3 +9704,6 @@ function renderAllSuggestionChips() {
         renderSuggestionChips(el.id);
     });
 }
+
+// 🚀 Boot the application
+initializeApp().catch(e => console.error('Boot error:', e));
