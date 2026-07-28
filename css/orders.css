@@ -898,11 +898,26 @@ body[dir="ltr"] .filter-search i {
     color: white;
     border: 2px solid transparent;
     box-shadow: 0 2px 10px rgba(16,185,129,0.25);
-    font-weight: 800;
+    font-weight: 900;
+    font-size: 1em;
+    padding: 12px 28px;
+    border-radius: 12px;
+    gap: 8px;
+    min-width: 180px;
+    justify-content: center;
+    animation: downloadPulse 2.5s ease-in-out infinite;
+}
+.order-action-btn.btn-download i {
+    font-size: 1.2em;
 }
 .order-action-btn.btn-download:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(16,185,129,0.4);
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 28px rgba(16,185,129,0.5);
+    animation: none;
+}
+@keyframes downloadPulse {
+    0%, 100% { box-shadow: 0 2px 10px rgba(16,185,129,0.25); }
+    50% { box-shadow: 0 4px 24px rgba(16,185,129,0.55); }
 }
 
 /* ======================== STATUS CARD COLORS ======================== */

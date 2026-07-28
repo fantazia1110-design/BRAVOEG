@@ -45,6 +45,7 @@ const STORAGE_KEYS = {
     user: 'bravoUser',
     cart: 'bravoCart',
     wishlist: 'bravoWishlist',
+    ordersCount: 'bravoOrdersCount',
     adminSession: 'bravoAdminSession'
 };
 
@@ -654,6 +655,7 @@ let userWishlist = [];
 let userCart = [];
 let selectedPaymentMethod = null;
 let uploadedFile = null;
+let uploadedImageUrl = '';
 let checkoutOrderData = {};
 let savedWhatsAppMessage = '';
 let loginAttempts = parseInt(sessionStorage.getItem('loginAttempts') || '0');
@@ -1281,9 +1283,21 @@ async function loadUserData(userId) {
         if (data) {
             count = Object.values(data).filter(o => o.userId === userId && o.status !== 'trashed').length;
         }
-        window._ordersCount = count;
-        updateOrdersBadge();
+        if (count > 0 || !window.myOrders || window.myOrders.length === 0) {
+            window._ordersCount = count;
+            try { localStorage.setItem(STORAGE_KEYS.ordersCount, String(count)); } catch(e) {}
+            updateOrdersBadge();
+        }
     });
+    try {
+        const _lsDb = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+        const _lsOrders = _lsDb.orders || {};
+        window.myOrders = Object.entries(_lsOrders).map(([id, o]) => ({...o, id})).filter(o => o.userId === userId && o.status !== 'trashed');
+        window.myOrders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        window._ordersCount = window.myOrders.length;
+        try { localStorage.setItem(STORAGE_KEYS.ordersCount, String(window.myOrders.length)); } catch(e) {}
+        updateOrdersBadge();
+    } catch(e) {}
     try {
         var _existing = localStorage.getItem('userAvatar');
         if (!_existing || _existing.length < 50) {
@@ -2134,6 +2148,18 @@ function displayProducts() {
 // ==================== CHECKOUT ====================
 async function getCheckoutOrderData() {
     try {
+        // ربط أحداث نموذج الدفع
+        var fileInputEl = document.getElementById('fileInput');
+        var checkoutFormEl = document.getElementById('checkoutForm');
+        if (fileInputEl && !fileInputEl._bound) {
+            fileInputEl._bound = true;
+            fileInputEl.addEventListener('change', handleCheckoutFileUpload);
+        }
+        if (checkoutFormEl && !checkoutFormEl._bound) {
+            checkoutFormEl._bound = true;
+            checkoutFormEl.addEventListener('submit', handleCheckoutSubmit);
+        }
+
         const u = new URLSearchParams(window.location.search);
 
         // تحميل المنتجات قبل أي شيء لضمان توفر البيانات
@@ -2483,19 +2509,147 @@ function copyToClipboard(text, btn) { if (!btn) btn = event?.currentTarget; var 
 
 function handleCheckoutFileUpload(e) {
     const f = e.target.files[0]; if (!f) return;
-    if (f.size > 5 * 1024 * 1024) { alert(_ckI18n(currentLang).max5MB); e.target.value = ''; return; }
-    if (!f.type.startsWith('image/') && f.type !== 'application/pdf') { alert(currentLang === 'ar' ? 'صور فقط' : currentLang === 'en' ? 'Image only' : 'Image uniquement'); e.target.value = ''; return; }
+    if (f.size > 5 * 1024 * 1024) { e.target.value = ''; showUploadError(currentLang === 'ar' ? 'الملف كبير جداً' : currentLang === 'en' ? 'File Too Large' : 'Fichier trop volumineux', currentLang === 'ar' ? 'حجم الصورة يتجاوز الحد الأقصى المسموح وهو 5 ميجابايت. قم بتقليل حجم الصورة أو استخدم صورة أصغر.' : currentLang === 'en' ? 'The image exceeds the maximum allowed size of 5MB. Reduce the image size or use a smaller one.' : "L'image dépasse la taille maximale autorisée de 5 Mo. Réduisez la taille de l'image ou utilisez une plus petite.", f.name, (f.size / 1024 / 1024).toFixed(2) + ' MB'); return; }
+    if (!f.type.startsWith('image/') && f.type !== 'application/pdf') { e.target.value = ''; showUploadError(currentLang === 'ar' ? 'صيغة ملف غير مدعومة' : currentLang === 'en' ? 'Unsupported File Format' : 'Format de fichier non pris en charge', currentLang === 'ar' ? 'يجب رفع صورة (PNG, JPG) أو ملف PDF فقط. الصيغة الحالية غير مدعومة.' : currentLang === 'en' ? 'Only image files (PNG, JPG) or PDF are allowed. The current format is not supported.' : 'Seuls les fichiers image (PNG, JPG) ou PDF sont autorisés. Le format actuel ne est pas pris en charge.', f.name, f.type || (currentLang === 'ar' ? 'غير معروف' : 'Unknown')); return; }
     uploadedFile = f;
+    uploadedImageUrl = '';
     const fu = document.getElementById('fileUpload');
-    if (fu) { fu.classList.add('has-file'); const ft = fu.querySelector('.file-text'), fs = fu.querySelector('.file-size'); if (ft) ft.textContent = `✅ ${f.name}`; if (fs) fs.textContent = `${(f.size / 1024 / 1024).toFixed(2)} MB`; }
-    checkCheckoutFormValidity();
+    if (!fu) return;
+    fu.classList.add('uploading');
+    fu.innerHTML = '<div class="upload-progress-wrap">' +
+        '<div class="upload-progress-ring"><svg viewBox="0 0 100 100"><circle class="upload-ring-bg" cx="50" cy="50" r="42"/><circle class="upload-ring-fill" cx="50" cy="50" r="42" id="receiptRing"/></svg><span class="upload-pct" id="receiptPct">0%</span></div>' +
+        '<div class="upload-progress-info"><div class="upload-file-name">' + f.name + '</div><div class="upload-file-size" id="receiptSize">0 / ' + (f.size / 1024 / 1024).toFixed(1) + ' MB</div>' +
+        '<div class="upload-progress-bar-wrap"><div class="upload-progress-bar" id="receiptBar" style="width:0%"></div></div>' +
+        '<button type="button" class="upload-cancel-btn" id="receiptCancel"><i class="fas fa-times"></i></button></div></div>';
+
+    var ring = document.getElementById('receiptRing');
+    var circumference = 2 * Math.PI * 42;
+    if (ring) { ring.style.strokeDasharray = circumference; ring.style.strokeDashoffset = circumference; }
+
+    var cancelBtn = document.getElementById('receiptCancel');
+    var cancelled = false;
+    if (cancelBtn) cancelBtn.onclick = function() { cancelled = true; uploadedFile = null; uploadedImageUrl = ''; fu.classList.remove('uploading'); resetFileUpload(); };
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://api.imgbb.com/1/upload');
+    var fd = new FormData();
+    fd.append('key', APP_CONFIG.imgbbApiKey);
+    fd.append('image', f);
+    fd.append('name', 'receipt_' + Date.now());
+
+    xhr.upload.onprogress = function(ev) {
+        if (cancelled || !ev.lengthComputable) return;
+        var pct = Math.round((ev.loaded / ev.total) * 100);
+        var loadedMB = (ev.loaded / 1024 / 1024).toFixed(2);
+        var totalMB = (ev.total / 1024 / 1024).toFixed(1);
+        var pctEl = document.getElementById('receiptPct');
+        var sizeEl = document.getElementById('receiptSize');
+        var barEl = document.getElementById('receiptBar');
+        if (pctEl) pctEl.textContent = pct + '%';
+        if (sizeEl) sizeEl.textContent = loadedMB + ' / ' + totalMB + ' MB';
+        if (barEl) barEl.style.width = pct + '%';
+        if (ring) ring.style.strokeDashoffset = circumference - (pct / 100) * circumference;
+    };
+
+    xhr.onload = function() {
+        if (cancelled) return;
+        var errMsg = '';
+        if (xhr.status === 200) {
+            try {
+                var resp = JSON.parse(xhr.responseText);
+                uploadedImageUrl = resp.data?.display_url || resp.data?.url || '';
+            } catch(err) { errMsg = 'JSON parse error'; }
+        } else {
+            try { var resp2 = JSON.parse(xhr.responseText); errMsg = resp2.error?.message || ('HTTP ' + xhr.status); } catch(e2) { errMsg = 'HTTP ' + xhr.status; }
+        }
+        if (uploadedImageUrl) {
+            fu.classList.remove('uploading');
+            fu.classList.add('has-file');
+            fu.innerHTML = '<div class="upload-success-wrap"><i class="fas fa-check-circle" style="color:#10b981;font-size:2em"></i><div class="file-text" style="color:#10b981">✅ ' + (currentLang === 'ar' ? 'تم رفع الصورة بنجاح' : currentLang === 'en' ? 'Image uploaded' : 'Image téléchargée') + '</div><div class="file-size">' + f.name + '</div></div>';
+            checkCheckoutFormValidity();
+        } else {
+            fu.classList.remove('uploading');
+            uploadedImageUrl = '';
+            resetFileUpload();
+            showUploadError(currentLang === 'ar' ? 'فشل رفع الصورة' : currentLang === 'en' ? 'Image Upload Failed' : 'Échec du téléchargement', (currentLang === 'ar' ? 'لم نتمكن من رفع الصورة إلى الخادم.' : currentLang === 'en' ? 'Could not upload the image to the server.' : "Impossible de télécharger l'image.") + (errMsg ? '<br><small style="color:rgba(255,255,255,0.4);margin-top:6px;display:block">(' + errMsg + ')</small>' : ''), f.name, (f.size / 1024 / 1024).toFixed(2) + ' MB');
+        }
+    };
+
+    xhr.onerror = function() {
+        if (cancelled) return;
+        fu.classList.remove('uploading');
+        uploadedImageUrl = '';
+        resetFileUpload();
+        showUploadError(currentLang === 'ar' ? 'خطأ في الاتصال' : currentLang === 'en' ? 'Connection Error' : 'Erreur de connexion', currentLang === 'ar' ? 'تحقق من اتصالك بالإنترنت وحاول مرة أخرى. إذا استمرت المشكلة، جرب صورة أصغر حجماً.' : currentLang === 'en' ? 'Check your internet connection and try again. If the issue persists, try a smaller image.' : 'Vérifiez votre connexion Internet et réessayez. Si le problème persiste, essayez une image plus petite.');
+    };
+
+    xhr.send(fd);
+}
+
+function resetFileUpload() {
+    var fu = document.getElementById('fileUpload');
+    var fi = document.getElementById('fileInput');
+    if (fi) fi.value = '';
+    if (fu) {
+        var ckT = _ckI18n(currentLang);
+        fu.innerHTML = '<i class="fas fa-cloud-upload-alt file-icon"></i><div class="file-text">' + ckT.clickToUpload + '</div><div class="file-size">PNG, JPG, PDF (<span>' + ckT.max5MB + '</span>)</div>';
+    }
+}
+
+function showUploadError(title, message, fileName, fileSize) {
+    var existing = document.getElementById('uploadErrorModal');
+    if (existing) existing.remove();
+    var lang = currentLang;
+    var retryText = lang === 'ar' ? 'إعادة المحاولة' : lang === 'en' ? 'Retry' : 'Réessayer';
+    var closeText = lang === 'ar' ? 'إغلاق' : lang === 'en' ? 'Close' : 'Fermer';
+    var fileLabel = lang === 'ar' ? 'الملف:' : lang === 'en' ? 'File:' : 'Fichier:';
+    var sizeLabel = lang === 'ar' ? 'الحجم:' : lang === 'en' ? 'Size:' : 'Taille:';
+    var tipsTitle = lang === 'ar' ? 'نصائح:' : lang === 'en' ? 'Tips:' : 'Conseils:';
+    var tip1 = lang === 'ar' ? 'تأكد من أن الصورة أقل من 5 ميجابايت' : lang === 'en' ? 'Ensure the image is under 5MB' : "Assurez-vous que l'image fait moins de 5 Mo";
+    var tip2 = lang === 'ar' ? 'تحقق من اتصالك بالإنترنت' : lang === 'en' ? 'Check your internet connection' : 'Vérifiez votre connexion Internet';
+    var tip3 = lang === 'ar' ? 'جرب صورة بحجم أصغر أو بصيغة مختلفة' : lang === 'en' ? 'Try a smaller image or different format' : 'Essayez une image plus petite ou un format différent';
+
+    var modalHtml = '<div class="upload-error-overlay" id="uploadErrorModal">' +
+        '<div class="upload-error-box">' +
+            '<div class="ueb-header">' +
+                '<div class="ueb-icon"><i class="fas fa-exclamation-triangle"></i></div>' +
+                '<h3 class="ueb-title">' + title + '</h3>' +
+                '<button class="ueb-close" id="uebCloseBtn"><i class="fas fa-times"></i></button>' +
+            '</div>' +
+            '<div class="ueb-body">' +
+                '<p class="ueb-message">' + message + '</p>' +
+                (fileName ? '<div class="ueb-file-info">' +
+                    '<div class="ueb-file-row"><span class="ueb-file-label">' + fileLabel + '</span><span class="ueb-file-val">' + fileName + '</span></div>' +
+                    (fileSize ? '<div class="ueb-file-row"><span class="ueb-file-label">' + sizeLabel + '</span><span class="ueb-file-val">' + fileSize + '</span></div>' : '') +
+                '</div>' : '') +
+                '<div class="ueb-tips">' +
+                    '<div class="ueb-tips-title"><i class="fas fa-lightbulb"></i> ' + tipsTitle + '</div>' +
+                    '<ul><li>' + tip1 + '</li><li>' + tip2 + '</li><li>' + tip3 + '</li></ul>' +
+                '</div>' +
+            '</div>' +
+            '<div class="ueb-footer">' +
+                '<button class="ueb-btn ueb-btn-retry" id="uebRetryBtn"><i class="fas fa-redo"></i> ' + retryText + '</button>' +
+                '<button class="ueb-btn ueb-btn-close" id="uebCloseBtn2">' + closeText + '</button>' +
+            '</div>' +
+        '</div>' +
+    '</div>';
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    var overlay = document.getElementById('uploadErrorModal');
+
+    function closeModal() { overlay.style.opacity = '0'; overlay.querySelector('.upload-error-box').style.transform = 'scale(0.9) translateY(20px)'; setTimeout(function() { overlay.remove(); }, 300); }
+
+    document.getElementById('uebCloseBtn').onclick = closeModal;
+    document.getElementById('uebCloseBtn2').onclick = closeModal;
+    overlay.onclick = function(ev) { if (ev.target === overlay) closeModal(); };
+    document.getElementById('uebRetryBtn').onclick = function() { closeModal(); setTimeout(function() { document.getElementById('fileInput').click(); }, 350); };
 }
 
 function checkCheckoutFormValidity() {
     const n = document.getElementById('customerName')?.value.trim(), e = document.getElementById('customerEmail')?.value.trim(), p = document.getElementById('customerPhone')?.value.trim(), btn = document.getElementById('submitBtn');
     const hint = document.getElementById('checkoutHint');
     if (btn) {
-        const valid = n && e && p && uploadedFile && selectedPaymentMethod;
+        const valid = n && e && p && (uploadedFile || uploadedImageUrl) && selectedPaymentMethod;
         btn.disabled = !valid;
         const s3 = document.getElementById('step3');
         if (s3) s3.classList.toggle('active', valid);
@@ -2695,11 +2849,16 @@ async function _translateLinesArTo(lines, targetLang) {
 async function handleCheckoutSubmit(e) {
     e.preventDefault(); e.stopPropagation();
     const btn = document.getElementById('submitBtn'), orig = btn.innerHTML; btn.disabled = true;
-    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${currentLang === 'ar' ? 'جاري الرفع...' : currentLang === 'en' ? 'Uploading...' : 'Téléchargement...'}`;
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${currentLang === 'ar' ? 'جاري الحفظ...' : currentLang === 'en' ? 'Saving...' : 'Sauvegarde...'}`;
     const now = new Date(), ts = Date.now();
     try {
-        if (!uploadedFile) throw new Error('Upload receipt first!');
-        let imgUrl = ''; try { const r = await uploadToImgBB(uploadedFile); imgUrl = r.display_url || r.url; if (!imgUrl) throw new Error('No URL'); btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${currentLang === 'ar' ? 'جاري الحفظ...' : currentLang === 'en' ? 'Saving...' : 'Sauvegarde...'}`; } catch (ue) { throw new Error(`Upload failed: ${ue.message}`); }
+        if (!uploadedFile) throw new Error(currentLang === 'ar' ? 'ارفع صورة الإيصال أولاً' : 'Upload receipt first!');
+        let imgUrl = uploadedImageUrl || '';
+        if (!imgUrl) {
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${currentLang === 'ar' ? 'جاري رفع الصورة...' : currentLang === 'en' ? 'Uploading image...' : 'Téléchargement...'}`;
+            try { const r = await uploadToImgBB(uploadedFile); imgUrl = r.display_url || r.url; if (!imgUrl) throw new Error('No URL'); } catch (ue) { throw new Error(currentLang === 'ar' ? 'فشل رفع الصورة' : 'Upload failed: ' + ue.message); }
+        }
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${currentLang === 'ar' ? 'جاري الحفظ...' : currentLang === 'en' ? 'Saving...' : 'Sauvegarde...'}`;
         let productExtra = {};
         if (checkoutOrderData.productId && checkoutOrderData.productId !== 'cart_checkout') {
             try { const p = await DB.get(`products/${checkoutOrderData.productId}`); if (p) { productExtra = { productImage: p.image || '', productCategory: p.category || '', productOldPriceEGP: p.oldPriceEGP || 0, productOldPriceUSD: p.oldPriceUSD || 0, downloadLink: p.downloadLink || '', productHot: p.hot || p.bestseller || p.badge === 'hot', productFeatured: p.featured || p.badge === 'featured', productBadge: p.badge || '' }; } } catch (e) {}
@@ -2710,6 +2869,7 @@ async function handleCheckoutSubmit(e) {
         let id = String(100000 + Math.floor(Math.random() * 900000));
         try { const cnt = await DB.get('meta/orderCounter'); if (cnt?.value) id = String(cnt.value + 1); await DB.set('meta/orderCounter', { value: parseInt(id) }); } catch(e) {}
         await DB.set(`orders/${id}`, { ...order, orderId: id });
+        try { const _c = parseInt(localStorage.getItem(STORAGE_KEYS.ordersCount) || '0'); localStorage.setItem(STORAGE_KEYS.ordersCount, String(_c + 1)); } catch(e) {}
         if (currentUser) { try { if (checkoutOrderData.isMultipleItems) { await DB.remove(`carts/${currentUser.uid}`); } else if (checkoutOrderData.productId) { await DB.set(`carts/${currentUser.uid}/${checkoutOrderData.productId}`, null); } sessionStorage.removeItem('cartCheckout'); } catch (ce) { } }
         savedWhatsAppMessage = `${currentLang === 'ar' ? '🎉 طلب جديد' : currentLang === 'en' ? '🎉 New Order' : '🎉 Nouvelle commande'}\n📦 ${order.productTitle}\n💰 ${order.price} ${order.currency}\n👤 ${order.customerName}\n📧 ${order.customerEmail}\n📱 ${order.customerPhone}\n🔢 #${id}\n🖼️ ${imgUrl}`;
         sessionStorage.setItem('lastOrderId', id); sessionStorage.setItem('whatsappMessage', savedWhatsAppMessage);
@@ -2773,18 +2933,21 @@ function updateCartBadge() {
 }
 
 function updateOrdersBadge() {
-    const count = window.myOrders ? window.myOrders.length : (window._ordersCount || 0);
+    let count = window.myOrders ? window.myOrders.length : parseInt(localStorage.getItem(STORAGE_KEYS.ordersCount) || '0');
+    try { localStorage.setItem(STORAGE_KEYS.ordersCount, String(count)); } catch(e) {}
+    const prevCount = parseInt(localStorage.getItem(STORAGE_KEYS.ordersCount + '_prev') || '-1');
     ['ordersBadge', 'ordersBadgeMobile'].forEach(id => {
         const b = document.getElementById(id);
         if (!b) return;
         b.textContent = count > 99 ? '99+' : count;
         b.style.display = count > 0 ? 'flex' : 'none';
-        if (count > 0) {
+        if (count > 0 && count !== prevCount) {
             b.classList.remove('bump');
             void b.offsetWidth;
             b.classList.add('bump');
         }
     });
+    try { localStorage.setItem(STORAGE_KEYS.ordersCount + '_prev', String(count)); } catch(e) {}
 }
 
 function loadNotifications() { const c = document.getElementById('notificationsContent'); if (!c) return; const l = document.documentElement.lang || 'ar'; if (userNotifications.length === 0) { c.innerHTML = `<div class="empty-dropdown"><i class="fas fa-bell-slash"></i><p>${l === 'ar' ? 'لا توجد إشعارات' : l === 'en' ? 'No notifications' : 'Aucune notification'}</p></div>`; return; } c.innerHTML = userNotifications.slice(0, 5).map(n => `<div class="dropdown-item ${n.read ? 'read' : ''}" onclick="markNotificationAsRead('${n.id}')"><div class="dropdown-item-icon"><i class="fas ${n.icon || 'fa-bell'}"></i></div><div class="dropdown-item-content"><h5>${n.title}</h5><p>${n.message}</p></div>${!n.read ? '<div class="notification-unread"></div>' : ''}</div>`).join(''); }
@@ -4596,7 +4759,7 @@ function renderOrders(orders) {
         const _sc = _statusColors[o.status] || { border:'var(--border-color)', bg:'', header:'', id:'#fff', shadow:'transparent' };
 
         return `
-        <div class="order-card" data-status="${o.status || 'pending'}" onclick="toggleOrderCard(this)">
+        <div class="order-card ${window._openOrderId === o.id ? 'open' : ''}" data-status="${o.status || 'pending'}" data-order-id="${o.id}" onclick="toggleOrderCard(this)">
             <div class="order-card-inner" style="border-color:${_sc.border} !important;background:${_sc.bg || 'var(--card-bg)'} !important;box-shadow:0 0 25px ${_sc.shadow} !important;">
                 <!-- Header — مطابق تماماً لـ renderOrdersList -->
                 <div class="order-card-header" style="background:${_sc.header ? 'linear-gradient(135deg,'+_sc.header+','+_sc.header.replace('0.15','0.05').replace('0.1','0.03').replace('0.05','0.02')+') !important' : ''}">
@@ -8240,6 +8403,7 @@ window.clearWishlistLocal = async function() {
 
 // --- 📦 صفحة الطلبات (Orders) ---
 let _ordersInitCalled = false;
+let _lastOrdersVersion = 0;
 window.initOrdersPage = async function() {
     if (_ordersInitCalled) return;
     if (!currentUser) {
@@ -8247,35 +8411,44 @@ window.initOrdersPage = async function() {
         if (!currentUser) return window.location.href = 'auth.html?redirect=orders.html';
     }
     _ordersInitCalled = true;
+    window._lastOrdersDataHash = '';
     DB.on(`orders`, async (data) => {
-        console.log('📦 orders callback called, data =', data ? typeof data + ' ' + Object.keys(data).length + ' keys' : 'null');
-        console.log('👤 currentUser.uid =', currentUser?.uid);
         const ls = document.getElementById('loadingState'); if(ls) ls.style.display = 'none';
         if (!data) { 
-            console.log('📭 orders data is null/empty');
             window.renderOrdersList([]); 
             updateOrdersBadge();
             return; 
         }
         
-        if (!window._userOrdersVer) window._userOrdersVer = 0;
-        window._userOrdersVer++;
-        const _v = window._userOrdersVer;
+        window._lastOrdersVersion = (window._lastOrdersVersion || 0) + 1;
+        const _v = window._lastOrdersVersion;
         
-        // Debug: log first order userIds to check matching
         const entries = Object.entries(data);
-        if (entries.length > 0) {
-            const sample = entries[0];
-            console.log('📋 first order key:', sample[0], 'userId:', sample[1]?.userId, 'type:', typeof sample[1]?.userId);
-            console.log('📋 all userIds in orders:', [...new Set(entries.map(([,o]) => o?.userId))]);
-        }
-        
         let myOrders = entries.map(([id, o]) => ({...o, id})).filter(o => o.userId === currentUser.uid);
-        console.log('🔍 filtered myOrders count:', myOrders.length, 'out of', entries.length);
         myOrders.sort((a,b) => b.createdAt - a.createdAt);
         
-        // Enrich orders missing product data
-        for (const o of myOrders) {
+        // Render immediately with basic data (no enrichment delay)
+        window.myOrders = myOrders.filter(o => o.status !== 'trashed');
+        try { localStorage.setItem(STORAGE_KEYS.ordersCount, String(window.myOrders.length)); } catch(e) {}
+        const dc = window.myOrders.length;
+        ['ordersBadgeMobile','ordersBadge'].forEach(id => {
+            const e = document.getElementById(id);
+            if(e) { e.textContent = dc > 99 ? '99+' : dc; e.style.display = dc > 0 ? 'flex' : 'none'; }
+        });
+        updateOrdersBadge();
+        document.getElementById('totalOrders').textContent = window.myOrders.length;
+        document.getElementById('completedOrders').textContent = window.myOrders.filter(o => o.status === 'confirmed').length;
+        document.getElementById('pendingOrders').textContent = window.myOrders.filter(o => o.status === 'pending' || o.status === 'suspended').length;
+        document.getElementById('totalSpent').textContent = window.myOrders.filter(o => o.status === 'confirmed').reduce((s, o) => s + parseFloat(o.price || 0), 0).toFixed(0);
+        
+        const _newHash = myOrders.map(o => o.id + ':' + o.status + ':' + o.price + ':' + (o.productImage || '') + ':' + (o.downloadLink || '')).join('|');
+        const _hashChanged = _newHash !== window._lastOrdersDataHash;
+        window._lastOrdersDataHash = _newHash;
+        if (_hashChanged) _execOrdersSearch();
+        
+        // Enrich in background (parallel, non-blocking)
+        let _enriched = false;
+        const enrichPromises = myOrders.map(async (o) => {
             if (o.items && typeof o.items === 'object') {
                 const keys = Object.keys(o.items);
                 if (keys.length > 0) {
@@ -8308,68 +8481,65 @@ window.initOrdersPage = async function() {
                     }
                 } catch(e) {}
             }
-            // Cart items: grab badge info from first item, and fallback to DB fetch
             if (o.items && typeof o.items === 'object') {
                 const keys = Object.keys(o.items);
-                // Enrich item images from DB if missing
-                for (const [ik, iv] of Object.entries(o.items)) {
+                const itemPromises = Object.entries(o.items).map(async ([ik, iv]) => {
                     if (iv && (!iv.image || iv.image === '') && iv.id && iv.id !== 'cart_checkout') {
                         try {
                             const ip = await DB.get(`products/${iv.id}`);
                             if (ip && ip.image) { iv.image = ip.image; }
                         } catch(e) {}
                     }
-                }
+                });
+                await Promise.all(itemPromises);
                 if (keys.length > 0) {
                     const first = o.items[keys[0]];
                     if (!o.productBadge) o.productBadge = first.badge || '';
                     if (!o.productHot && (first.hot || first.bestseller || first.badge === 'hot')) o.productHot = true;
                     if (!o.productFeatured && (first.featured || first.badge === 'featured')) o.productFeatured = true;
-                    // Fallback: try to fetch badge from DB for each item
                     if (!o.productHot && !o.productFeatured) {
-                        for (const itemKey of keys) {
+                        const badgePromises = keys.map(async (itemKey) => {
                             const item = o.items[itemKey];
-                            const pid = item.id || item.productId || itemKey;
-                            if (pid && pid !== 'cart_checkout') {
+                            const bpid = item.id || item.productId || itemKey;
+                            if (bpid && bpid !== 'cart_checkout') {
                                 try {
-                                    const p = await DB.get(`products/${pid}`);
+                                    const p = await DB.get(`products/${bpid}`);
                                     if (p) {
                                         if (!o.productBadge) o.productBadge = p.badge || '';
                                         if (!o.productHot && (p.hot || p.bestseller || p.badge === 'hot')) o.productHot = true;
                                         if (!o.productFeatured && (p.featured || p.badge === 'featured')) o.productFeatured = true;
-                                        if (o.productHot || o.productFeatured) break;
                                     }
                                 } catch(e) {}
                             }
-                        }
+                        });
+                        await Promise.all(badgePromises);
                     }
                 }
             }
-        }
+        });
         
-        if (_v !== window._userOrdersVer) return;
+        await Promise.all(enrichPromises);
+        
+        if (_v !== window._lastOrdersVersion) return;
         
         window.myOrders = myOrders.filter(o => o.status !== 'trashed');
-        // Direct badge update
-        const dc = window.myOrders.length;
-        ['ordersBadgeMobile','ordersBadge'].forEach(id => {
-            const e = document.getElementById(id);
-            if(e) { e.textContent = dc > 99 ? '99+' : dc; e.style.display = dc > 0 ? 'flex' : 'none'; }
-        });
-        updateOrdersBadge();
-
+        try { localStorage.setItem(STORAGE_KEYS.ordersCount, String(window.myOrders.length)); } catch(e) {}
+        
+        const _enrichedHash = myOrders.map(o => o.id + ':' + o.status + ':' + o.price + ':' + (o.productImage || '') + ':' + (o.downloadLink || '')).join('|');
         document.getElementById('totalOrders').textContent = window.myOrders.length;
         document.getElementById('completedOrders').textContent = window.myOrders.filter(o => o.status === 'confirmed').length;
         document.getElementById('pendingOrders').textContent = window.myOrders.filter(o => o.status === 'pending' || o.status === 'suspended').length;
         document.getElementById('totalSpent').textContent = window.myOrders.filter(o => o.status === 'confirmed').reduce((s, o) => s + parseFloat(o.price || 0), 0).toFixed(0);
         
-        window.initOrdersPriceSlider();
-        _execOrdersSearch();
+        if (_enrichedHash !== window._lastOrdersDataHash) {
+            window._lastOrdersDataHash = _enrichedHash;
+            window.initOrdersPriceSlider();
+            _execOrdersSearch();
+        }
     });
 };
 
 window.renderOrdersList = function(orders) {
-    console.log('🔴 renderOrdersList CALLED with', orders.length, 'orders');
     const list = document.getElementById('ordersList'); const empty = document.getElementById('emptyState');
     if(!list || !empty) { console.warn('renderOrdersList: list or empty missing'); return; }
     if (orders.length === 0) { list.style.display = 'none'; empty.style.display = 'block'; return; }
@@ -8490,7 +8660,7 @@ window.renderOrdersList = function(orders) {
         const _sc = _statusColors[o.status] || { border:'var(--border-color)', bg:'', header:'', id:'#fff', shadow:'transparent' };
 
         const html = `
-        <div class="order-card" data-status="${o.status || 'pending'}" onclick="toggleOrderCard(this)">
+        <div class="order-card ${window._openOrderId === o.id ? 'open' : ''}" data-status="${o.status || 'pending'}" data-order-id="${o.id}" onclick="toggleOrderCard(this)">
             <div class="order-card-inner" style="border-color:${_sc.border} !important;background:${_sc.bg || 'var(--card-bg)'} !important;box-shadow:0 0 25px ${_sc.shadow} !important;">
                 <div class="order-card-header" style="background:${_sc.header ? 'linear-gradient(135deg,'+_sc.header+','+_sc.header.replace('0.15','0.05').replace('0.1','0.03')+') !important' : ''}">
                     <div class="order-card-header-left">
@@ -8600,7 +8770,14 @@ window.renderOrdersList = function(orders) {
 };
 
 window.toggleOrderCard = function(el) {
-    el.classList.toggle('open');
+    const orderId = el.getAttribute('data-order-id');
+    if (el.classList.contains('open')) {
+        el.classList.remove('open');
+        if (window._openOrderId === orderId) window._openOrderId = null;
+    } else {
+        el.classList.add('open');
+        window._openOrderId = orderId;
+    }
 };
 
 window.clearOrdersSearch = function() {

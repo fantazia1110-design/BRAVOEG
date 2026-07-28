@@ -1654,7 +1654,9 @@ body.login-state .login-section .remember-checkbox input:checked ~ .checkmark::a
 .admin-order-action-btn.delete-order { background: linear-gradient(135deg, #6b7280, #4b5563); }
 .admin-order-action-btn.edit-order { background: linear-gradient(135deg, #3b82f6, #2563eb); }
 .admin-order-action-btn.print-order { background: linear-gradient(135deg, #6366f1, #4f46e5); }
-.admin-order-action-btn.download-product { background: linear-gradient(135deg, #10b981, #059669); }
+.admin-order-action-btn.download-product { background: linear-gradient(135deg, #10b981, #059669); font-weight: 900; font-size: 1em; padding: 10px 24px; border-radius: 10px; gap: 8px; min-width: 150px; justify-content: center; box-shadow: 0 4px 14px rgba(16,185,129,0.35); }
+.admin-order-action-btn.download-product i { font-size: 1.15em; }
+.admin-order-action-btn.download-product:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 8px 24px rgba(16,185,129,0.5); }
 .admin-order-action-btn.receipt-order { background: linear-gradient(135deg, #ec4899, #db2777); }
 .admin-order-action-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
 
