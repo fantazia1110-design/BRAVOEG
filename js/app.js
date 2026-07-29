@@ -4775,7 +4775,7 @@ function renderOrders(orders) {
         const _sc = _statusColors[o.status] || { border:'var(--border-color)', bg:'', header:'', id:'#fff', shadow:'transparent' };
 
         return `
-        <div class="order-card ${window._openOrderId === o.id ? 'open' : ''}" data-status="${o.status || 'pending'}" data-order-id="${o.id}" onclick="toggleOrderCard(this)">
+        <div class="order-card ${window._openOrderId === eId ? 'open' : ''}" data-status="${o.status || 'pending'}" data-order-id="${eId}" onclick="toggleOrderCard(this)">
             <div class="order-card-inner" style="border-color:${_sc.border} !important;background:${_sc.bg || 'var(--card-bg)'} !important;box-shadow:0 0 25px ${_sc.shadow} !important;">
                 <!-- Header — مطابق تماماً لـ renderOrdersList -->
                 <div class="order-card-header" style="background:${_sc.header ? 'linear-gradient(135deg,'+_sc.header+','+_sc.header.replace('0.15','0.05').replace('0.1','0.03').replace('0.05','0.02')+') !important' : ''}">
