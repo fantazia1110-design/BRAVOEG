@@ -435,6 +435,7 @@ body.login-state .login-section .remember-checkbox input:checked ~ .checkmark::a
     .admin-orders-grid .order-img-wrapper { flex: 1; }
     .admin-order-img-label { font-size: 0.65em; }
     .admin-order-action-btn { font-size: 0.78em; padding: 6px 14px; }
+    .admin-order-action-btn.download-product { font-size: 0.78em; padding: 6px 14px; min-width: auto; }
 
     /* Products filters */
     .admin-products-filters { flex-wrap: wrap; gap: 6px; }
@@ -579,6 +580,7 @@ body.login-state .login-section .remember-checkbox input:checked ~ .checkmark::a
     .admin-orders-grid .admin-order-note { font-size: 0.75em; padding: 6px 10px; }
     .admin-orders-grid .order-img-wrapper img { height: auto !important; max-height: 200px; }
     .admin-order-action-btn { font-size: 0.72em; padding: 5px 10px; }
+    .admin-order-action-btn.download-product { font-size: 0.72em; padding: 5px 10px; min-width: auto; }
 
     /* Modals */
     .edit-page-modal.active { align-items: center !important; justify-content: center !important; padding: 16px !important; box-sizing: border-box !important; overflow: hidden !important; }
@@ -750,6 +752,7 @@ body.login-state .login-section .remember-checkbox input:checked ~ .checkmark::a
     .admin-orders-grid .order-card-header-right .order-card-header-price .hdr-price-value { font-size: 0.78em; }
     .admin-orders-grid .order-card-header-right .order-card-header-price .hdr-price-currency { font-size: 0.65em; }
     .admin-order-action-btn { font-size: 0.68em; padding: 4px 8px; }
+    .admin-order-action-btn.download-product { font-size: 0.68em; padding: 4px 8px; min-width: auto; }
 
     /* Modals */
     .edit-page-modal.active { align-items: center !important; justify-content: center !important; padding: 14px !important; box-sizing: border-box !important; overflow: hidden !important; }
@@ -1537,11 +1540,24 @@ body.login-state .login-section .remember-checkbox input:checked ~ .checkmark::a
 .admin-orders-search:focus-within i { color: var(--primary); }
 .admin-orders-search input { background: transparent; border: none; color: white; outline: none; width: 100%; font-family: inherit; font-size: 1.05em; font-weight: 600; }
 .admin-orders-search input::placeholder { color: rgba(255,255,255,0.4); }
-/* Admin override: cards full width, default cursor */
+/* Admin override: cards full width, pointer cursor */
 .admin-orders-grid .order-card {
     width: 100%;
     margin: 0;
-    cursor: default;
+    cursor: pointer;
+}
+
+/* Order card collapse: closed by default, opened on click */
+.admin-orders-grid .order-card .order-card-collapse {
+    display: none;
+}
+.admin-orders-grid .order-card.open .order-card-collapse {
+    display: block;
+    animation: orderCardExpand 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes orderCardExpand {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 3000px; }
 }
 
 /* Admin order image label */

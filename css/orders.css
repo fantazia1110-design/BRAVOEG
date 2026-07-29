@@ -1011,6 +1011,7 @@ body[dir="ltr"] .filter-search i {
     .info-value.product-name { font-size: 1.2em; }
     .order-pricing-block .price-value { font-size: 1.5em; }
     .order-action-btn { font-size: 0.78em; padding: 6px 14px; }
+    .order-action-btn.btn-download { font-size: 0.78em; padding: 6px 14px; min-width: auto; }
 }
 @media (max-width: 576px) {
     .orders-page > .container { padding: 90px 5% 40px; }
@@ -1081,6 +1082,7 @@ body[dir="ltr"] .filter-search i {
     .order-pricing-block .price-final { padding: 10px; }
     .order-action-row { gap: 8px; padding-top: 10px; }
     .order-action-btn { font-size: 0.72em; padding: 5px 10px; }
+    .order-action-btn.btn-download { font-size: 0.72em; padding: 5px 10px; min-width: auto; }
     .order-steps { padding: 10px 4px; margin: 10px 0 0; }
     .order-step-dot { width: 16px; height: 16px; }
     .order-progress-line { top: 8px; }
@@ -1136,6 +1138,7 @@ body[dir="ltr"] .filter-search i {
     .info-value.product-name { font-size: 0.9em; }
     .order-pricing-block .price-value { font-size: 1em; }
     .order-action-btn { font-size: 0.65em; padding: 4px 8px; }
+    .order-action-btn.btn-download { font-size: 0.65em; padding: 4px 8px; min-width: auto; }
     .order-step-dot { width: 12px; height: 12px; }
     .order-progress-line { top: 6px; }
     .order-step-text span { font-size: 0.55em; }

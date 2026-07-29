@@ -1541,7 +1541,7 @@ body[dir="ltr"] .cart-item:hover {
 
     .nav-menu li {
         width: 100%;
-        margin-bottom: 8px;
+        margin-bottom: 28px;
     }
 
     .nav-menu a {
@@ -1965,7 +1965,7 @@ body[dir="ltr"] .cart-item:hover {
 .nav-menu .mobile-action-item {
     display: none;
     width: 100%;
-    margin-bottom: 4px;
+    margin-bottom: 28px;
 }
 
 .mobile-action-btn {
@@ -2253,13 +2253,13 @@ body[dir="ltr"] .mobile-lang-indicator {
         font-size: 0.7em !important;
     }
     .nav-menu li {
-        margin-bottom: 2px !important;
+        margin-bottom: 16px !important;
     }
     .nav-menu a {
-        padding: 8px 12px !important;
-        font-size: 0.85em !important;
-        gap: 8px !important;
-        border-radius: 10px !important;
+        padding: 12px 16px !important;
+        font-size: 0.9em !important;
+        gap: 10px !important;
+        border-radius: 12px !important;
     }
     .nav-menu a i {
         font-size: 0.95em !important;
@@ -2268,10 +2268,10 @@ body[dir="ltr"] .mobile-lang-indicator {
         min-width: 28px !important;
     }
     .nav-menu .mobile-action-btn {
-        padding: 8px 12px !important;
-        font-size: 0.85em !important;
-        gap: 8px !important;
-        border-radius: 10px !important;
+        padding: 12px 16px !important;
+        font-size: 0.9em !important;
+        gap: 10px !important;
+        border-radius: 12px !important;
     }
     .nav-menu .mobile-action-btn i {
         width: 28px !important;
@@ -2280,10 +2280,10 @@ body[dir="ltr"] .mobile-lang-indicator {
         border-radius: 7px !important;
     }
     .nav-menu .mobile-action-item.logged-in-only .mobile-action-btn {
-        padding: 6px 10px !important;
-        font-size: 0.78em !important;
-        gap: 6px !important;
-        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        font-size: 0.9em !important;
+        gap: 10px !important;
+        border-radius: 12px !important;
     }
     .nav-menu .mobile-action-item.logged-in-only .mobile-action-btn i {
         width: 24px !important;

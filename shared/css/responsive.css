@@ -215,6 +215,7 @@ header nav,
 
     .nav-menu li {
         width: 100%;
+        margin-bottom: 28px;
     }
 
     .nav-menu a {
