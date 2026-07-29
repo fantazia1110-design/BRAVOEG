@@ -8620,7 +8620,8 @@ window.renderOrdersList = function(orders) {
         step3Pending: lang === 'ar' ? '⏳ في الانتظار' : lang === 'en' ? '⏳ Pending' : '⏳ En attente',
         step3SubDone: lang === 'ar' ? 'تم تأكيد طلبك بنجاح' : lang === 'en' ? 'Order confirmed successfully' : 'Commande confirmée',
         step3SubRej: lang === 'ar' ? 'يرجى التواصل مع الدعم' : lang === 'en' ? 'Please contact support' : 'Veuillez contacter le support',
-        step3SubSus: lang === 'ar' ? 'الطلب معلق للمراجعة' : lang === 'en' ? 'Order suspended for review' : 'Commande suspendue'
+        step3SubSus: lang === 'ar' ? 'الطلب معلق للمراجعة' : lang === 'en' ? 'Order suspended for review' : 'Commande suspendue',
+        receipt: lang === 'ar' ? 'صورة الإيصال' : lang === 'en' ? 'Receipt Image' : 'Image du reçu'
     };
     orders = orders.filter(o => o && o.id);
 
@@ -8684,6 +8685,7 @@ window.renderOrdersList = function(orders) {
         }
         const finalImgUrl = displayImg;
         const userItemsHtml = buildOrderItemsHtml(o, { compact: true });
+        const hasReceipt = !!o.receiptImageUrl;
 
         const s1Done = true;
         const s2Done = o.status === 'confirmed' || o.status === 'rejected' || o.status === 'suspended';
@@ -8724,6 +8726,7 @@ window.renderOrdersList = function(orders) {
                             <div class="order-card-img-col">
                                 ${badgesHTML}
                                 ${userItemsHtml}
+                                ${hasReceipt ? `<div class="order-receipt-box"><div class="receipt-header"><i class="fas fa-receipt"></i><div>${_i18n.receipt}</div></div><img src="${o.receiptImageUrl}" alt="${_i18n.receipt}" loading="lazy" onclick="event.stopPropagation();openImageModal('${o.receiptImageUrl}')"></div>` : ''}
                             </div>
 
                             <!-- Left side: Info + Actions -->
