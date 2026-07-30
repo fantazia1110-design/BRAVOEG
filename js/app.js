@@ -673,10 +673,16 @@ async function initializeFirebase() {
     if (window.firebaseAuthReady) { console.log('🔁 Firebase already fully initialized'); return true; }
     if (window.firebaseDB && typeof window.firebaseDB === 'object') { console.log('🔁 Firebase partial init (DB only), completing with Auth...'); }
     try {
-        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
-        const { getDatabase, ref, get, set, update, remove, push, onValue, off } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
-        const { getAuth, onAuthStateChanged, signOut } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
-        const { getStorage, ref: storageRef, uploadBytes, uploadBytesResumable, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js");
+        const _impt = function(url) {
+            return Promise.race([
+                import(url),
+                new Promise(function(_, rej) { setTimeout(function() { rej(new Error('TIMEOUT')); }, 10000); })
+            ]);
+        };
+        const { initializeApp } = await _impt("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
+        const { getDatabase, ref, get, set, update, remove, push, onValue, off } = await _impt("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
+        const { getAuth, onAuthStateChanged, signOut } = await _impt("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
+        const { getStorage, ref: storageRef, uploadBytes, uploadBytesResumable, getDownloadURL } = await _impt("https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js");
         app = initializeApp(FIREBASE_CONFIG);
         database = getDatabase(app);
         auth = getAuth(app);
@@ -1382,7 +1388,7 @@ async function loadAllProducts() {
     try {
         const localData = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
         if (localData.products && typeof localData.products === 'object') {
-            allProducts = Object.entries(localData.products).map(([id, d]) => ({ ...d, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed');
+            allProducts = Object.entries(localData.products).map(([id, d]) => ({ ...d, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined));
             if (currentLang && currentLang !== 'ar' && typeof _applyCachedTranslations === 'function') _applyCachedTranslations(allProducts, currentLang);
             updateStats();
         }
@@ -1399,9 +1405,10 @@ function listenToProducts() {
     let debounceTimer;
     DB.on('products', (data) => { 
         if (data && typeof data === 'object') { window._firebaseUnavailable = false;
-            var newData = Object.entries(data).map(([id, p]) => ({ ...p, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed'); 
+            var newData = Object.entries(data).map(([id, p]) => ({ ...p, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined)); 
             var newHash = _productsHash(newData);
             var isSame = (newHash === _lastProductsHash && newData.length === allProducts.length);
+            console.log('🔄 listenToProducts:', { totalIncoming: Object.keys(data).length, validAfterFilter: newData.length, allProductsLen: allProducts.length, isSame, hash: newHash, lastHash: _lastProductsHash, validIds: newData.map(p => p.id), sample: newData[0]?.title?.ar });
             allProducts = newData;
             _lastProductsHash = newHash;
             if (currentLang && currentLang !== 'ar' && typeof _applyCachedTranslations === 'function') _applyCachedTranslations(allProducts, currentLang);
@@ -1980,7 +1987,7 @@ function qvToggleDesc(descId, btn) {
 function generateProductCardHTML(product, index, opts) {
     opts = opts || {};
     const lang = opts.lang || document.documentElement.lang || 'ar';
-    const userCountry = opts.userCountry || localStorage.getItem('userCountry') || 'EG';
+    const userCountry = opts.userCountry || (typeof userCountry !== 'undefined' ? userCountry : localStorage.getItem(STORAGE_KEYS.country)) || APP_CONFIG.defaultCountry;
     const alwaysWishlisted = opts.alwaysWishlisted || false;
     const cats = APP_CONFIG.categories;
 
@@ -2049,7 +2056,6 @@ function displayProducts() {
     let filtered = _filterProducts(currentCategory, search);
 
     // Price range filter — smart max from products
-    const userCountry = localStorage.getItem('userCountry') || 'EG';
     const priceMinEl = document.getElementById('priceMin');
     const priceMaxEl = document.getElementById('priceMax');
     const priceVals = document.getElementById('priceRangeValues');
@@ -2058,8 +2064,8 @@ function displayProducts() {
     let maxPrice = 0;
     filtered.forEach(p => { const pr = getProductPrice(p); if (pr > maxPrice) maxPrice = pr; });
     if (maxPrice === 0) maxPrice = 100;
-    if (priceMinEl) priceMinEl.max = maxPrice;
-    if (priceMaxEl) priceMaxEl.max = maxPrice;
+    if (priceMinEl) { priceMinEl.max = maxPrice; priceMinEl.step = 1; }
+    if (priceMaxEl) { priceMaxEl.max = maxPrice; priceMaxEl.step = 1; }
 
     // Reset slider to full range only when available products change (category/search switch)
     if (priceMaxEl) {
@@ -2118,25 +2124,14 @@ function displayProducts() {
     });
 
     // Update results count
+    const lang = document.documentElement.lang || 'ar';
+
     const rc = document.getElementById('resultsCount');
     if (rc) rc.textContent = filtered.length;
 
     if (filtered.length === 0) {
         if (empty) {
             empty.style.display = '';
-            empty.querySelector('.empty-icon').innerHTML = window._firebaseUnavailable ? '⚠️' : '🛒';
-            var title = empty.querySelector('.empty-title');
-            var text = empty.querySelector('.empty-text');
-            if (title) {
-                title.innerHTML = window._firebaseUnavailable
-                    ? (lang === 'ar' ? '⚠️ تعذر تحميل المنتجات' : lang === 'en' ? '⚠️ Unable to load products' : '⚠️ Impossible de charger les produits')
-                    : (lang === 'ar' ? 'لم يتم العثور على نتائج' : lang === 'en' ? 'No Results Found' : 'Aucun résultat trouvé');
-            }
-            if (text) {
-                text.innerHTML = window._firebaseUnavailable
-                    ? (lang === 'ar' ? 'يرجى تعطيل VPN أو الاتصال بخدمة الإنترنت للمتابعة' : lang === 'en' ? 'Please disable VPN or check your internet connection' : 'Veuillez désactiver le VPN ou vérifier votre connexion Internet')
-                    : (lang === 'ar' ? 'حاول البحث بكلمات مختلفة' : lang === 'en' ? 'Try distinct keywords' : 'Essayez des mots-clés distincts');
-            }
         }
         grid.style.display = 'none';
         return;
@@ -2144,8 +2139,6 @@ function displayProducts() {
 
     if (empty) empty.style.display = 'none';
     grid.style.display = 'grid';
-
-    const lang = document.documentElement.lang || 'ar';
 
     let html = '';
     filtered.forEach((product, i) => {
@@ -4337,7 +4330,7 @@ async function cleanCorruptedProducts() {
         var removed = 0;
         for (var id in data) {
             var p = data[id];
-            if (!p || typeof p !== 'object' || !p.title || (p.priceEGP === undefined && p.priceUSD === undefined) || p.status === 'trashed') {
+            if (!p || typeof p !== 'object' || !p.title || (p.priceEGP === undefined && p.priceUSD === undefined)) {
                 if (p && p._isLocal) continue;
                 _addHidden('products', id);
                 removed++;
@@ -7930,7 +7923,7 @@ function initDashboardCharts(orders) {
 // VERSION: v126 - Jul 07 2026
 // ==================== INITIALIZE APPLICATION ====================
 async function initializeApp() {
-    console.log('🚀 Initializing BRAVO Store...');
+    console.log('🚀 Initializing BRAVO Store...', { firebaseDB: !!window.firebaseDB, country: userCountry, _countryFromIP: window._countryFromIP });
     history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
     initializeThemeAndLanguage();
@@ -7996,10 +7989,26 @@ async function initializeApp() {
 
     hideLoadingScreen();
 
-    // SLOW PATH: Firebase, settings, auth (non-blocking for products)
+    // SLOW PATH: Firebase, settings (products listener FIRST so it's not blocked by auth)
     await initializeFirebase();
     await loadSystemSettings(); 
-    await initializeAuth(); 
+    
+    // Start listening to products NOW (before auth, which might hang)
+    console.log('📡 Setting up products listener before auth...');
+    await loadAllProducts();
+    cleanCorruptedProducts().catch(function(){});
+    listenToProducts();
+    if (typeof displayProducts === 'function' && document.getElementById('productsGrid')) {
+        displayProducts();
+    }
+
+    // Auth (with timeout to prevent hanging)
+    try {
+        await Promise.race([
+            initializeAuth(),
+            new Promise(function(r) { setTimeout(function() { console.warn('⚠️ Auth timeout, continuing without auth'); r(null); }, 8000); })
+        ]);
+    } catch(e) { console.warn('Auth error:', e); }
 
     // إعادة عرض طرق الدفع بعد تحميل البيانات من Firebase
     if (window.location.pathname.includes('checkout')) {
@@ -8082,13 +8091,15 @@ async function initializeApp() {
             var _changed = false;
             Object.keys(_h.products).forEach(function(_hid) {
                 var _prod = _db.products[_hid];
-                if (_prod && _prod.title && (_prod.priceEGP !== undefined || _prod.priceUSD !== undefined) && _prod.status !== 'trashed') {
+                if (_prod && _prod.title && (_prod.priceEGP !== undefined || _prod.priceUSD !== undefined)) {
                     delete _h.products[_hid];
                     _changed = true;
                 }
             });
             if (_changed) {
                 localStorage.setItem('bravo_hidden', JSON.stringify(_h));
+                if (typeof loadAllProducts === 'function') { await loadAllProducts(); }
+                if (typeof displayProducts === 'function' && document.getElementById('productsGrid')) displayProducts();
                 console.log('🧹 [Startup] تم إزالة منتجات سليمة من bravo_hidden');
             }
         }
@@ -8120,7 +8131,7 @@ async function initializeApp() {
                 _dDb = { products: {} };
                 localStorage.setItem('bravo_local_db', JSON.stringify(_dDb));
                 console.log('🔧 Created empty bravo_local_db');
-            } else { window._firebaseUnavailable = true; }
+            }
             // Try Firebase recovery (non-blocking — fire and forget)
             if (window.firebaseDB && !window._adminAuthFailed) {
                 DB.ensureAdminAuth().then(function(_aOk) {
@@ -8133,28 +8144,25 @@ async function initializeApp() {
                         ]).then(function(_s) {
                             if (!(_s instanceof Error) && _s.exists && _s.exists()) {
                                 var _v = _s.val();
-                                if (_v && typeof _v === 'object') { window._firebaseUnavailable = false;
+                                if (_v && typeof _v === 'object') {
                                     var _c = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
                                     _c.products = _v;
                                     localStorage.setItem('bravo_local_db', JSON.stringify(_c));
                                     console.log('✅ Firebase recovered', Object.keys(_v).length, 'products');
-                                    allProducts = Object.entries(_v).map(function(e){ return { ...e[1], id: e[0] }; }).filter(function(x){ return x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed'; });
+                                    allProducts = Object.entries(_v).map(function(e){ return { ...e[1], id: e[0] }; }).filter(function(x){ return x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined); });
                                     if (window.currentLang !== 'ar' && typeof autoTranslateProducts === 'function') {
                                         autoTranslateProducts(window.currentLang).catch(function() {});
                                     }
                                     if (typeof displayProducts === 'function') displayProducts();
                                 }
                             }
-                        }).catch(function(){ window._firebaseUnavailable = true; if (typeof displayProducts === 'function' && document.getElementById('productsGrid')) displayProducts(); });
+                        }).catch(function(){ if (typeof displayProducts === 'function' && document.getElementById('productsGrid')) displayProducts(); });
                     }
-                }).catch(function(){ window._firebaseUnavailable = true; if (typeof displayProducts === 'function' && document.getElementById('productsGrid')) displayProducts(); });
+                }).catch(function(){ if (typeof displayProducts === 'function' && document.getElementById('productsGrid')) displayProducts(); });
             }
         }
     } catch(e) { console.warn('Diagnostic error:', e); }
     
-    await loadAllProducts();
-    cleanCorruptedProducts().catch(function(){});
-    listenToProducts();
     if (document.getElementById('cartPageContent') && window.renderCartPage) {
         window.renderCartPage();
     }
@@ -8416,12 +8424,11 @@ window.renderWishlistPage = function() {
     grid.style.display = 'grid';
     
     const lang = currentLang || 'ar';
-    const uc = localStorage.getItem('userCountry') || 'EG';
 
     let html = '';
     userWishlist.forEach((p, i) => {
         const full = allProducts.find(x => String(x.id) === String(p.id)) || p;
-        const price = uc === 'EG' ? (full.priceEGP || p.priceEGP || full.price || p.price) : (full.priceUSD || p.priceUSD || full.price || p.price);
+        const price = userCountry === 'EG' && window._countryFromIP ? (full.priceEGP || p.priceEGP || full.price || p.price) : (full.priceUSD || p.priceUSD || full.price || p.price);
         html += generateProductCardHTML(full, i, { lang, userCountry, price, alwaysWishlisted: true });
     });
 
@@ -9733,5 +9740,3 @@ function renderAllSuggestionChips() {
     });
 }
 
-// 🚀 Boot the application
-initializeApp().catch(e => console.error('Boot error:', e));
