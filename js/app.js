@@ -580,13 +580,13 @@ let userCountry = localStorage.getItem(STORAGE_KEYS.country) || APP_CONFIG.defau
 
 // ==================== CURRENCY & COUNTRY DETECTION ====================
 function getUserCurrency() {
-    return userCountry === 'EG'
+    return userCountry === 'EG' && window._countryFromIP
         ? { country: 'EG', currency: 'EGP', symbol: currentLang === 'ar' ? 'جنيه' : currentLang === 'en' ? 'EGP' : 'EGP' }
         : { country: 'US', currency: 'USD', symbol: 'USD' };
 }
 
-function getProductPrice(p) { return userCountry === 'EG' ? (p.priceEGP ?? 0) : (p.priceUSD ?? 0); }
-function getProductOldPrice(p) { return userCountry === 'EG' ? (p.oldPriceEGP ?? 0) : (p.oldPriceUSD ?? 0); }
+function getProductPrice(p) { return userCountry === 'EG' && window._countryFromIP ? (p.priceEGP ?? 0) : (p.priceUSD ?? 0); }
+function getProductOldPrice(p) { return userCountry === 'EG' && window._countryFromIP ? (p.oldPriceEGP ?? 0) : (p.oldPriceUSD ?? 0); }
 function hasProductDiscount(p) {
     const cp = getProductPrice(p), op = getProductOldPrice(p);
     return op > cp;
@@ -597,6 +597,7 @@ function formatProductPrice(p) {
 }
 
 async function detectUserCountry() {
+    window._countryFromIP = false;
     try {
         const ctrl = new AbortController();
         const tmr = setTimeout(() => ctrl.abort(), 4000);
@@ -608,6 +609,7 @@ async function detectUserCountry() {
             if (code) {
                 const prev = userCountry;
                 userCountry = code;
+                window._countryFromIP = true;
                 localStorage.setItem(STORAGE_KEYS.country, userCountry);
                 localStorage.setItem(STORAGE_KEYS.country + '_ts', String(Date.now()));
                 if (prev !== userCountry && typeof displayProducts === 'function') displayProducts();
@@ -621,9 +623,14 @@ async function detectUserCountry() {
     if (stored) { userCountry = stored; return; }
     try {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const map = { 'Africa/Cairo':'EG','Asia/Riyadh':'SA','Asia/Dubai':'AE','Europe/London':'GB','America/New_York':'US' };
-        userCountry = map[tz] || APP_CONFIG.defaultCountry;
-        localStorage.setItem(STORAGE_KEYS.country, userCountry);
+        const map = { 'Africa/Cairo':'EG','Africa/Casablanca':'MA','Africa/Tunis':'TN','Africa/Algiers':'DZ','Africa/Khartoum':'SD','Africa/Tripoli':'LY','Africa/Johannesburg':'ZA','Africa/Nairobi':'KE','Africa/Lagos':'NG','Asia/Riyadh':'SA','Asia/Dubai':'AE','Asia/Baghdad':'IQ','Asia/Amman':'JO','Asia/Beirut':'LB','Asia/Damascus':'SY','Asia/Jerusalem':'IL','Asia/Kuwait':'KW','Asia/Manama':'BH','Asia/Muscat':'OM','Asia/Doha':'QA','Asia/Sanaa':'YE','Asia/Tehran':'IR','Asia/Kabul':'AF','Asia/Karachi':'PK','Asia/Colombo':'LK','Asia/Kolkata':'IN','Asia/Dhaka':'BD','Asia/Bangkok':'TH','Asia/Ho_Chi_Minh':'VN','Asia/Singapore':'SG','Asia/Kuala_Lumpur':'MY','Asia/Shanghai':'CN','Asia/Tokyo':'JP','Asia/Seoul':'KR','Europe/London':'GB','Europe/Paris':'FR','Europe/Berlin':'DE','Europe/Madrid':'ES','Europe/Rome':'IT','Europe/Amsterdam':'NL','Europe/Brussels':'BE','Europe/Moscow':'RU','Europe/Istanbul':'TR','Europe/Athens':'GR','Europe/Lisbon':'PT','Europe/Stockholm':'SE','Europe/Oslo':'NO','Europe/Copenhagen':'DK','Europe/Helsinki':'FI','Europe/Dublin':'IE','America/New_York':'US','America/Chicago':'US','America/Denver':'US','America/Los_Angeles':'US','America/Toronto':'CA','America/Vancouver':'CA','America/Mexico_City':'MX','America/Sao_Paulo':'BR','America/Argentina/Buenos_Aires':'AR','America/Santiago':'CL','America/Bogota':'CO','America/Lima':'PE','Australia/Sydney':'AU','Australia/Melbourne':'AU','Australia/Perth':'AU','Pacific/Auckland':'NZ' };
+        if (map[tz] === 'EG') {
+            userCountry = 'XX';
+            localStorage.setItem(STORAGE_KEYS.country, userCountry);
+        } else {
+            userCountry = map[tz] || 'XX';
+            localStorage.setItem(STORAGE_KEYS.country, userCountry);
+        }
         localStorage.setItem(STORAGE_KEYS.country + '_ts', String(Date.now()));
     } catch (e2) {}
 }
@@ -1391,7 +1398,7 @@ function _productsHash(prods) {
 function listenToProducts() { 
     let debounceTimer;
     DB.on('products', (data) => { 
-        if (data && typeof data === 'object') { 
+        if (data && typeof data === 'object') { window._firebaseUnavailable = false;
             var newData = Object.entries(data).map(([id, p]) => ({ ...p, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed'); 
             var newHash = _productsHash(newData);
             var isSame = (newHash === _lastProductsHash && newData.length === allProducts.length);
@@ -1977,13 +1984,13 @@ function generateProductCardHTML(product, index, opts) {
     const alwaysWishlisted = opts.alwaysWishlisted || false;
     const cats = APP_CONFIG.categories;
 
-    const isEG = userCountry === 'EG';
-    const price = opts.price !== undefined ? opts.price : (isEG ? product.priceEGP : product.priceUSD);
-    const currency = isEG ? (lang === 'ar' ? 'جنيه' : lang === 'en' ? 'EGP' : 'EGP') : 'USD';
-    const currencyCode = isEG ? 'EGP' : 'USD';
+    const _isEG = userCountry === 'EG' && window._countryFromIP;
+    const price = opts.price !== undefined ? opts.price : getProductPrice(product);
+    const currency = _isEG ? (lang === 'ar' ? 'جنيه' : lang === 'en' ? 'EGP' : 'EGP') : 'USD';
+    const currencyCode = _isEG ? 'EGP' : 'USD';
 
     let oldPriceHTML = '', savePriceHTML = '';
-    const oldPriceVal = isEG ? (product.oldPriceEGP || 0) : (product.oldPriceUSD || 0);
+    const oldPriceVal = getProductOldPrice(product);
     const hasDiscount = oldPriceVal > price;
     if (hasDiscount) {
         const saveAmount = oldPriceVal - price;
@@ -2069,7 +2076,8 @@ function displayProducts() {
             priceMinEl.setAttribute('data-pmax', maxPrice);
         }
     }
-    if (priceVals) priceVals.textContent = (priceMinEl?.value || '0') + ' – ' + (priceMaxEl?.value || maxPrice) + ' ' + (currentLang === 'ar' ? 'جنية' : 'EGP');
+    const sliderCurrency = userCountry === 'EG' && window._countryFromIP ? (currentLang === 'ar' ? 'جنية' : 'EGP') : 'USD';
+    if (priceVals) priceVals.textContent = (priceMinEl?.value || '0') + ' – ' + (priceMaxEl?.value || maxPrice) + ' ' + sliderCurrency;
 
     // Sync number inputs with sliders
     const inpMin = document.getElementById('priceInputMin');
@@ -2114,7 +2122,22 @@ function displayProducts() {
     if (rc) rc.textContent = filtered.length;
 
     if (filtered.length === 0) {
-        if (empty) { empty.style.display = ''; }
+        if (empty) {
+            empty.style.display = '';
+            empty.querySelector('.empty-icon').innerHTML = window._firebaseUnavailable ? '⚠️' : '🛒';
+            var title = empty.querySelector('.empty-title');
+            var text = empty.querySelector('.empty-text');
+            if (title) {
+                title.innerHTML = window._firebaseUnavailable
+                    ? (lang === 'ar' ? '⚠️ تعذر تحميل المنتجات' : lang === 'en' ? '⚠️ Unable to load products' : '⚠️ Impossible de charger les produits')
+                    : (lang === 'ar' ? 'لم يتم العثور على نتائج' : lang === 'en' ? 'No Results Found' : 'Aucun résultat trouvé');
+            }
+            if (text) {
+                text.innerHTML = window._firebaseUnavailable
+                    ? (lang === 'ar' ? 'يرجى تعطيل VPN أو الاتصال بخدمة الإنترنت للمتابعة' : lang === 'en' ? 'Please disable VPN or check your internet connection' : 'Veuillez désactiver le VPN ou vérifier votre connexion Internet')
+                    : (lang === 'ar' ? 'حاول البحث بكلمات مختلفة' : lang === 'en' ? 'Try distinct keywords' : 'Essayez des mots-clés distincts');
+            }
+        }
         grid.style.display = 'none';
         return;
     }
@@ -8097,7 +8120,7 @@ async function initializeApp() {
                 _dDb = { products: {} };
                 localStorage.setItem('bravo_local_db', JSON.stringify(_dDb));
                 console.log('🔧 Created empty bravo_local_db');
-            }
+            } else { window._firebaseUnavailable = true; }
             // Try Firebase recovery (non-blocking — fire and forget)
             if (window.firebaseDB && !window._adminAuthFailed) {
                 DB.ensureAdminAuth().then(function(_aOk) {
@@ -8110,7 +8133,7 @@ async function initializeApp() {
                         ]).then(function(_s) {
                             if (!(_s instanceof Error) && _s.exists && _s.exists()) {
                                 var _v = _s.val();
-                                if (_v && typeof _v === 'object') {
+                                if (_v && typeof _v === 'object') { window._firebaseUnavailable = false;
                                     var _c = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
                                     _c.products = _v;
                                     localStorage.setItem('bravo_local_db', JSON.stringify(_c));
@@ -8122,9 +8145,9 @@ async function initializeApp() {
                                     if (typeof displayProducts === 'function') displayProducts();
                                 }
                             }
-                        }).catch(function(){});
+                        }).catch(function(){ window._firebaseUnavailable = true; if (typeof displayProducts === 'function' && document.getElementById('productsGrid')) displayProducts(); });
                     }
-                }).catch(function(){});
+                }).catch(function(){ window._firebaseUnavailable = true; if (typeof displayProducts === 'function' && document.getElementById('productsGrid')) displayProducts(); });
             }
         }
     } catch(e) { console.warn('Diagnostic error:', e); }
@@ -8635,7 +8658,7 @@ window.renderOrdersList = function(orders) {
         const pmKey = o.paymentMethod || '';
         const pmName = PAYMENT_ACCOUNTS[pmKey]?.name?.[lang] || PAYMENT_ACCOUNTS[pmKey]?.name?.ar || o.paymentMethodName || pmKey || '';
         const pmLogo = PAYMENT_ACCOUNTS[pmKey]?.logo || '';
-        let orderOldPrice = userCountry === 'EG' ? (o.productOldPriceEGP || o.oldPriceEGP) : (o.productOldPriceUSD || o.oldPriceUSD);
+        let orderOldPrice = userCountry === 'EG' && window._countryFromIP ? (o.productOldPriceEGP || o.oldPriceEGP) : (o.productOldPriceUSD || o.oldPriceUSD);
         if (!orderOldPrice && o.items && typeof o.items === 'object') {
             orderOldPrice = Object.values(o.items).reduce((sum, item) => {
                 const old = parseFloat(getProductOldPrice(item));
@@ -8982,7 +9005,8 @@ window.updatePriceRange = function() {
         if (priceMinEl && priceMaxEl && priceVals) {
             const minVal = priceMinEl.value;
             const maxVal = priceMaxEl.value;
-            priceVals.textContent = minVal + ' – ' + maxVal + ' جنية';
+            const sliderCur = userCountry === 'EG' && window._countryFromIP ? 'جنية' : 'USD';
+            priceVals.textContent = minVal + ' – ' + maxVal + ' ' + sliderCur;
         }
         if (inpMin) inpMin.value = priceMinEl?.value || '0';
         if (inpMax) inpMax.value = priceMaxEl?.value || '5000';
@@ -9027,7 +9051,8 @@ window.initOrdersPriceSlider = function() {
     if (priceMaxEl) { priceMaxEl.max = maxPrice; priceMaxEl.value = maxPrice; }
     if (inpMin) { inpMin.max = maxPrice; inpMin.value = 0; }
     if (inpMax) { inpMax.max = maxPrice; inpMax.value = maxPrice; }
-    if (priceVals) priceVals.textContent = '0 – ' + maxPrice + ' جنية';
+    const sliderCur = userCountry === 'EG' && window._countryFromIP ? 'جنية' : 'USD';
+    if (priceVals) priceVals.textContent = '0 – ' + maxPrice + ' ' + sliderCur;
 };
 
 // --- 👤 صفحة الملف الشخصي والإعدادات (Profile & Settings) ---
