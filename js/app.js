@@ -5809,7 +5809,7 @@ function switchTab(tab) {
     if (navLink) navLink.classList.add('active');
     var tc = document.getElementById(tab + 'Tab'); 
     if (tc) tc.classList.add('active'); 
-    try { localStorage.setItem('adminActiveTab', tab); } catch(e) {}
+    try { sessionStorage.setItem('adminActiveTab', tab); } catch(e) {}
 }
 window.switchTab = switchTab;
 
@@ -6015,8 +6015,8 @@ window._renderCustomersTable = function(customers) {
             ? '<img src="' + c.avatar + '" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(147,51,234,0.3);flex-shrink:0;" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"><div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#ec4899);display:none;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.1em;flex-shrink:0;">' + nameInitial + '</div>'
             : '<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#9333ea,#ec4899);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:1.1em;flex-shrink:0;">' + nameInitial + '</div>';
         const orderBadge = c.orderCount > 0
-            ? `<span style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:4px 12px;border-radius:20px;font-weight:900;font-size:0.85em;">${c.orderCount} ${_rctI18n.order}</span>`
-            : `<span style="background:rgba(100,100,100,0.2);color:#fff;padding:4px 12px;border-radius:20px;font-weight:900;font-size:0.85em;">0</span>`;
+            ? `<span style="background:linear-gradient(135deg,#9333ea,#f59e0b);color:#fff;padding:6px 16px;border-radius:12px;font-weight:900;font-size:0.85em;display:inline-block;box-shadow:0 4px 15px rgba(147,51,234,0.35);">${c.orderCount} ${_rctI18n.order}</span>`
+            : `<span style="background:rgba(100,100,100,0.15);color:rgba(255,255,255,0.5);padding:6px 16px;border-radius:12px;font-weight:700;font-size:0.85em;display:inline-block;border:1px solid rgba(255,255,255,0.08);">0 ${_rctI18n.order}</span>`;
 
         return `
         <tr style="border-bottom:1px solid var(--border-color);transition:background 0.2s;" onmouseover="this.style.background='rgba(147,51,234,0.05)'" onmouseout="this.style.background=''">

@@ -235,7 +235,7 @@
            ═══════════════════════════════════════════════════ */
         (function() {
             var savedTab = null;
-            try { savedTab = sessionStorage.getItem('adminActiveTab') || localStorage.getItem('adminActiveTab') || window.name.match(/adminTab=(\w+)/)?.[1] || null; } catch(e) {}
+            try { savedTab = sessionStorage.getItem('adminActiveTab'); } catch(e) {}
             if (!savedTab) { savedTab = 'overview'; }
             window._adminRestoreTab = savedTab;
             function applyTab(tab) {
@@ -251,7 +251,6 @@
                     if (btn && !btn.classList.contains('active')) {
                         try { btn.click(); } catch(e) { switchTab(tab); }
                     }
-                    try { sessionStorage.setItem('adminActiveTab', tab); localStorage.setItem('adminActiveTab', tab); window.name = 'adminTab=' + tab; } catch(e) {}
                 } else {
                     setTimeout(tryRestore, 50);
                 }
