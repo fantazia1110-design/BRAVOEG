@@ -209,6 +209,7 @@
                     <a href="orders.html" role="menuitem">
                         <i class="fas fa-box"></i>
                         <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+                        <span class="action-badge" id="ordersBadge">0</span>
                     </a>
                 </li>
                 <!-- المنتجات -->
@@ -316,6 +317,16 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Orders -->
+                <div class="action-btn-wrapper">
+                    <a href="orders.html" class="action-btn" aria-label="طلباتي">
+                        <i class="fas fa-box" aria-hidden="true"></i>
+                        <span class="action-badge" id="ordersBadge" style="display: none;">0</span>
+                    </a>
+                    <span class="action-label" data-ar="طلباتي" data-en="Orders" data-fr="Commandes">طلباتي</span>
+                </div>
+
                 <!-- Cart -->
                 <div class="action-btn-wrapper dropdown" id="cartDropdown">
                     <button class="action-btn" onclick="toggleDropdown('cartDropdown')" aria-label="سلة التسوق" aria-haspopup="true" aria-expanded="false">

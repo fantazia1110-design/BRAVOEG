@@ -48,6 +48,11 @@ body > .container { margin-top: 0 !important; padding-top: 160px; max-width: 160
 .continue-shop-btn { background: var(--gradient-primary); color: white; box-shadow: 0 5px 20px rgba(147,51,234,0.3); }
 .continue-shop-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(147,51,234,0.5); }
 
+/* Desktop breadcrumb - match cart page */
+@media (min-width: 1025px) {
+    .wishlist-page > .container { padding-top: 80px !important; margin-top: 80px !important; }
+}
+
 /* Responsive - wishlist-specific only */
 @media (max-width: 768px) {
     .wishlist-page .page-hero-wrapper { margin-bottom: 28px; }

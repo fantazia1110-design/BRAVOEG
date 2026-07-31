@@ -55,8 +55,21 @@
         </a>
     </li>
 
-    <!-- Mobile: divider -->
-    <li class="nav-menu-divider" role="separator"><span data-ar="الصفحات الرئيسية" data-en="Main Pages" data-fr="Pages principales">الصفحات الرئيسية</span></li>
+    <!-- Mobile: divider + pages toggle -->
+    <li class="nav-menu-divider" role="separator"><span data-ar="صفحات الموقع" data-en="Site Pages" data-fr="Pages du site">صفحات الموقع</span></li>
+    <li class="mobile-action-item" role="none">
+        <a class="mobile-action-btn pages-toggle" href="javascript:void(0)" onclick="togglePagesMenu();return false">
+            <i class="fas fa-globe"></i>
+            <span data-ar="صفحات الموقع" data-en="Site Pages" data-fr="Pages du site">صفحات الموقع</span>
+            <i class="fas fa-chevron-down pages-arrow"></i>
+        </a>
+        <div class="pages-submenu" id="pagesSubmenu">
+            <a href="index.html" class="pages-link" role="menuitem"><i class="fas fa-house-chimney"></i><span data-ar="الرئيسية" data-en="Home" data-fr="Accueil">الرئيسية</span></a>
+            <a href="products.html" class="pages-link" role="menuitem"><i class="fas fa-store"></i><span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span></a>
+            <a href="about.html" class="pages-link" role="menuitem"><i class="fas fa-users-gear"></i><span data-ar="من نحن" data-en="About" data-fr="À propos">من نحن</span></a>
+            <a href="contact.html" class="pages-link" role="menuitem"><i class="fas fa-headset"></i><span data-ar="تواصل معنا" data-en="Contact" data-fr="Contact">تواصل معنا</span></a>
+        </div>
+    </li>
 
     <!-- الرئيسية -->
             <li role="none">
@@ -97,6 +110,13 @@
                 <a href="orders.html" role="menuitem">
                     <i class="fas fa-box"></i>
                     <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+                    <span class="action-badge" id="ordersBadge">0</span>
+                </a>
+            </li>
+            <li class="conditional-nav-item nav-item-product-details" data-page="product-details.html" style="display:none;">
+                <a href="product-details.html" role="menuitem">
+                    <i class="fas fa-circle-info"></i>
+                    <span data-ar="تفاصيل المنتج" data-en="Product Details" data-fr="Détails du produit">تفاصيل المنتج</span>
                 </a>
             </li>
 

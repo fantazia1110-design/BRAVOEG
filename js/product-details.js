@@ -121,14 +121,8 @@ async function loadProduct() {
     try {
         console.log('📥 Loading product:', productId);
         
-        // Load products and product data in parallel
-        const [productsLoaded, productSnapshot] = await Promise.all([
-            loadAllProducts().catch(err => {
-                console.warn('⚠️ Could not load all products:', err.message);
-                return null;
-            }),
-            database && database.ref ? database.ref(`products/${productId}`).once('value') : Promise.resolve(null)
-        ]);
+        // جلب منتج واحد فقط من Firebase (سريع) — loadAllProducts مش لازم هنا
+        const productSnapshot = database && database.ref ? await database.ref(`products/${productId}`).once('value') : null;
         
         if (productSnapshot && productSnapshot.exists()) {
             currentProduct = { 
@@ -1086,57 +1080,88 @@ window.toggleFAQ = function(element) {
     }
 };
 
+// ==================== INSTANT LOCAL CACHE LOAD ====================
+function loadFromLocalCacheSync(productId) {
+    try {
+        var localDb = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+        if (localDb.products && localDb.products[productId]) {
+            return { ...localDb.products[productId], id: productId };
+        }
+    } catch(e) {}
+    return null;
+}
+
 // ==================== INITIALIZE ====================
 window.displayProduct = displayProduct;
 window.addEventListener('DOMContentLoaded', async () => {
-    await waitForFirebase();
-    await detectUserLocation();
-    await loadProduct();
-    if (currentProduct) displayProduct();
-    applyLanguage();
-    if (auth && auth.currentUser) {
-        if (typeof updateUIWithUser === 'function') updateUIWithUser(auth.currentUser);
-    } else {
-        if (typeof updateUIForGuest === 'function') updateUIForGuest();
-    }
-    if (currentProduct && window.currentLang !== 'ar') {
-        if (typeof window._translateTextArTo === 'function') {
-            var titleAr = typeof currentProduct.title === 'object' ? (currentProduct.title?.ar || '') : (typeof currentProduct.title === 'string' ? currentProduct.title : '');
-            var descAr = typeof currentProduct.description === 'object' ? (currentProduct.description?.ar || '') : (typeof currentProduct.description === 'string' ? currentProduct.description : '');
-            if (titleAr && _isArabic(titleAr)) {
-                var newTitleEn = await _translateTextArTo(titleAr, 'en');
-                var newTitleFr = await _translateTextArTo(titleAr, 'fr');
-                if (typeof currentProduct.title === 'object') {
-                    if (newTitleEn) currentProduct.title.en = newTitleEn;
-                    if (newTitleFr) currentProduct.title.fr = newTitleFr;
-                } else {
-                    currentProduct.title = { ar: titleAr, en: newTitleEn || titleAr, fr: newTitleFr || titleAr };
-                }
-            }
-            if (descAr && _isArabic(descAr)) {
-                var newDescEn = await _translateTextArTo(descAr, 'en');
-                var newDescFr = await _translateTextArTo(descAr, 'fr');
-                if (typeof currentProduct.description === 'object') {
-                    if (newDescEn) currentProduct.description.en = newDescEn;
-                    if (newDescFr) currentProduct.description.fr = newDescFr;
-                } else {
-                    currentProduct.description = { ar: descAr, en: newDescEn || descAr, fr: newDescFr || descAr };
-                }
-            }
-        }
-        displayProduct();
-        loadRelatedProducts();
-    }
-    if (currentProduct) {
-        var _bp = document.getElementById('breadcrumbProduct');
-        if (_bp) _bp.textContent = _pdText('title');
-        var _bct = document.getElementById('breadcrumbCategoryText');
-        if (_bct && currentProduct.category) {
-            var _cats = window.APP_CONFIG?.categories;
-            _bct.textContent = (_cats?.[currentLang]?.[currentProduct.category] || currentProduct.category);
+    var urlParams = new URLSearchParams(window.location.search);
+    var productId = urlParams.get('id');
+
+    // 1. فوري: عرض من localStorage قبل Firebase
+    if (productId) {
+        var cachedProduct = loadFromLocalCacheSync(productId);
+        if (cachedProduct) {
+            currentProduct = cachedProduct;
+            window.currentProduct = currentProduct;
+            displayProduct();
+            applyLanguage();
         }
     }
+
+    // 2. تحميل من Firebase في الخلفية وتحديث إذا اختلف
+    waitForFirebase().then(async () => {
+        await detectUserLocation();
+        await loadProduct();
+
+        if (currentProduct) {
+            displayProduct();
+            applyLanguage();
+            if (auth && auth.currentUser) {
+                if (typeof updateUIWithUser === 'function') updateUIWithUser(auth.currentUser);
+            } else {
+                if (typeof updateUIForGuest === 'function') updateUIForGuest();
+            }
+            if (window.currentLang !== 'ar') {
+                doBackgroundTranslation();
+            }
+            var _bp = document.getElementById('breadcrumbProduct');
+            if (_bp) _bp.textContent = _pdText('title');
+            var _bct = document.getElementById('breadcrumbCategoryText');
+            if (_bct && currentProduct.category) {
+                var _cats = window.APP_CONFIG?.categories;
+                _bct.textContent = (_cats?.[currentLang]?.[currentProduct.category] || currentProduct.category);
+            }
+        }
+    });
 });
+
+async function doBackgroundTranslation() {
+    if (!currentProduct || typeof window._translateTextArTo !== 'function') return;
+    var titleAr = typeof currentProduct.title === 'object' ? (currentProduct.title?.ar || '') : (typeof currentProduct.title === 'string' ? currentProduct.title : '');
+    var descAr = typeof currentProduct.description === 'object' ? (currentProduct.description?.ar || '') : (typeof currentProduct.description === 'string' ? currentProduct.description : '');
+    if (titleAr && _isArabic(titleAr)) {
+        var newTitleEn = await _translateTextArTo(titleAr, 'en');
+        var newTitleFr = await _translateTextArTo(titleAr, 'fr');
+        if (typeof currentProduct.title === 'object') {
+            if (newTitleEn) currentProduct.title.en = newTitleEn;
+            if (newTitleFr) currentProduct.title.fr = newTitleFr;
+        } else {
+            currentProduct.title = { ar: titleAr, en: newTitleEn || titleAr, fr: newTitleFr || titleAr };
+        }
+    }
+    if (descAr && _isArabic(descAr)) {
+        var newDescEn = await _translateTextArTo(descAr, 'en');
+        var newDescFr = await _translateTextArTo(descAr, 'fr');
+        if (typeof currentProduct.description === 'object') {
+            if (newDescEn) currentProduct.description.en = newDescEn;
+            if (newDescFr) currentProduct.description.fr = newDescFr;
+        } else {
+            currentProduct.description = { ar: descAr, en: newDescEn || descAr, fr: newDescFr || descAr };
+        }
+    }
+    displayProduct();
+    loadRelatedProducts();
+}
 
 // Reposition badges on resize
 window.addEventListener('resize', function() {

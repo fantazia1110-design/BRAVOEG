@@ -577,6 +577,7 @@ let currentSort = 'newest';
 let currentTheme = localStorage.getItem(STORAGE_KEYS.theme) || APP_CONFIG.defaultTheme;
 let currentLang = localStorage.getItem(STORAGE_KEYS.lang) || APP_CONFIG.defaultLanguage;
 let userCountry = localStorage.getItem(STORAGE_KEYS.country) || APP_CONFIG.defaultCountry;
+window._countryFromIP = !!localStorage.getItem(STORAGE_KEYS.country);
 
 // ==================== CURRENCY & COUNTRY DETECTION ====================
 function getUserCurrency() {
@@ -597,7 +598,8 @@ function formatProductPrice(p) {
 }
 
 async function detectUserCountry() {
-    window._countryFromIP = false;
+    const hadStored = !!localStorage.getItem(STORAGE_KEYS.country);
+    if (!hadStored) window._countryFromIP = false;
     try {
         const ctrl = new AbortController();
         const tmr = setTimeout(() => ctrl.abort(), 4000);
@@ -608,11 +610,13 @@ async function detectUserCountry() {
             const code = data.country_code || data.country;
             if (code) {
                 const prev = userCountry;
+                const prevIP = window._countryFromIP;
                 userCountry = code;
                 window._countryFromIP = true;
                 localStorage.setItem(STORAGE_KEYS.country, userCountry);
                 localStorage.setItem(STORAGE_KEYS.country + '_ts', String(Date.now()));
-                if (prev !== userCountry && typeof displayProducts === 'function') displayProducts();
+                const needsRender = prev !== userCountry || (!prevIP && userCountry === 'EG');
+                if (needsRender && typeof displayProducts === 'function') displayProducts();
                 return;
             }
         }
@@ -2887,6 +2891,7 @@ async function handleCheckoutSubmit(e) {
         try { const cnt = await DB.get('meta/orderCounter'); if (cnt?.value) id = String(cnt.value + 1); await DB.set('meta/orderCounter', { value: parseInt(id) }); } catch(e) {}
         await DB.set(`orders/${id}`, { ...order, orderId: id });
         try { const _c = parseInt(localStorage.getItem(STORAGE_KEYS.ordersCount) || '0'); localStorage.setItem(STORAGE_KEYS.ordersCount, String(_c + 1)); } catch(e) {}
+        updateOrdersBadge();
         if (currentUser) { try { if (checkoutOrderData.isMultipleItems) { await DB.remove(`carts/${currentUser.uid}`); } else if (checkoutOrderData.productId) { await DB.set(`carts/${currentUser.uid}/${checkoutOrderData.productId}`, null); } sessionStorage.removeItem('cartCheckout'); } catch (ce) { } }
         savedWhatsAppMessage = `${currentLang === 'ar' ? '🎉 طلب جديد' : currentLang === 'en' ? '🎉 New Order' : '🎉 Nouvelle commande'}\n📦 ${order.productTitle}\n💰 ${order.price} ${order.currency}\n👤 ${order.customerName}\n📧 ${order.customerEmail}\n📱 ${order.customerPhone}\n🔢 #${id}\n🖼️ ${imgUrl}`;
         sessionStorage.setItem('lastOrderId', id); sessionStorage.setItem('whatsappMessage', savedWhatsAppMessage);
@@ -3348,7 +3353,8 @@ function initializeDropdowns() {
 
 // ==================== MOBILE MENU ====================
 function toggleMobileMenu() { const n = document.getElementById('navMenu'), i = document.getElementById('mobileMenuIcon'); if (!n || !i) return; n.classList.toggle('active'); i.classList.toggle('fa-bars'); i.classList.toggle('fa-times'); }
-document.addEventListener('click', e => { const n = document.getElementById('navMenu'), i = document.getElementById('mobileMenuIcon'); if (e.target.closest('.nav-menu a') || (!e.target.closest('.nav-menu') && !e.target.closest('.mobile-menu-toggle'))) { if (n) n.classList.remove('active'); if (i) { i.classList.add('fa-bars'); i.classList.remove('fa-times'); } } });
+document.addEventListener('click', e => { const n = document.getElementById('navMenu'), i = document.getElementById('mobileMenuIcon'); if ((e.target.closest('.nav-menu a') && !e.target.closest('.pages-toggle')) || (!e.target.closest('.nav-menu') && !e.target.closest('.mobile-menu-toggle'))) { if (n) n.classList.remove('active'); if (i) { i.classList.add('fa-bars'); i.classList.remove('fa-times'); } } });
+function togglePagesMenu() { const m = document.getElementById('pagesSubmenu'), a = document.querySelector('.pages-arrow'); if (m) { m.classList.toggle('open'); if (a) a.classList.toggle('open'); } }
 
 // ==================== THEME & LANGUAGE ====================
 function getLangFlagHtml(langCode) {
@@ -7997,11 +8003,25 @@ async function initializeApp() {
     console.log('📡 Setting up products listener before auth...');
     await loadAllProducts();
     cleanCorruptedProducts().catch(function(){});
+    // تنظيف bravo_hidden من أي منتجات سليمة قبل ال listener عشان ميحصلش اختفاء
+    try {
+        var _h = JSON.parse(localStorage.getItem('bravo_hidden') || '{}');
+        var _db = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+        if (_h.products && _db.products) {
+            var _changed = false;
+            Object.keys(_h.products).forEach(function(_hid) {
+                var _prod = _db.products[_hid];
+                if (_prod && _prod.title && (_prod.priceEGP !== undefined || _prod.priceUSD !== undefined)) {
+                    delete _h.products[_hid];
+                    _changed = true;
+                }
+            });
+            if (_changed) {
+                localStorage.setItem('bravo_hidden', JSON.stringify(_h));
+            }
+        }
+    } catch(e) {}
     listenToProducts();
-    if (typeof displayProducts === 'function' && document.getElementById('productsGrid')) {
-        displayProducts();
-    }
-
     // Auth (with timeout to prevent hanging)
     try {
         await Promise.race([
