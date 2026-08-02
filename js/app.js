@@ -21,6 +21,8 @@ let APP_CONFIG = {
     defaultCountry: 'EG',
     adminPasscode: 'BRAVO_ali_hossam',
     whatsappNumber: '201012853829',
+    telegramBotToken: '8927788870:AAFWeMFWlycHgbDM_rlLsjzGzve1Zul6GhU',
+    telegramChatId: '1468116938',
     supportEmail: 'bravoenergyeg@gmail.com',
     imgbbApiKey: '533ce68054fa8f013b543214a219f800',
     categories: {
@@ -2890,6 +2892,7 @@ async function handleCheckoutSubmit(e) {
         let id = String(100000 + Math.floor(Math.random() * 900000));
         try { const cnt = await DB.get('meta/orderCounter'); if (cnt?.value) id = String(cnt.value + 1); await DB.set('meta/orderCounter', { value: parseInt(id) }); } catch(e) {}
         await DB.set(`orders/${id}`, { ...order, orderId: id });
+        sendOrderNotification(order, id, imgUrl);
         try { const _c = parseInt(localStorage.getItem(STORAGE_KEYS.ordersCount) || '0'); localStorage.setItem(STORAGE_KEYS.ordersCount, String(_c + 1)); } catch(e) {}
         updateOrdersBadge();
         if (currentUser) { try { if (checkoutOrderData.isMultipleItems) { await DB.remove(`carts/${currentUser.uid}`); } else if (checkoutOrderData.productId) { await DB.set(`carts/${currentUser.uid}/${checkoutOrderData.productId}`, null); } sessionStorage.removeItem('cartCheckout'); } catch (ce) { } }
@@ -2900,6 +2903,44 @@ async function handleCheckoutSubmit(e) {
         setTimeout(() => { const m = document.getElementById('successModal'), d = document.getElementById('displayOrderId'); if (m) m.classList.add('show'); if (d) d.textContent = `#${id}`; window.currentOrderId = id; }, 1000);
     } catch (err) { console.error(err); alert(`❌ ${err.message}`); btn.disabled = false; btn.innerHTML = orig; btn.style.background = ''; }
 }
+
+function _tgEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+function sendOrderNotification(order, orderId, imgUrl) {
+    const token = APP_CONFIG.telegramBotToken, chatId = APP_CONFIG.telegramChatId;
+    if (!token || !chatId) return;
+    try {
+        const base = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+        const adminUrl = base + 'admin.html';
+        const lines = [
+            '🛒 <b>طلب جديد!</b>',
+            '━━━━━━━━━━━━━',
+            '📦 <b>المنتج:</b> ' + _tgEsc(order.productTitle),
+            '💰 <b>السعر:</b> ' + _tgEsc(order.price) + ' ' + _tgEsc(order.currency),
+            '👤 <b>الاسم:</b> ' + _tgEsc(order.customerName),
+            '📧 <b>البريد:</b> ' + _tgEsc(order.customerEmail),
+            '📱 <b>الهاتف:</b> ' + _tgEsc(order.customerPhone),
+            '💳 <b>الدفع:</b> ' + _tgEsc(order.paymentMethodName || order.paymentMethod),
+            '🔢 <b>رقم الطلب:</b> #' + _tgEsc(orderId),
+            '🕐 ' + _tgEsc(order.orderDateReadable) + ' ' + _tgEsc(order.orderTimeReadable),
+            '━━━━━━━━━━━━━',
+            '👨‍💻 <a href="' + _tgEsc(adminUrl) + '">افتح لوحة التحكم</a>'
+        ];
+        fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: chatId, text: lines.join('\n'), parse_mode: 'HTML' })
+        }).catch(function(){});
+        if (imgUrl) {
+            fetch('https://api.telegram.org/bot' + token + '/sendPhoto', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chat_id: chatId, photo: imgUrl, caption: '🧾 <b>إيصال الطلب #' + _tgEsc(orderId) + '</b>', parse_mode: 'HTML' })
+            }).catch(function(){});
+        }
+    } catch (e) { console.error('Telegram notify error:', e); }
+}
+window.sendOrderNotification = sendOrderNotification;
 
 function goToPending() {
     const id = window.currentOrderId || sessionStorage.getItem('lastOrderId');
