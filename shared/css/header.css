@@ -2210,8 +2210,8 @@ body[dir="ltr"] .pages-arrow { margin-right: 0; margin-left: auto; }
         color: white;
         background: transparent;
     }
-    /* Hide old page link <li> items on mobile (replaced by pages-toggle) */
-    .nav-menu > li:not(.mobile-action-item):not(.nav-menu-divider) {
+    /* Hide old page link <li> items on mobile (replaced by pages-toggle) — NOT on admin page */
+    body:not(.admin-page) .nav-menu > li:not(.mobile-action-item):not(.nav-menu-divider) {
         display: none !important;
     }
 }
@@ -2255,7 +2255,7 @@ body[dir="ltr"] .pages-arrow { margin-right: 0; margin-left: auto; }
     .mobile-action-item {
         display: block !important;
     }
-    .nav-menu > li:not(.mobile-action-item):not(.nav-menu-divider) {
+    body:not(.admin-page) .nav-menu > li:not(.mobile-action-item):not(.nav-menu-divider) {
         display: none !important;
     }
 }
