@@ -1392,7 +1392,7 @@ async function loadAllProducts() {
     try {
         const localData = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
         if (localData.products && typeof localData.products === 'object') {
-            allProducts = Object.entries(localData.products).map(([id, d]) => ({ ...d, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined));
+            allProducts = Object.entries(localData.products).map(([id, d]) => ({ ...d, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed');
             if (currentLang && currentLang !== 'ar' && typeof _applyCachedTranslations === 'function') _applyCachedTranslations(allProducts, currentLang);
             updateStats();
         }
@@ -1409,7 +1409,7 @@ function listenToProducts() {
     let debounceTimer;
     DB.on('products', (data) => { 
         if (data && typeof data === 'object') { window._firebaseUnavailable = false;
-            var newData = Object.entries(data).map(([id, p]) => ({ ...p, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined)); 
+            var newData = Object.entries(data).map(([id, p]) => ({ ...p, id })).filter(x => x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined) && x.status !== 'trashed'); 
             var newHash = _productsHash(newData);
             var isSame = (newHash === _lastProductsHash && newData.length === allProducts.length);
             console.log('🔄 listenToProducts:', { totalIncoming: Object.keys(data).length, validAfterFilter: newData.length, allProductsLen: allProducts.length, isSame, hash: newHash, lastHash: _lastProductsHash, validIds: newData.map(p => p.id), sample: newData[0]?.title?.ar });
