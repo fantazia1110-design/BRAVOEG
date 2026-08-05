@@ -858,14 +858,14 @@ const DB = {
                             if (existingLocal[k] && existingLocal[k]._isLocal) {
                                 if (val[k] === undefined) {
                                     val[k] = existingLocal[k];
-                                } else if (val[k] && typeof val[k] === 'object') {
-                                    Object.keys(existingLocal[k]).forEach(f => {
-                                        if (f !== '_isLocal' && existingLocal[k][f] !== undefined) {
-                                            val[k][f] = existingLocal[k][f];
-                                        }
-                                    });
-                                    val[k]._isLocal = true;
-                                }
+                            } else if (val[k] && typeof val[k] === 'object') {
+                                Object.keys(existingLocal[k]).forEach(f => {
+                                    if (f !== '_isLocal' && existingLocal[k][f] !== undefined && val[k][f] === undefined) {
+                                        val[k][f] = existingLocal[k][f];
+                                    }
+                                });
+                                val[k]._isLocal = true;
+                            }
                             }
                         });
                     }
@@ -1053,12 +1053,12 @@ const DB = {
                                         val[k] = existingLocal[k];
                                     } else if (val[k] && typeof val[k] === 'object') {
                                         Object.keys(existingLocal[k]).forEach(f => {
-                                            if (f !== '_isLocal' && existingLocal[k][f] !== undefined) {
+                                            if (f !== '_isLocal' && existingLocal[k][f] !== undefined && val[k][f] === undefined) {
                                                 val[k][f] = existingLocal[k][f];
                                             }
                                         });
                                         val[k]._isLocal = true;
-                                }
+                                    }
                                 }
                             });
                         }

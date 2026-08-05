@@ -460,7 +460,7 @@
             loadFirebaseOrder(orderId);
             setupRealtimeOrder(orderId);
         });
-        setInterval(function() { var f = loadLocalOrder(orderId); }, 10000);
+        setInterval(function() { loadLocalOrder(orderId); if (window.firebaseGet && window.firebaseRef && window.database) loadFirebaseOrder(orderId); }, 10000);
     });
     window.addEventListener('error', function(e) {
         console.error('[Pending GLOBAL ERROR]', e.message, e.filename, e.lineno);
@@ -489,6 +489,22 @@
         return false;
     }
 
+    // Keep the local mirror in sync with Firebase so intervals/refresh never show a stale status
+    function _syncLocalOrderFromFirebase(order) {
+        try {
+            if (!order) return;
+            var oid = window._pendingOrderId || order.orderId;
+            if (!oid) return;
+            var db = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+            if (!db.orders) db.orders = {};
+            var clean = JSON.parse(JSON.stringify(order));
+            delete clean._isLocal;
+            db.orders[oid] = clean;
+            localStorage.setItem('bravo_local_db', JSON.stringify(db));
+            console.log('[Pending] local mirror synced with Firebase, status:', clean.status);
+        } catch(e) { console.warn('[Pending] local sync error:', e); }
+    }
+
     async function loadFirebaseOrder(orderId) {
         console.log('[Pending] loadFirebaseOrder for', orderId);
         console.log('[Pending] window.firebaseGet:', typeof window.firebaseGet, 'window.firebaseRef:', typeof window.firebaseRef, 'window.database:', typeof window.database);
@@ -496,7 +512,7 @@
             var snap = await window.firebaseGet(window.firebaseRef(window.database, 'orders/' + orderId));
             var exists = snap.exists();
             console.log('[Pending] Firebase snapshot exists:', exists);
-            if (exists) { var order = snap.val(); console.log('[Pending] Firebase order loaded, status:', order.status); window._pendingOrderData = order; displayOrderDetails(order); updateStatus(order); return true; }
+            if (exists) { var order = snap.val(); console.log('[Pending] Firebase order loaded, status:', order.status); window._pendingOrderData = order; _syncLocalOrderFromFirebase(order); displayOrderDetails(order); updateStatus(order); return true; }
         } catch(e) { console.warn('[Pending] Firebase read failed:', e); }
         return false;
     }
@@ -505,7 +521,7 @@
         console.log('[Pending] setting up realtime listener for', orderId);
         try {
             window.firebaseOnValue(window.firebaseRef(window.database, 'orders/' + orderId), function(snapshot) {
-                if (snapshot.exists()) { var order = snapshot.val(); console.log('[Pending] realtime update, status:', order.status); window._pendingOrderData = order; displayOrderDetails(order); updateStatus(order); }
+                if (snapshot.exists()) { var order = snapshot.val(); console.log('[Pending] realtime update, status:', order.status); window._pendingOrderData = order; _syncLocalOrderFromFirebase(order); displayOrderDetails(order); updateStatus(order); }
             });
         } catch(e) { console.warn('[Pending] realtime setup error:', e); }
     }
@@ -568,9 +584,8 @@
         var orig = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>' + _pi18n.updating + '</span>';
         (async function() {
             try {
-                var localOk = loadLocalOrder(oid);
-                console.log('[Pending] checkStatus localOk:', localOk);
-                if (!localOk) await loadFirebaseOrder(oid);
+                loadLocalOrder(oid);
+                if (window.firebaseGet && window.firebaseRef && window.database) await loadFirebaseOrder(oid);
                 setTimeout(function() { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> <span>' + _pi18n.updated + '</span>'; setTimeout(function() { btn.innerHTML = orig; }, 2000); }, 1000);
             } catch(e) { console.warn('[Pending] checkStatus error:', e); btn.disabled = false; btn.innerHTML = '<i class="fas fa-times"></i> <span>' + _pi18n.updateFail + '</span>'; setTimeout(function() { btn.innerHTML = orig; }, 2000); }
         })();
@@ -766,7 +781,7 @@
         }
     </script>
     <script src="js/include.js?v=21"></script>
-    <script src="js/app.js?v=20260802d"></script>
+    <script src="js/app.js?v=20260802e"></script>
     <script>
         // JS spinner rotation (guaranteed — NEVER stops, even on confirmed)
         try {
