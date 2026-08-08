@@ -34,8 +34,8 @@ let APP_CONFIG = {
 window.APP_CONFIG = APP_CONFIG;
 
 let ADMIN_CREDENTIALS = {
-    username: 'admin',
-    password: 'admin'
+    username: 'energyalihossam',
+    password: 'ali01012853829ali'
 };
 
 const MAX_LOGIN_ATTEMPTS = 5;
@@ -772,15 +772,12 @@ const DB = {
         if(!window.firebaseDB) return false;
         if (window._adminAuthFailed) return false;
         try {
-            if (!window.adminAuth) {
-                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
-                const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
-                const { getDatabase, ref } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
-                window.adminApp = initializeApp(FIREBASE_CONFIG, 'admin');
-                window.adminAuth = getAuth(window.adminApp);
-            }
+            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
+            const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
+            const { getDatabase, ref } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
+            if (!window.adminApp) { window.adminApp = initializeApp(FIREBASE_CONFIG, 'admin'); }
+            if (!window.adminAuth) { window.adminAuth = getAuth(window.adminApp); }
             if (!window.adminDatabase) {
-                const { getDatabase, ref } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
                 window.adminDatabase = getDatabase(window.adminApp);
                 window.adminFirebaseRef = ref;
             }
@@ -1109,9 +1106,15 @@ const DB = {
 // ==================== SYSTEM SETTINGS (CMS) ====================
 async function loadSystemSettings() {
     try {
+        try {
+            const saved = JSON.parse(localStorage.getItem('bravoAdminCreds') || 'null');
+            if (saved && saved.username && saved.password) {
+                ADMIN_CREDENTIALS.username = saved.username;
+                ADMIN_CREDENTIALS.password = saved.password;
+            }
+        } catch (e) {}
         const settings = await DB.get('settings');
         if (settings) {
-            if (settings.admin) ADMIN_CREDENTIALS = { ...ADMIN_CREDENTIALS, ...settings.admin };
             if (settings.payments) {
                 Object.keys(settings.payments).forEach(k => {
                     if (PAYMENT_ACCOUNTS[k]) PAYMENT_ACCOUNTS[k] = { ...PAYMENT_ACCOUNTS[k], ...settings.payments[k] };
@@ -1207,6 +1210,7 @@ window.saveAdminCredentials = async function() {
     if (p.length < 6) return showToast('❌', _sacI18n.minPassword, 'error');
     if (await DB.update('settings/admin', { username: u, password: p })) {
         ADMIN_CREDENTIALS.username = u; ADMIN_CREDENTIALS.password = p;
+        try { localStorage.setItem('bravoAdminCreds', JSON.stringify({ username: u, password: p })); } catch(e) {}
         document.getElementById('newAdminPassword').value = '';
         showToast('✅', _sacI18n.updated, 'success');
     }
@@ -4149,7 +4153,8 @@ window.closeCustomModal = closeCustomModal;
 function checkAdminLoginStatus() {
     const login = document.getElementById('loginSection'), panel = document.getElementById('adminPanel');
     if (!login || !panel) return;
-    if (sessionStorage.getItem('bravoAdminLoggedIn') === 'true') { 
+    if (sessionStorage.getItem('bravoAdminLoggedIn') === 'true' || localStorage.getItem('bravoAdminLoggedIn') === 'true') { 
+        sessionStorage.setItem('bravoAdminLoggedIn', 'true');
         document.body.classList.remove('login-state');
         loadAdminData();
     } else { 
@@ -4293,6 +4298,9 @@ function adminLoginSuccess(btn, username) {
     if (rm && rm.checked) {
         localStorage.setItem('bravoAdminRemember', 'true');
         localStorage.setItem('bravoAdminUser', username);
+        localStorage.setItem('bravoAdminLoggedIn', 'true');
+    } else {
+        localStorage.removeItem('bravoAdminLoggedIn');
     }
 
     if (btn) {
@@ -4339,6 +4347,9 @@ function logout() {
         if (btns[0]) { 
             btns[0].onclick = async function () { 
                 sessionStorage.removeItem('bravoAdminLoggedIn'); 
+                localStorage.removeItem('bravoAdminLoggedIn');
+                localStorage.removeItem('bravoAdminRemember');
+                localStorage.removeItem('bravoAdminUser');
                 sessionStorage.removeItem('loginAttempts'); 
                 sessionStorage.removeItem('lockoutTime'); 
                 closeCustomModal(); 
@@ -9228,11 +9239,13 @@ window.switchAuthTab = function(tab) {
     if(document.getElementById('errorMessage')) document.getElementById('errorMessage').classList.remove('show');
 };
 
-window.toggleAuthPassword = function(id) {
+window.toggleAuthPassword = function(id, btn) {
     const input = document.getElementById(id);
-    const icon = event.target.closest('button').querySelector('i');
-    if (input.type === 'password') { input.type = 'text'; icon.className = 'fas fa-eye-slash'; }
-    else { input.type = 'password'; icon.className = 'fas fa-eye'; }
+    if (!input) return;
+    const btnEl = btn || (event && event.target && event.target.closest ? event.target.closest('button') : null);
+    const icon = btnEl ? btnEl.querySelector('i') : null;
+    if (input.type === 'password') { input.type = 'text'; if (icon) icon.className = 'fas fa-eye-slash'; }
+    else { input.type = 'password'; if (icon) icon.className = 'fas fa-eye'; }
 };
 
 window.handleUserLogin = async function(e) {
