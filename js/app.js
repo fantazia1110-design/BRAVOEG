@@ -8299,11 +8299,11 @@ window.renderCartPage = function() {
         const badges = generateBadges ? generateBadges(full, lang) : '';
         html += `
             <div class="cart-item reveal">
-                <div class="item-image-wrap"><div class="item-image" style="cursor:pointer;" onclick="window.location.href='product-details.html?id=${item.id}'">${item.image ? `<img src="${item.image}" alt="${item.title}">` : `<i class="fas ${full.icon||item.icon||'fa-box'}"></i>`}</div>${badges}</div>
+                <div class="item-image-wrap"><div class="item-image" style="cursor:zoom-in;" onclick="${item.image ? `openCartImageZoom('${item.id}')` : `window.location.href='product-details.html?id=${item.id}'`}" title="${lang==='ar'?'اضغط للتكبير والتحريك':lang==='en'?'Click to zoom & pan':'Cliquez pour zoomer'}" role="button" tabindex="0" onkeydown="if(event.key==='Enter')this.click()">${item.image ? `<img src="${item.image}" alt="${item.title}" loading="lazy">` : `<i class="fas ${full.icon||item.icon||'fa-box'}"></i>`}</div>${badges}</div>
                 <div class="item-details">
                     <div class="item-header">
                         <div class="item-header-left">
-                            <h3 class="item-title">${getProductText(full, 'title', lang) || item.title}</h3>
+                            <h3 class="item-title"><a class="item-title-link" href="product-details.html?id=${item.id}" title="${lang==='ar'?'عرض التفاصيل':lang==='en'?'View details':'Voir les détails'}">${getProductText(full, 'title', lang) || item.title}</a></h3>
                             <span class="item-category">${catEmoji} ${catName}</span>
                         </div>
                     </div>
@@ -8347,6 +8347,150 @@ window.renderCartPage = function() {
     </div>`;
     c.innerHTML = html;
     setTimeout(function(){ if (typeof window.revealDynamicContent === 'function') window.revealDynamicContent(); }, 50);
+};
+
+// ==================== CART IMAGE LIGHTBOX (ZOOM + PAN) ====================
+let _cartLb = { scale: 1, tx: 0, ty: 0, pointers: {}, pinchStartDist: 0, pinchStartScale: 1, moved: false, lastTap: 0, keyBound: false };
+function _cartLbEnsure() {
+    if (document.getElementById('cartImageLightbox')) return;
+    const el = document.createElement('div');
+    el.id = 'cartImageLightbox';
+    el.className = 'cart-lightbox';
+    el.innerHTML = '<div class="cart-lightbox-backdrop" data-cartlb-close></div><div class="cart-lightbox-panel"><button type="button" class="cart-lightbox-close" data-cartlb-close aria-label="' + (document.documentElement.lang === 'ar' ? 'إغلاق' : document.documentElement.lang === 'en' ? 'Close' : 'Fermer') + '"><i class="fas fa-times"></i></button><div class="cart-lightbox-stage" id="cartLightboxStage"><img id="cartLightboxImg" src="" alt="" draggable="false"></div><div class="cart-lightbox-toolbar"><button type="button" class="cart-lightbox-btn" id="cartLightboxZoomOut" aria-label="Zoom out"><i class="fas fa-minus"></i></button><span class="cart-lightbox-pct" id="cartLightboxZoomPct">100%</span><button type="button" class="cart-lightbox-btn" id="cartLightboxZoomIn" aria-label="Zoom in"><i class="fas fa-plus"></i></button><button type="button" class="cart-lightbox-btn" id="cartLightboxReset" aria-label="Reset"><i class="fas fa-expand-arrows-alt"></i></button></div></div>';
+    document.body.appendChild(el);
+    const stage = document.getElementById('cartLightboxStage');
+    const img = document.getElementById('cartLightboxImg');
+    const pct = document.getElementById('cartLightboxZoomPct');
+    function render() {
+        img.style.transform = 'translate(' + _cartLb.tx + 'px,' + _cartLb.ty + 'px) scale(' + _cartLb.scale + ')';
+        stage.classList.toggle('panning', _cartLb.scale > 1);
+        pct.textContent = Math.round(_cartLb.scale * 100) + '%';
+    }
+    function clampPan() {
+        const s = _cartLb.scale, sw = stage.clientWidth, sh = stage.clientHeight;
+        const minTx = sw * (1 - s), minTy = sh * (1 - s);
+        _cartLb.tx = Math.min(0, Math.max(minTx, _cartLb.tx));
+        _cartLb.ty = Math.min(0, Math.max(minTy, _cartLb.ty));
+    }
+    function applyZoom(newScale, cx, cy) {
+        const s = _cartLb.scale;
+        const factor = newScale / s;
+        _cartLb.tx = cx + (_cartLb.tx - cx) * factor;
+        _cartLb.ty = cy + (_cartLb.ty - cy) * factor;
+        _cartLb.scale = newScale;
+        clampPan();
+        render();
+    }
+    function reset() { _cartLb.scale = 1; _cartLb.tx = 0; _cartLb.ty = 0; render(); }
+    function centerZoomIn() { const r = stage.getBoundingClientRect(); applyZoom(Math.min(8, _cartLb.scale * 1.25), r.width / 2, r.height / 2); }
+    function centerZoomOut() { const r = stage.getBoundingClientRect(); applyZoom(Math.max(1, _cartLb.scale / 1.25), r.width / 2, r.height / 2); }
+    document.getElementById('cartLightboxZoomIn').addEventListener('click', centerZoomIn);
+    document.getElementById('cartLightboxZoomOut').addEventListener('click', centerZoomOut);
+    document.getElementById('cartLightboxReset').addEventListener('click', reset);
+    stage.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        const r = stage.getBoundingClientRect();
+        const factor = e.deltaY < 0 ? 1.2 : 1 / 1.2;
+        applyZoom(Math.min(8, Math.max(1, _cartLb.scale * factor)), e.clientX - r.left, e.clientY - r.top);
+    }, { passive: false });
+    stage.addEventListener('pointerdown', function(e) {
+        e.preventDefault();
+        try { stage.setPointerCapture(e.pointerId); } catch (err) {}
+        _cartLb.pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+        _cartLb.moved = false;
+        const n = Object.keys(_cartLb.pointers).length;
+        if (n === 2) {
+            const pts = Object.values(_cartLb.pointers);
+            _cartLb.pinchStartDist = Math.max(1, Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y));
+            _cartLb.pinchStartScale = _cartLb.scale;
+        }
+    });
+    stage.addEventListener('pointermove', function(e) {
+        const p = _cartLb.pointers[e.pointerId];
+        if (!p) return;
+        const keys = Object.keys(_cartLb.pointers);
+        if (keys.length === 2) {
+            _cartLb.pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+            _cartLb.moved = true;
+            const pts = Object.values(_cartLb.pointers);
+            const dist = Math.max(1, Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y));
+            const r = stage.getBoundingClientRect();
+            const midX = (pts[0].x + pts[1].x) / 2 - r.left;
+            const midY = (pts[0].y + pts[1].y) / 2 - r.top;
+            applyZoom(Math.min(8, Math.max(1, _cartLb.pinchStartScale * (dist / _cartLb.pinchStartDist))), midX, midY);
+        } else if (_cartLb.scale > 1) {
+            _cartLb.tx += e.clientX - p.x;
+            _cartLb.ty += e.clientY - p.y;
+            _cartLb.pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+            _cartLb.moved = true;
+            clampPan();
+            render();
+        }
+    });
+    function endPointer(e) {
+        if (Object.keys(_cartLb.pointers).length === 2 && _cartLb.pointers[e.pointerId]) {
+            const rest = Object.keys(_cartLb.pointers).filter(function(k){ return k !== String(e.pointerId); });
+            if (rest.length === 1) {
+                const pr = _cartLb.pointers[rest[0]];
+                _cartLb.pointers = {};
+                _cartLb.pointers[rest[0]] = pr;
+            }
+        } else {
+            delete _cartLb.pointers[e.pointerId];
+        }
+    }
+    stage.addEventListener('pointerup', function(e) {
+        endPointer(e);
+        const now = Date.now();
+        if (!_cartLb.moved && _cartLb.lastTap && (now - _cartLb.lastTap) < 300) {
+            const r = stage.getBoundingClientRect();
+            if (_cartLb.scale > 1) { reset(); } else { applyZoom(2.5, e.clientX - r.left, e.clientY - r.top); }
+            _cartLb.lastTap = 0;
+        } else {
+            _cartLb.lastTap = now;
+        }
+    });
+    stage.addEventListener('pointercancel', endPointer);
+    stage.addEventListener('pointerleave', function(e) { if (e.pointerType === 'mouse') endPointer(e); });
+    el.addEventListener('click', function(e) {
+        if (e.target === el.querySelector('.cart-lightbox-backdrop') || e.target.closest('.cart-lightbox-close')) {
+            window.closeCartImageLightbox();
+        }
+    });
+    if (!_cartLb.keyBound) {
+        _cartLb.keyBound = true;
+        document.addEventListener('keydown', function(e) {
+            const m = document.getElementById('cartImageLightbox');
+            if (!m || !m.classList.contains('active')) return;
+            if (e.key === 'Escape') { window.closeCartImageLightbox(); return; }
+            if (e.key === '+' || e.key === '=') centerZoomIn();
+            else if (e.key === '-' || e.key === '_') centerZoomOut();
+            else if (e.key === 'ArrowRight') { _cartLb.tx -= 40; clampPan(); render(); }
+            else if (e.key === 'ArrowLeft') { _cartLb.tx += 40; clampPan(); render(); }
+            else if (e.key === 'ArrowUp') { _cartLb.ty += 40; clampPan(); render(); }
+            else if (e.key === 'ArrowDown') { _cartLb.ty -= 40; clampPan(); render(); }
+        });
+    }
+}
+window.openCartImageZoom = function(id) {
+    _cartLbEnsure();
+    const m = document.getElementById('cartImageLightbox');
+    const img = document.getElementById('cartLightboxImg');
+    const item = userCart.find(function(i){ return String(i.id) === String(id); }) || allProducts.find(function(p){ return String(p.id) === String(id); });
+    const src = (item && item.image) ? item.image : (allProducts.find(function(p){ return String(p.id) === String(id); }) || {}).image;
+    if (!src) { window.location.href = 'product-details.html?id=' + id; return; }
+    img.src = src;
+    img.alt = item && item.title ? item.title : '';
+    _cartLb.scale = 1; _cartLb.tx = 0; _cartLb.ty = 0;
+    img.style.transform = '';
+    document.getElementById('cartLightboxZoomPct').textContent = '100%';
+    m.classList.add('active');
+    document.body.style.overflow = 'hidden';
+};
+window.closeCartImageLightbox = function() {
+    const m = document.getElementById('cartImageLightbox');
+    if (m) m.classList.remove('active');
+    document.body.style.overflow = '';
 };
 
 window.updateCartQuantity = async function(id, change, event) {
