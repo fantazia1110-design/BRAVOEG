@@ -2,38 +2,38 @@
   "rules": {
     ".read": false,
     ".write": false,
-    
+
     "products": {
       ".read": true,
-      ".write": "auth != null",
+      ".write": "auth != null && auth.token.email === 'admin@bravostore.com'",
       ".indexOn": ["createdAt", "category", "title"],
       "$productId": {
-        ".validate": "newData.hasChildren(['id', 'title', 'priceEGP', 'priceUSD', 'category', 'icon', 'description', 'downloadLink', 'createdAt'])"
+        ".validate": "newData.hasChildren(['title', 'category', 'description', 'downloadLink', 'createdAt']) && (newData.hasChild('priceEGP') || newData.hasChild('priceUSD'))"
       }
     },
-    
+
     "orders": {
       ".read": true,
-      ".write": "auth != null",
+      ".write": "auth != null && auth.token.email === 'admin@bravostore.com'",
       ".indexOn": ["status", "orderDate", "createdAt", "customerEmail"],
       "$orderId": {
         ".validate": "newData.hasChildren(['orderId', 'productTitle', 'price', 'currency', 'paymentMethod', 'customerName', 'customerEmail', 'customerPhone', 'status', 'orderDate'])"
       }
     },
-    
+
     "stats": {
       ".read": true,
-      ".write": "auth != null"
+      ".write": "auth != null && auth.token.email === 'admin@bravostore.com'"
     },
 
     "pages_content": {
       ".read": true,
-      ".write": "auth != null"
+      ".write": "auth != null && auth.token.email === 'admin@bravostore.com'"
     },
-    
+
     "settings": {
       ".read": true,
-      ".write": "auth != null"
+      ".write": "auth != null && auth.token.email === 'admin@bravostore.com'"
     },
 
     "profiles": {

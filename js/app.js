@@ -769,6 +769,17 @@ function _filterHidden(type, data) {
     return result;
 }
 
+// ==================== PRODUCT ICON HELPER ====================
+// حدد أيقونة المنتج حسب الفئة (مطلوبة في قاعدة Firebase .validate)
+function _productIcon(category) {
+    var c = String(category || '').toLowerCase();
+    if (c === 'books') return 'fa-book';
+    if (c === 'software') return 'fa-code';
+    if (c === 'formulas') return 'fa-flask';
+    if (c === 'courses') return 'fa-graduation-cap';
+    return 'fa-box';
+}
+
 const DB = {
     ensureAdminAuth: async () => {
         if(!window.firebaseDB) return false;
@@ -4398,7 +4409,36 @@ async function cleanCorruptedProducts() {
 window.cleanCorruptedProducts = cleanCorruptedProducts;
 
 // ==================== LOAD ADMIN PRODUCTS (ENHANCED) ====================
+// ==================== SYNC LOCAL-ONLY PRODUCTS TO FIREBASE ====================
+// يعيد رفع المنتجات المضافة محلياً سابقاً (عند رفض Firebase بسبب نقص icon)
+// بعد إضافة حقل icon المطلوب في قاعدة البيانات، لضمان ظهورها في كل الأجهزة
+function _syncLocalProductsToFirebase() {
+    if (window._syncLocalProductsDone) return;
+    if (!window.firebaseDB) return;
+    window._syncLocalProductsDone = true;
+    try {
+        const localData = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+        const localProducts = (localData && localData.products) || {};
+        const ids = Object.keys(localProducts).filter(id => localProducts[id] && localProducts[id]._isLocal && localProducts[id].title && (localProducts[id].priceEGP !== undefined || localProducts[id].priceUSD !== undefined));
+        if (ids.length === 0) return;
+        DB.ensureAdminAuth().then(authOk => {
+            if (!authOk) return;
+            const db = window.adminDatabase || database;
+            const rf = window.adminFirebaseRef || window.firebaseRef;
+            ids.forEach(id => {
+                const p = localProducts[id];
+                const payload = { ...p, id, icon: p.icon || _productIcon(p.category), createdAt: p.createdAt || Date.now(), description: p.description || { ar: 'وصف المنتج', en: 'Product description', fr: 'Description du produit' }, downloadLink: p.downloadLink || '#' };
+                delete payload._isLocal;
+                try {
+                    window.firebaseSet(rf(db, 'products/' + id), payload).catch(e => console.error('Local product sync error:', id, e));
+                } catch (e) { console.error('Local product sync failed:', id, e); }
+            });
+        });
+    } catch (e) { console.error('Sync local products error:', e); }
+}
+
 function loadAdminProducts() {
+    _syncLocalProductsToFirebase();
     DB.on('products', (data) => {
         const container = document.getElementById('productsContainer');
         const countEl = document.getElementById('productsCount');
@@ -6505,6 +6545,7 @@ function initAddProductForm() {
 
         const product = {
             title: { ar: titleAr, en: titleEn || titleAr, fr: titleFr || titleAr },
+            icon: _productIcon(document.getElementById('productCategory')?.value),
             category: document.getElementById('productCategory')?.value || 'books',
             priceEGP: parseFloat(document.getElementById('productPriceEGP')?.value) || 0,
             priceUSD: parseFloat(document.getElementById('productPriceUSD')?.value) || 0,
@@ -7087,6 +7128,7 @@ function initEditForms() {
 
             const u = {
                 title: { ar: editTitleAr, en: editTitleEn || editTitleAr, fr: editTitleFr || editTitleAr },
+                icon: _productIcon(document.getElementById('editProductCategory')?.value),
                 category: document.getElementById('editProductCategory')?.value || 'books',
                 priceEGP: parseFloat(document.getElementById('editProductPriceEGP')?.value) || 0,
                 priceUSD: parseFloat(document.getElementById('editProductPriceUSD')?.value) || 0,
