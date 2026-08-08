@@ -17,7 +17,7 @@
       ".write": "auth != null && auth.token.email === 'admin@bravostore.com'",
       ".indexOn": ["status", "orderDate", "createdAt", "customerEmail"],
       "$orderId": {
-        ".validate": "newData.hasChildren(['orderId', 'productTitle', 'price', 'currency', 'paymentMethod', 'customerName', 'customerEmail', 'customerPhone', 'status', 'orderDate'])"
+        ".validate": "newData.hasChildren(['orderId', 'productTitle', 'price', 'currency', 'paymentMethod', 'customerName', 'customerEmail', 'customerPhone', 'status', 'orderDate']) && newData.child('productTitle').isString() && newData.child('productTitle').val() != ''"
       }
     },
 

@@ -938,11 +938,25 @@ const DB = {
             const db = window.adminDatabase || database;
             const rf = window.adminFirebaseRef || window.firebaseRef;
             try {
-                const res = await Promise.race([
-                    window.firebaseUpdate(rf(db, path), data).catch(e => e),
-                    new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT')), 8000)).catch(e => e)
-                ]);
-                if (res instanceof Error) throw res;
+                // منع إنشاء طلبات ناقصة (شبحية) في Firebase عند تحديث طلب محلي فقط
+                const _uparts = path.split('/');
+                let _shouldWriteFB = true;
+                if (_uparts[0] === 'orders' && _uparts.length >= 2) {
+                    try {
+                        const _s = await Promise.race([
+                            window.firebaseGet(rf(db, path)).catch(e => e),
+                            new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT')), 5000)).catch(e => e)
+                        ]);
+                        _shouldWriteFB = !(_s instanceof Error) && _s.exists();
+                    } catch (e) { _shouldWriteFB = false; }
+                }
+                if (_shouldWriteFB) {
+                    const res = await Promise.race([
+                        window.firebaseUpdate(rf(db, path), data).catch(e => e),
+                        new Promise((_, rej) => setTimeout(() => rej(new Error('TIMEOUT')), 8000)).catch(e => e)
+                    ]);
+                    if (res instanceof Error) throw res;
+                }
             } catch (e) {
                 console.error('Firebase DB Update Error:', e);
                 fbError = e;
@@ -4415,14 +4429,14 @@ window.cleanCorruptedProducts = cleanCorruptedProducts;
 function _syncLocalProductsToFirebase() {
     if (window._syncLocalProductsDone) return;
     if (!window.firebaseDB) return;
-    window._syncLocalProductsDone = true;
     try {
         const localData = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
         const localProducts = (localData && localData.products) || {};
         const ids = Object.keys(localProducts).filter(id => localProducts[id] && localProducts[id]._isLocal && localProducts[id].title && (localProducts[id].priceEGP !== undefined || localProducts[id].priceUSD !== undefined));
-        if (ids.length === 0) return;
+        if (ids.length === 0) { window._syncLocalProductsDone = true; return; }
         DB.ensureAdminAuth().then(authOk => {
-            if (!authOk) return;
+            if (!authOk) { window._syncLocalProductsDone = false; return; }
+            window._syncLocalProductsDone = true;
             const db = window.adminDatabase || database;
             const rf = window.adminFirebaseRef || window.firebaseRef;
             ids.forEach(id => {
@@ -4430,11 +4444,66 @@ function _syncLocalProductsToFirebase() {
                 const payload = { ...p, id, icon: p.icon || _productIcon(p.category), createdAt: p.createdAt || Date.now(), description: p.description || { ar: 'وصف المنتج', en: 'Product description', fr: 'Description du produit' }, downloadLink: p.downloadLink || '#' };
                 delete payload._isLocal;
                 try {
-                    window.firebaseSet(rf(db, 'products/' + id), payload).catch(e => console.error('Local product sync error:', id, e));
+                    window.firebaseSet(rf(db, 'products/' + id), payload)
+                        .then(() => {
+                            try {
+                                const d = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+                                if (d.products && d.products[id]) { delete d.products[id]._isLocal; localStorage.setItem('bravo_local_db', JSON.stringify(d)); }
+                            } catch(e2) {}
+                        })
+                        .catch(e => console.error('Local product sync error:', id, e));
                 } catch (e) { console.error('Local product sync failed:', id, e); }
             });
         });
-    } catch (e) { console.error('Sync local products error:', e); }
+    } catch (e) { console.error('Sync local products error:', e); window._syncLocalProductsDone = false; }
+}
+
+// ==================== SYNC LOCAL-ONLY ORDERS TO FIREBASE ====================
+// يعيد رفع الطلبات المضافة محلياً سابقاً (عند رفض Firebase للكتابة)
+// بضمان كل الحقول المطلوبة في قاعدة .validate للطلبات
+function _syncLocalOrdersToFirebase() {
+    if (window._syncLocalOrdersDone) return;
+    if (!window.firebaseDB) return;
+    try {
+        const localData = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+        const localOrders = (localData && localData.orders) || {};
+        const ids = Object.keys(localOrders).filter(id => localOrders[id] && localOrders[id]._isLocal && localOrders[id].orderId && localOrders[id].status && localOrders[id].status !== 'trashed' && (localOrders[id].productTitle || (localOrders[id].items && typeof localOrders[id].items === 'object' && Object.keys(localOrders[id].items).length > 0)));
+        if (ids.length === 0) { window._syncLocalOrdersDone = true; return; }
+        DB.ensureAdminAuth().then(authOk => {
+            if (!authOk) { window._syncLocalOrdersDone = false; return; }
+            window._syncLocalOrdersDone = true;
+            const db = window.adminDatabase || database;
+            const rf = window.adminFirebaseRef || window.firebaseRef;
+            ids.forEach(id => {
+                const o = localOrders[id];
+                const payload = {
+                    ...o,
+                    orderId: o.orderId || id,
+                    status: o.status || 'pending',
+                    orderDate: o.orderDate || o.orderDateReadable || new Date(o.createdAt || Date.now()).toISOString(),
+                    createdAt: o.createdAt || Date.now(),
+                    currency: o.currency || 'EGP',
+                    paymentMethod: o.paymentMethod || '',
+                    customerName: o.customerName || '',
+                    customerEmail: o.customerEmail || '',
+                    customerPhone: o.customerPhone || '',
+                    productTitle: o.productTitle || '',
+                    price: (typeof o.price === 'number') ? o.price : 0
+                };
+                delete payload._isLocal;
+                try {
+                    window.firebaseSet(rf(db, 'orders/' + id), payload)
+                        .then(() => {
+                            try {
+                                const d = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+                                if (d.orders && d.orders[id]) { delete d.orders[id]._isLocal; localStorage.setItem('bravo_local_db', JSON.stringify(d)); }
+                            } catch(e2) {}
+                        })
+                        .catch(e => console.error('Local order sync error:', id, e));
+                } catch (e) { console.error('Local order sync failed:', id, e); }
+            });
+        });
+    } catch (e) { console.error('Sync local orders error:', e); window._syncLocalOrdersDone = false; }
 }
 
 function loadAdminProducts() {
@@ -4562,6 +4631,7 @@ function loadAdminProducts() {
 }
 
 function loadAdminOrders() {
+    _syncLocalOrdersToFirebase();
     renderOrders([]);
     window._adminCurrentFilter = 'all';
     window._adminSearchTerm = '';
@@ -4578,14 +4648,14 @@ function loadAdminOrders() {
         
         let orders = [];
         if(data) {
-            orders = Object.entries(data).filter(([id, o]) => o && typeof o === 'object' && o.status !== 'trashed' && !_isHidden('orders', id));
+            orders = Object.entries(data).filter(([id, o]) => o && typeof o === 'object' && o.orderId && o.status && o.status !== 'trashed' && (o.productTitle || (o.items && typeof o.items === 'object' && Object.keys(o.items).length > 0)) && !_isHidden('orders', id));
             orders.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
         }
         // Also merge orders from bravo_local_db (localStorage) - shows ALL orders even if not in Firebase
         try {
             var _lsO = JSON.parse(localStorage.getItem('bravo_local_db') || '{}').orders || {};
             Object.entries(_lsO).forEach(([id, o]) => {
-                if (o && o.orderId && o.status !== 'trashed' && !_isHidden('orders', id) && !orders.find(([i]) => i === id)) {
+                if (o && o.orderId && o.status && o.status !== 'trashed' && (o.productTitle || (o.items && typeof o.items === 'object' && Object.keys(o.items).length > 0)) && !_isHidden('orders', id) && !orders.find(([i]) => i === id)) {
                     orders.push([id, { ...o, _isLocal: true }]);
                 }
             });
