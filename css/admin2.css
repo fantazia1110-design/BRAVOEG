@@ -256,7 +256,7 @@ body.login-state .login-section .remember-checkbox input:checked ~ .checkmark::a
 /* زر تسجيل الخروج في القائمة الجانبية للهواتف (navMenu drawer) */
 @media (max-width: 1024px) {
     .admin-nav-logout {
-        margin-top: auto !important;
+        margin-top: 0 !important;
         margin-bottom: 8px !important;
         width: 100%;
     }
