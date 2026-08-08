@@ -602,28 +602,30 @@ function formatProductPrice(p) {
 async function detectUserCountry() {
     const hadStored = !!localStorage.getItem(STORAGE_KEYS.country);
     if (!hadStored) window._countryFromIP = false;
-    try {
-        const ctrl = new AbortController();
-        const tmr = setTimeout(() => ctrl.abort(), 4000);
-        const res = await fetch('https://ipapi.co/json/', { signal: ctrl.signal });
-        clearTimeout(tmr);
-        if (res.ok) {
-            const data = await res.json();
-            const code = data.country_code || data.country;
-            if (code) {
-                const prev = userCountry;
-                const prevIP = window._countryFromIP;
-                userCountry = code;
-                window._countryFromIP = true;
-                localStorage.setItem(STORAGE_KEYS.country, userCountry);
-                localStorage.setItem(STORAGE_KEYS.country + '_ts', String(Date.now()));
-                const needsRender = prev !== userCountry || (!prevIP && userCountry === 'EG');
-                if (needsRender && typeof displayProducts === 'function') displayProducts();
-                return;
+    const applyCode = (code) => {
+        const prev = userCountry;
+        const prevIP = window._countryFromIP;
+        userCountry = code;
+        window._countryFromIP = true;
+        localStorage.setItem(STORAGE_KEYS.country, userCountry);
+        localStorage.setItem(STORAGE_KEYS.country + '_ts', String(Date.now()));
+        const needsRender = prev !== userCountry || (!prevIP && userCountry === 'EG');
+        if (needsRender && typeof displayProducts === 'function') displayProducts();
+    };
+    for (const url of ['https://ipapi.co/json/', 'https://api.country.is/']) {
+        try {
+            const ctrl = new AbortController();
+            const tmr = setTimeout(() => ctrl.abort(), 2500);
+            const res = await fetch(url, { signal: ctrl.signal });
+            clearTimeout(tmr);
+            if (res.ok) {
+                const data = await res.json();
+                const code = (data.country_code || data.country) || '';
+                if (code) { applyCode(code); return; }
             }
+        } catch (e) {
+            console.warn('IP detection failed:', e.message);
         }
-    } catch (e) {
-        console.warn('IP detection failed:', e.message);
     }
     const stored = localStorage.getItem(STORAGE_KEYS.country);
     if (stored) { userCountry = stored; return; }

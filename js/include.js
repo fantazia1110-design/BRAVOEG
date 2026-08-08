@@ -33,8 +33,22 @@
         return '';
     }
 
-    const headerHtml = findComponent('components/header.html');
-    const footerHtml = findComponent('components/footer.html');
+    var COMPONENT_TTL = 86400000;
+    function getComponentCache(name){
+        try {
+            var c = JSON.parse(localStorage.getItem('bravo_cmp_' + name) || 'null');
+            if (c && typeof c.html === 'string' && (Date.now() - (c.ts || 0)) < COMPONENT_TTL) return c.html;
+        } catch(e){}
+        return '';
+    }
+    function setComponentCache(name, html){
+        try { localStorage.setItem('bravo_cmp_' + name, JSON.stringify({ html: html, ts: Date.now() })); } catch(e){}
+    }
+
+    var headerHtml = getComponentCache('header.html');
+    if (!headerHtml) { headerHtml = findComponent('components/header.html'); if (headerHtml && headerHtml.indexOf('<header') !== -1) setComponentCache('header.html', headerHtml); }
+    var footerHtml = getComponentCache('footer.html');
+    if (!footerHtml) { footerHtml = findComponent('components/footer.html'); if (footerHtml && footerHtml.indexOf('<footer') !== -1) setComponentCache('footer.html', footerHtml); }
 
     const currentPage = location.pathname.split('/').pop().replace(/\.html?$/i, '').toLowerCase() || 'index';
     document.body.classList.add('page-' + currentPage);
@@ -69,17 +83,13 @@
         }
     }
 
-    console.log('include.js: headerHtml length =', headerHtml ? headerHtml.length : 0);
     const existingHeader = document.querySelector('header');
-    console.log('include.js: existingHeader =', existingHeader ? 'found' : 'not found');
     if(existingHeader && headerHtml){
-        console.log('include.js: replacing header with outerHTML');
         existingHeader.outerHTML = headerHtml;
         const newHeader = document.querySelector('header');
         if(newHeader){
             newHeader.style.animation = 'none';
-            newHeader.offsetHeight;
-            newHeader.style.animation = '';
+            newHeader.style.visibility = 'visible';
             handleConditionalItems(newHeader);
             const navLinks = newHeader.querySelectorAll('a[role="menuitem"]');
             navLinks.forEach(a => {
@@ -95,6 +105,8 @@
                 }
             });
         }
+    } else if (existingHeader) {
+        existingHeader.style.visibility = 'visible';
     }
 
     const existingFooter = document.querySelector('footer');
