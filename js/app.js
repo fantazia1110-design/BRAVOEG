@@ -856,11 +856,7 @@ const DB = {
                                 if (val[k] === undefined) {
                                     val[k] = existingLocal[k];
                             } else if (val[k] && typeof val[k] === 'object') {
-                                Object.keys(existingLocal[k]).forEach(f => {
-                                    if (f !== '_isLocal' && existingLocal[k][f] !== undefined && val[k][f] === undefined) {
-                                        val[k][f] = existingLocal[k][f];
-                                    }
-                                });
+                                val[k] = { ...val[k], ...existingLocal[k] };
                                 val[k]._isLocal = true;
                             }
                             }
@@ -1049,11 +1045,7 @@ const DB = {
                                     if (val[k] === undefined) {
                                         val[k] = existingLocal[k];
                                     } else if (val[k] && typeof val[k] === 'object') {
-                                        Object.keys(existingLocal[k]).forEach(f => {
-                                            if (f !== '_isLocal' && existingLocal[k][f] !== undefined && val[k][f] === undefined) {
-                                                val[k][f] = existingLocal[k][f];
-                                            }
-                                        });
+                                        val[k] = { ...val[k], ...existingLocal[k] };
                                         val[k]._isLocal = true;
                                     }
                                 }
@@ -4628,6 +4620,7 @@ function loadAdminOrders() {
         const rejected = orders.filter(([_, o]) => o.status === 'rejected').length;
         const revenue = orders.filter(([_, o]) => o.status === 'confirmed').reduce((s, [_, o]) => s + (parseFloat(o.price) || 0), 0);
         if (totalEl) totalEl.textContent = orders.length; if (pendingEl) pendingEl.textContent = pending; if (confirmedEl) confirmedEl.textContent = confirmed; if (revenueEl) revenueEl.textContent = revenue.toLocaleString(); if (badge) badge.textContent = pending;
+        const allCountAll = document.getElementById('ordersCountAll'); if (allCountAll) allCountAll.textContent = orders.length;
         const ac = document.getElementById('allCount'), pc = document.getElementById('pendingCount'), sc = document.getElementById('suspendedCount'), cc = document.getElementById('confirmedCount'), rc = document.getElementById('rejectedCount');
         if (ac) ac.textContent = orders.length; if (pc) pc.textContent = pending; if (sc) sc.textContent = suspended; if (cc) cc.textContent = confirmed; if (rc) rc.textContent = rejected;
         window.allOrders = orders;

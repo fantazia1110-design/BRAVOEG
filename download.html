@@ -3,254 +3,566 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-ar="BRAVO - ÊÍãíá ÇáãäÊÌ" data-en="BRAVO - Download Product" data-fr="BRAVO - Télécharger le produit">BRAVO - ÊÍãíá ÇáãäÊÌ</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="https://i.ibb.co/7tKdRmfC/68-1.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://i.ibb.co/7tKdRmfC/68-1.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/download.css">
+    <title data-ar="ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§ - BRAVO Store" data-en="Contact Us - BRAVO Store" data-fr="Contactez-nous - BRAVO Store">ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§ - BRAVO Store</title>
+    <meta name="description" data-ar="ØªÙˆØ§ØµÙ„ Ù…Ø¹ ÙØ±ÙŠÙ‚ BRAVO - Ù†Ø­Ù† Ù‡Ù†Ø§ Ù„Ù…Ø³Ø§Ø¹Ø¯ØªÙƒ" data-en="Contact the BRAVO team - We're here to help you" data-fr="Contactez l'Ã©quipe BRAVO - Nous sommes lÃ  pour vous aider" content="ØªÙˆØ§ØµÙ„ Ù…Ø¹ ÙØ±ÙŠÙ‚ BRAVO - Ù†Ø­Ù† Ù‡Ù†Ø§ Ù„Ù…Ø³Ø§Ø¹Ø¯ØªÙƒ">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="https://i.ibb.co/7tKdRmfC/68-1.png">
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="shared/css/global.css?v=15">
+    <link rel="stylesheet" href="shared/css/toast.css?v=5">
+    <link rel="stylesheet" href="shared/css/header.css?v=33">
+    <link rel="stylesheet" href="shared/css/footer.css?v=15">
+    <link rel="stylesheet" href="shared/css/responsive.css?v=16">
+    <link rel="stylesheet" href="shared/css/components.css?v=15">
+    <link rel="stylesheet" href="shared/css/reveal.css?v=1">
+    <link rel="stylesheet" href="shared/css/quick-view.css?v=22">
+    <link rel="stylesheet" href="css/contact.css?v=2">
 </head>
 <body>
-    <div class="success-container" id="mainContainer" style="display:none;" data-reveal="bounceIn">
-        <div class="success-icon">
-            <i class="fas fa-check"></i>
-        </div>
 
-        <h1 id="pageTitle" data-ar="Êã ÊÃßíÏ ÇáÏİÚ ÈäÌÇÍ! ??" data-en="Payment Confirmed! ??" data-fr="Paiement confirmé ! ??">Êã ÊÃßíÏ ÇáÏİÚ ÈäÌÇÍ! ??</h1>
-        <p class="message" id="pageMessage" data-ar="ãÈÑæß! Êã ÊÃßíÏ ÚãáíÉ ÇáÏİÚ æØáÈß ÌÇåÒ ÇáÂä. íãßäß ÊÍãíá ÇáãäÊÌ ãÈÇÔÑÉ ãä ÎáÇá ÇáÒÑ ÃÏäÇå." data-en="Congratulations! Payment confirmed and your order is ready. Download your product using the button below." data-fr="Félicitations ! Paiement confirmé et votre commande est prête. Téléchargez votre produit avec le bouton ci-dessous.">
-            ãÈÑæß! Êã ÊÃßíÏ ÚãáíÉ ÇáÏİÚ æØáÈß ÌÇåÒ ÇáÂä. íãßäß ÊÍãíá ÇáãäÊÌ ãÈÇÔÑÉ ãä ÎáÇá ÇáÒÑ ÃÏäÇå.
-        </p>
+    <!-- Particles Background -->
+    <canvas id="particles" aria-hidden="true"></canvas>
 
-        <div class="order-details" id="orderDetails">
-        </div>
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer" role="alert" aria-live="polite"></div>
 
-        <div class="download-section" data-reveal="fadeInUp" id="downloadSection">
-            <h2 data-ar="?? ãäÊÌß ÌÇåÒ ááÊÍãíá" data-en="?? Your product is ready" data-fr="?? Votre produit est prêt">?? ãäÊÌß ÌÇåÒ ááÊÍãíá</h2>
-            <p data-ar="ÇÖÛØ Úáì ÇáÒÑ ÃÏäÇå áÈÏÁ ÇáÊÍãíá ÇáİæÑí." data-en="Click below to download instantly." data-fr="Cliquez ci-dessous pour télécharger.">ÇÖÛØ Úáì ÇáÒÑ ÃÏäÇå áÈÏÁ ÇáÊÍãíá ÇáİæÑí.</p>
-            <a href="#" id="downloadBtn" class="download-btn" target="_blank">
-                <i class="fas fa-download"></i>
-                <span data-ar="ÊÍãíá ÇáÂä" data-en="Download Now" data-fr="Télécharger">ÊÍãíá ÇáÂä</span>
+    <!-- Dropdown Overlay -->
+    <div class="dropdown-overlay" id="dropdownOverlay"></div>
+
+    <!-- Header -->
+    <header role="banner">
+        <nav role="navigation" aria-label="Main Navigation">
+            <!-- Logo -->
+            <a href="index.html" class="logo" aria-label="BRAVO Home">
+                <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO Logo" class="logo-img" width="55" height="55">
+                <span class="logo-text">BRAVO</span>
             </a>
+            
+            <ul class="nav-menu" id="navMenu" role="menubar">
+                <!-- Mobile: divider -->
+                <li class="nav-menu-divider" role="separator"><span data-ar="Ø§Ù„Ø­Ø³Ø§Ø¨" data-en="Account" data-fr="Compte">Ø§Ù„Ø­Ø³Ø§Ø¨</span></li>
+                <!-- Mobile: Ø­Ø³Ø§Ø¨ÙŠ (logged in only) -->
+                <li class="mobile-action-item logged-in-only" id="accountMobile" style="display:none;" role="none">
+                    <a class="mobile-action-btn" href="Profile.html">
+                        <i class="fas fa-user"></i>
+                        <span data-ar="Ø­Ø³Ø§Ø¨ÙŠ" data-en="My Account" data-fr="Mon Compte">Ø­Ø³Ø§Ø¨ÙŠ</span>
+                    </a>
+                </li>
+                <li class="mobile-action-item logged-in-only" id="switchAccountMobile" style="display:none;" role="none">
+                    <a class="mobile-action-btn" href="javascript:handleSwitchAccount()">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span data-ar="ØªØ¨Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø³Ø§Ø¨" data-en="Switch Account" data-fr="Changer de compte">ØªØ¨Ø¯ÙŠÙ„ Ø§Ù„Ø­Ø³Ø§Ø¨</span>
+                    </a>
+                </li>
+                <li class="mobile-action-item logged-in-only" id="logoutMobile" style="display:none;" role="none">
+                    <a class="mobile-action-btn" href="javascript:handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span data-ar="ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬" data-en="Logout" data-fr="D&#233;connexion">ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬</span>
+                    </a>
+                </li>
+                <!-- Mobile: ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„ (guest only) -->
+                <li class="mobile-action-item guest-only" id="loginMobile" role="none">
+                    <a class="mobile-action-btn" href="auth.html">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span data-ar="ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„" data-en="Login" data-fr="Connexion">ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„</span>
+                    </a>
+                </li>
+                <li class="mobile-action-item guest-only" id="registerMobile" role="none">
+                    <a class="mobile-action-btn" href="auth.html#register">
+                        <i class="fas fa-user-plus"></i>
+                        <span data-ar="Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨" data-en="Register" data-fr="S'inscrire">Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨</span>
+                    </a>
+                </li>
+                <!-- Mobile: Ø·Ù„Ø¨Ø§ØªÙŠ -->
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="orders.html">
+                        <i class="fas fa-box"></i>
+                        <span data-ar="Ø·Ù„Ø¨Ø§ØªÙŠ" data-en="My Orders" data-fr="Mes commandes">Ø·Ù„Ø¨Ø§ØªÙŠ</span>
+                        <span class="action-badge" id="ordersBadgeMobile">0</span>
+                    </a>
+                </li>
+                <!-- Mobile: divider -->
+                <li class="nav-menu-divider" role="separator"><span data-ar="Ø§Ù„ØµÙØ­Ø§Øª Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©" data-en="Main Pages" data-fr="Pages principales">Ø§Ù„ØµÙØ­Ø§Øª Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</span></li>
+                <!-- Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ© -->
+                <li role="none">
+                    <a href="index.html" role="menuitem">
+                        <i class="fas fa-house-chimney" aria-hidden="true"></i>
+                        <span data-ar="Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©" data-en="Home" data-fr="Accueil">Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</span>
+                    </a>
+                </li>
+                <!-- Conditional -->
+                <li class="conditional-nav-item nav-item-wishlist" data-page="wishlist.html" style="display:none;">
+                    <a href="wishlist.html" role="menuitem">
+                        <i class="fas fa-heart"></i>
+                        <span data-ar="Ø§Ù„Ù…ÙØ¶Ù„Ø©" data-en="Wishlist" data-fr="Favoris">Ø§Ù„Ù…ÙØ¶Ù„Ø©</span>
+                        <span class="action-badge" id="wishlistBadge">0</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-cart" data-page="cart.html" style="display:none;">
+                    <a href="cart.html" role="menuitem">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span data-ar="Ø§Ù„Ø³Ù„Ø©" data-en="Cart" data-fr="Panier">Ø§Ù„Ø³Ù„Ø©</span>
+                        <span class="action-badge" id="cartBadge">0</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-checkout" data-page="checkout.html" style="display:none;">
+                    <a href="checkout.html" role="menuitem">
+                        <i class="fas fa-credit-card"></i>
+                        <span data-ar="Ø¥ØªÙ…Ø§Ù… Ø§Ù„Ø´Ø±Ø§Ø¡" data-en="Checkout" data-fr="Paiement">Ø¥ØªÙ…Ø§Ù… Ø§Ù„Ø´Ø±Ø§Ø¡</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-profile" data-page="profile.html" style="display:none;">
+                    <a href="Profile.html" role="menuitem">
+                        <i class="fas fa-user"></i>
+                        <span data-ar="Ø­Ø³Ø§Ø¨ÙŠ" data-en="My Account" data-fr="Mon Compte">Ø­Ø³Ø§Ø¨ÙŠ</span>
+                    </a>
+                </li>
+                <li class="conditional-nav-item nav-item-orders" data-page="orders.html" style="display:none;">
+                    <a href="orders.html" role="menuitem">
+                        <i class="fas fa-box"></i>
+                        <span data-ar="Ø·Ù„Ø¨Ø§ØªÙŠ" data-en="My Orders" data-fr="Mes commandes">Ø·Ù„Ø¨Ø§ØªÙŠ</span>
+                        <span class="action-badge" id="ordersBadge">0</span>
+                    </a>
+                </li>
+                <!-- Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª -->
+                <li role="none">
+                    <a href="products.html" role="menuitem">
+                        <i class="fas fa-store" aria-hidden="true"></i>
+                        <span data-ar="Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª" data-en="Products" data-fr="Produits">Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª</span>
+                    </a>
+                </li>
+                <!-- Ù…Ù† Ù†Ø­Ù† -->
+                <li role="none">
+                    <a href="about.html" role="menuitem">
+                        <i class="fas fa-users-gear" aria-hidden="true"></i>
+                        <span data-ar="Ù…Ù† Ù†Ø­Ù†" data-en="About" data-fr="Ã€ propos">Ù…Ù† Ù†Ø­Ù†</span>
+                    </a>
+                </li>
+                <!-- ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§ -->
+                <li role="none">
+                    <a href="contact.html" class="active" role="menuitem" aria-current="page">
+                        <i class="fas fa-headset" aria-hidden="true"></i>
+                        <span data-ar="ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§" data-en="Contact" data-fr="Contact">ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§</span>
+                    </a>
+                </li>
+                <!-- Mobile: divider -->
+                <li class="nav-menu-divider" role="separator"><span data-ar="Ø§Ù„ØªØ³ÙˆÙ‚" data-en="Shopping" data-fr="Achats">Ø§Ù„ØªØ³ÙˆÙ‚</span></li>
+                <!-- Mobile: wishlist -->
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="wishlist.html">
+                        <i class="fas fa-heart"></i>
+                        <span data-ar="Ø§Ù„Ù…ÙØ¶Ù„Ø©" data-en="Wishlist" data-fr="Favoris">Ø§Ù„Ù…ÙØ¶Ù„Ø©</span>
+                        <span class="action-badge" id="wishlistBadgeMobile">0</span>
+                    </a>
+                </li>
+                <!-- Mobile: cart -->
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="cart.html">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span data-ar="Ø§Ù„Ø³Ù„Ø©" data-en="Cart" data-fr="Panier">Ø§Ù„Ø³Ù„Ø©</span>
+                        <span class="action-badge" id="cartBadgeMobile">0</span>
+                    </a>
+                </li>
+                <!-- Mobile: language -->
+                <li class="nav-menu-divider" role="separator"><span data-ar="Ø§Ù„Ù„ØºØ©" data-en="Language" data-fr="Langue">Ø§Ù„Ù„ØºØ©</span></li>
+                <li class="mobile-action-item" role="none">
+                    <a class="mobile-action-btn" href="javascript:toggleLanguage()">
+                        <i class="fas fa-globe"></i>
+                        <span id="mobileLangText"><span class="flag-icon">ğŸ‡ªğŸ‡¬</span> <span data-ar="Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©" data-en="English" data-fr="FranÃ§ais">Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©</span></span>
+                    </a>
+                </li>
+            </ul>
+            <!-- Action Buttons -->
+            <div class="nav-actions">
+                <!-- Theme Toggle -->
+                
+                <!-- Language Switch -->
+                <div class="action-btn-wrapper">
+                    <button class="action-btn lang-switch" onclick="toggleLanguage()" aria-label="ØªØ¨Ø¯ÙŠÙ„ Ø§Ù„Ù„ØºØ©">
+                        <span id="langText">EN</span>
+                    </button>
+                    <span class="action-label" data-ar="Ø§Ù„Ù„ØºØ©" data-en="Language" data-fr="Langue">Ø§Ù„Ù„ØºØ©</span>
+                </div>
+                <!-- Wishlist -->
+                <div class="action-btn-wrapper dropdown" id="wishlistDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('wishlistDropdown')" aria-label="Ø§Ù„Ù…ÙØ¶Ù„Ø©" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-heart" aria-hidden="true"></i>
+                        <span class="action-badge" id="wishlistBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="Ø§Ù„Ù…ÙØ¶Ù„Ø©" data-en="Wishlist" data-fr="Favoris">Ø§Ù„Ù…ÙØ¶Ù„Ø©</span>
+                    <div class="dropdown-menu" id="wishlistMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4>
+                                <i class="fas fa-heart" aria-hidden="true"></i> 
+                                <span data-ar="Ø§Ù„Ù…ÙØ¶Ù„Ø©" data-en="Wishlist" data-fr="Favoris">Ø§Ù„Ù…ÙØ¶Ù„Ø©</span>
+                            </h4>
+                        </div>
+                        <div class="dropdown-content" id="wishlistContent"></div>
+                        <div class="dropdown-footer">
+                            <a href="wishlist.html" class="dropdown-btn">
+                                <span data-ar="Ø¹Ø±Ø¶ Ø§Ù„ÙƒÙ„" data-en="View All" data-fr="Voir tout">Ø¹Ø±Ø¶ Ø§Ù„ÙƒÙ„</span>
+                                <span class="emoji">â¤ï¸</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Orders -->
+                <div class="action-btn-wrapper">
+                    <a href="orders.html" class="action-btn" aria-label="Ø·Ù„Ø¨Ø§ØªÙŠ">
+                        <i class="fas fa-box" aria-hidden="true"></i>
+                        <span class="action-badge" id="ordersBadge" style="display: none;">0</span>
+                    </a>
+                    <span class="action-label" data-ar="Ø·Ù„Ø¨Ø§ØªÙŠ" data-en="Orders" data-fr="Commandes">Ø·Ù„Ø¨Ø§ØªÙŠ</span>
+                </div>
+                <!-- Cart -->
+                <div class="action-btn-wrapper dropdown" id="cartDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('cartDropdown')" aria-label="Ø³Ù„Ø© Ø§Ù„ØªØ³ÙˆÙ‚" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        <span class="action-badge" id="cartBadge" style="display: none;">0</span>
+                    </button>
+                    <span class="action-label" data-ar="Ø§Ù„Ø³Ù„Ø©" data-en="Cart" data-fr="Panier">Ø§Ù„Ø³Ù„Ø©</span>
+                    <div class="dropdown-menu" id="cartMenu" role="menu">
+                        <div class="dropdown-header">
+                            <h4>
+                                <i class="fas fa-shopping-cart" aria-hidden="true"></i> 
+                                <span data-ar="Ø§Ù„Ø³Ù„Ø©" data-en="Cart" data-fr="Panier">Ø§Ù„Ø³Ù„Ø©</span>
+                            </h4>
+                        </div>
+                        <div class="dropdown-content" id="cartContent"></div>
+                        <div class="dropdown-footer">
+                            <a href="cart.html" class="dropdown-btn dropdown-btn-cart">
+                                <span data-ar="Ø§Ù„Ø³Ù„Ø©" data-en="Cart" data-fr="Panier">Ø§Ù„Ø³Ù„Ø©</span>
+                                <span class="emoji">ğŸ›’</span>
+                            </a>
+                            <a href="checkout.html" class="dropdown-btn dropdown-btn-checkout">
+                                <span data-ar="Ø¥ØªÙ…Ø§Ù… Ø§Ù„Ø´Ø±Ø§Ø¡" data-en="Checkout" data-fr="Paiement">Ø¥ØªÙ…Ø§Ù… Ø§Ù„Ø´Ø±Ø§Ø¡</span>
+                                <span class="emoji">ğŸ’³</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <!-- User Menu -->
+                <div class="action-btn-wrapper dropdown" id="userDropdown">
+                    <button class="action-btn" onclick="toggleDropdown('userDropdown')" aria-label="Ø­Ø³Ø§Ø¨ÙŠ" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                    </button>
+                    <span class="action-label" data-ar="Ø­Ø³Ø§Ø¨ÙŠ" data-en="Account" data-fr="Compte">Ø­Ø³Ø§Ø¨ÙŠ</span>
+                    <div class="dropdown-menu" id="userMenu" role="menu">
+                        <div class="user-info" id="userInfo">
+                            <div class="user-avatar" id="userAvatar">
+                                <i class="fas fa-user" aria-hidden="true"></i>
+                            </div>
+                            <div class="user-details">
+                                <h4 id="userName" data-ar="Ø²Ø§Ø¦Ø±" data-en="Guest" data-fr="InvitÃ©">Ø²Ø§Ø¦Ø±</h4>
+                                <p id="userEmail" data-ar="Ø³Ø¬Ù„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ù„Ù„Ù…ØªØ§Ø¨Ø¹Ø©" data-en="Login to continue" data-fr="Connectez-vous">Ø³Ø¬Ù„ Ø§Ù„Ø¯Ø®ÙˆÙ„ Ù„Ù„Ù…ØªØ§Ø¨Ø¹Ø©</p>
+                            </div>
+                        </div>
+                        <div class="user-menu-content" id="guestMenuContent">
+                            <a href="auth.html" class="user-menu-item">
+                                <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                                <span data-ar="ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„" data-en="Login" data-fr="Connexion">ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø¯Ø®ÙˆÙ„</span>
+                            </a>
+                            <a href="auth.html?mode=register" class="user-menu-item">
+                                <i class="fas fa-user-plus" aria-hidden="true"></i>
+                                <span data-ar="Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨ Ø¬Ø¯ÙŠØ¯" data-en="Create Account" data-fr="CrÃ©er un compte">Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨ Ø¬Ø¯ÙŠØ¯</span>
+                            </a>
+                        </div>
+                        <div class="user-menu-content" id="loggedInMenuContent" style="display: none;"></div>
+                        <div class="dropdown-footer" id="logoutSection" style="display: none;">
+                            <button class="dropdown-btn logout-btn" onclick="handleLogout()">
+                                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                                <span data-ar="ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬" data-en="Logout" data-fr="DÃ©connexion">ØªØ³Ø¬ÙŠÙ„ Ø§Ù„Ø®Ø±ÙˆØ¬</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mobile Menu Toggle -->
+                <div class="action-btn-wrapper mobile-menu-toggle">
+                    <button class="action-btn" onclick="toggleMobileMenu()" aria-label="Menu" aria-expanded="false">
+                        <i class="fas fa-bars" id="mobileMenuIcon" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="container contact-content" data-reveal="fadeInUp">
+        <div class="breadcrumb reveal">
+            <a href="index.html"><i class="fas fa-home home-icon"></i> <span data-ar="Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©" data-en="Home" data-fr="Accueil">Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</span></a>
+            <i class="fas fa-chevron-left chevron"></i>
+            <span class="current" data-ar="Ø§ØªØµÙ„ Ø¨Ù†Ø§" data-en="Contact Us" data-fr="Nous contacter">Ø§ØªØµÙ„ Ø¨Ù†Ø§</span>
+        </div>
+        <div class="page-hero-wrapper reveal" style="margin-bottom:15px;">
+            <h1>
+                <span class="hero-headline typing-done"><span data-ar="ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§" data-en="Contact Us" data-fr="Contactez-nous">ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§</span> <span class="emoji">ğŸ“</span></span>
+            </h1>
+            <p class="page-subtitle" data-ar="Ù„Ø¯ÙŠÙƒ Ø³Ø¤Ø§Ù„ Ø£Ùˆ Ø§Ø³ØªÙØ³Ø§Ø±ØŸ ÙØ±ÙŠÙ‚Ù†Ø§ Ø¬Ø§Ù‡Ø² Ù„Ù„Ø±Ø¯ Ø¹Ù„ÙŠÙƒ"
+               data-en="Have a question? Our team is ready to answer" data-fr="Une question ? Notre Ã©quipe est prÃªte Ã  rÃ©pondre">
+                Ù„Ø¯ÙŠÙƒ Ø³Ø¤Ø§Ù„ Ø£Ùˆ Ø§Ø³ØªÙØ³Ø§Ø±ØŸ ÙØ±ÙŠÙ‚Ù†Ø§ Ø¬Ø§Ù‡Ø² Ù„Ù„Ø±Ø¯ Ø¹Ù„ÙŠÙƒ
+            </p>
+        </div>
+        <div class="contact-grid" data-reveal="staggerFade">
+            <!-- WhatsApp -->
+            <div class="contact-card whatsapp-card">
+                <div class="contact-icon whatsapp-icon">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <h3 data-ar="ÙˆØ§ØªØ³Ø§Ø¨" data-en="WhatsApp" data-fr="WhatsApp">ÙˆØ§ØªØ³Ø§Ø¨</h3>
+                <p data-ar="Ù„Ù„ØªÙˆØ§ØµÙ„ Ø¹Ø¨Ø± Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨" data-en="Contact via WhatsApp" data-fr="Contacter via WhatsApp">Ù„Ù„ØªÙˆØ§ØµÙ„ Ø¹Ø¨Ø± Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨</p>
+                <p style="font-size:0.9em; color:#fff !important; font-weight:700 !important; margin-top:-10px;" data-ar="201012853829+" data-en="+201012853829">201012853829+</p>
+                <a href="https://wa.me/201012853829?text=Ù…Ø±Ø­Ø¨Ø§Ù‹ØŒ Ù„Ø¯ÙŠ Ø§Ø³ØªÙØ³Ø§Ø±" 
+                   class="contact-btn whatsapp-btn" 
+                   target="_blank">
+                    <i class="fab fa-whatsapp"></i>
+                    <span data-ar="Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨" data-en="Chat on WhatsApp" data-fr="Discuter sur WhatsApp">Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨</span>
+                </a>
+            </div>
+
+            <!-- Facebook -->
+            <div class="contact-card facebook-card">
+                <div class="contact-icon facebook-icon">
+                    <i class="fab fa-facebook"></i>
+                </div>
+                <h3 data-ar="ÙÙŠØ³Ø¨ÙˆÙƒ" data-en="Facebook" data-fr="Facebook">ÙÙŠØ³Ø¨ÙˆÙƒ</h3>
+                <p data-ar="Ù„Ù„ØªÙˆØ§ØµÙ„ Ø¹Ø¨Ø± ÙÙŠØ³Ø¨ÙˆÙƒ" data-en="Contact via Facebook" data-fr="Contacter via Facebook">Ù„Ù„ØªÙˆØ§ØµÙ„ Ø¹Ø¨Ø± ÙÙŠØ³Ø¨ÙˆÙƒ</p>
+                <p style="font-size:0.9em; color:#fff !important; font-weight:700 !important; margin-top:-10px;" data-ar="Ø¹Ø§Ù„Ù… Ø§Ù„Ù…Ù†Ø¸ÙØ§Øª ÙˆÙ…Ø³ØªØ­Ø¶Ø±Ø§Øª Ø§Ù„ØªØ¬Ù…ÙŠÙ„ ÙˆØ§Ù„Ø¹Ø·ÙˆØ±" data-en="Almndhf" data-fr="Almndhf">Ø¹Ø§Ù„Ù… Ø§Ù„Ù…Ù†Ø¸ÙØ§Øª ÙˆÙ…Ø³ØªØ­Ø¶Ø±Ø§Øª Ø§Ù„ØªØ¬Ù…ÙŠÙ„ ÙˆØ§Ù„Ø¹Ø·ÙˆØ±</p>
+                <a href="https://www.facebook.com/profile.php?id=100095293684019" 
+                   class="contact-btn facebook-btn" 
+                   target="_blank">
+                    <i class="fab fa-facebook"></i>
+                    <span data-ar="ØªØ§Ø¨Ø¹Ù†Ø§" data-en="Follow Us" data-fr="Suivez-nous">ØªØ§Ø¨Ø¹Ù†Ø§</span>
+                </a>
+            </div>
         </div>
 
-        <div class="action-buttons" data-reveal="fadeInUp">
-            <a href="index.html" class="btn btn-primary">
-                <i class="fas fa-shopping-bag"></i> <span data-ar="ÊÓæŞ ÇáãÒíÏ" data-en="Shop More" data-fr="Acheter plus">ÊÓæŞ ÇáãÒíÏ</span>
-            </a>
+        <!-- Contact Form -->
+        <div class="contact-form" data-reveal="clipIn">
+            <h2 style="text-align: center; margin-bottom: 30px;">
+                <span class="emoji">âœ‰ï¸</span>
+                <span data-ar="Ø£Ø±Ø³Ù„ Ø±Ø³Ø§Ù„Ø©" data-en="Send Message" data-fr="Envoyer">Ø£Ø±Ø³Ù„ Ø±Ø³Ø§Ù„Ø©</span>
+            </h2>
+
+            <form id="contactForm">
+                <div class="form-group">
+                    <label class="form-label" data-ar="Ø§Ù„Ø§Ø³Ù… Ø§Ù„ÙƒØ§Ù…Ù„" data-en="Full Name" data-fr="Nom complet">Ø§Ù„Ø§Ø³Ù… Ø§Ù„ÙƒØ§Ù…Ù„</label>
+                    <input type="text" 
+                           class="form-input" 
+                           data-ar-placeholder="Ø£Ø¯Ø®Ù„ Ø§Ø³Ù…Ùƒ Ø§Ù„ÙƒØ§Ù…Ù„"
+                           data-en-placeholder="Enter your full name"
+                           placeholder="Ø£Ø¯Ø®Ù„ Ø§Ø³Ù…Ùƒ Ø§Ù„ÙƒØ§Ù…Ù„"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-ar="Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ" data-en="Email" data-fr="Email">Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ</label>
+                    <input type="email" 
+                           class="form-input" 
+                           data-ar-placeholder="your@email.com"
+                           data-en-placeholder="your@email.com"
+                           placeholder="your@email.com"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-ar="Ø§Ù„Ù…ÙˆØ¶ÙˆØ¹" data-en="Subject" data-fr="Sujet">Ø§Ù„Ù…ÙˆØ¶ÙˆØ¹</label>
+                    <input type="text" 
+                           class="form-input" 
+                           data-ar-placeholder="Ù…Ø§ Ù‡Ùˆ Ù…ÙˆØ¶ÙˆØ¹ Ø±Ø³Ø§Ù„ØªÙƒØŸ"
+                           data-en-placeholder="What's your message about?"
+                           placeholder="Ù…Ø§ Ù‡Ùˆ Ù…ÙˆØ¶ÙˆØ¹ Ø±Ø³Ø§Ù„ØªÙƒØŸ"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" data-ar="Ø§Ù„Ø±Ø³Ø§Ù„Ø©" data-en="Message" data-fr="Message">Ø§Ù„Ø±Ø³Ø§Ù„Ø©</label>
+                    <textarea class="form-textarea" 
+                              data-ar-placeholder="Ø§ÙƒØªØ¨ Ø±Ø³Ø§Ù„ØªÙƒ Ù‡Ù†Ø§..."
+                              data-en-placeholder="Write your message here..."
+                              placeholder="Ø§ÙƒØªØ¨ Ø±Ø³Ø§Ù„ØªÙƒ Ù‡Ù†Ø§..."
+                              required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i>
+                    <span data-ar="Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø±Ø³Ø§Ù„Ø©" data-en="Send Message" data-fr="Envoyer">Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ø±Ø³Ø§Ù„Ø©</span>
+                </button>
+            </form>
+
+            <div class="info-box">
+                <p>
+                    <i class="fas fa-clock"></i>
+                    <strong data-ar="ÙˆÙ‚Øª Ø§Ù„Ø±Ø¯:" data-en="Response Time:" data-fr="Temps de rÃ©ponse :">ÙˆÙ‚Øª Ø§Ù„Ø±Ø¯:</strong>
+                    <span data-ar="Ù†Ø±Ø¯ Ø®Ù„Ø§Ù„ 24 Ø³Ø§Ø¹Ø©" data-en="Within 24 hours" data-fr="Sous 24 heures">Ù†Ø±Ø¯ Ø®Ù„Ø§Ù„ 24 Ø³Ø§Ø¹Ø©</span>
+                </p>
+                <p>
+                    <i class="fas fa-headset"></i>
+                    <strong data-ar="Ø§Ù„Ø¯Ø¹Ù… Ø§Ù„ÙÙ†ÙŠ:" data-en="Tech Support:" data-fr="Support technique :">Ø§Ù„Ø¯Ø¹Ù… Ø§Ù„ÙÙ†ÙŠ:</strong>
+                    <span data-ar="Ù…ØªØ§Ø­ 24/7" data-en="Available 24/7" data-fr="Disponible 24/7">Ù…ØªØ§Ø­ 24/7</span>
+                </p>
+            </div>
         </div>
-    </div>
+    </section>
 
-    <div class="success-container" id="errorContainer" style="display:none;">
-        <div class="success-icon" style="background:var(--error,#ef4444);">
-            <i class="fas fa-times"></i>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="https://i.ibb.co/7tKdRmfC/68-1.png" alt="BRAVO">
+                        <span>BRAVO</span>
+                    </div>
+                    <p data-ar="Ø§Ù„Ù…Ù†ØµØ© Ø§Ù„Ø£ÙˆÙ„Ù‰ Ù„ØªØ¹Ù„ÙŠÙ… Ø§Ù„ØµÙ†Ø§Ø¹Ø§Øª Ø§Ù„ÙƒÙŠÙ…ÙŠØ§Ø¦ÙŠØ©" data-en="The #1 Platform for Chemical Industries" data-fr="La plateforme nÂ°1 pour les industries chimiques">Ø§Ù„Ù…Ù†ØµØ© Ø§Ù„Ø£ÙˆÙ„Ù‰ Ù„ØªØ¹Ù„ÙŠÙ… Ø§Ù„ØµÙ†Ø§Ø¹Ø§Øª Ø§Ù„ÙƒÙŠÙ…ÙŠØ§Ø¦ÙŠØ©</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="Ø±ÙˆØ§Ø¨Ø· Ø³Ø±ÙŠØ¹Ø©" data-en="Quick Links" data-fr="Liens rapides">Ø±ÙˆØ§Ø¨Ø· Ø³Ø±ÙŠØ¹Ø©</h4>
+                    <ul>
+                        <li>
+                            <a href="index.html">
+                                <i class="fas fa-angle-left"></i> 
+                                <span data-ar="Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©" data-en="Home" data-fr="Accueil">Ø§Ù„Ø±Ø¦ÙŠØ³ÙŠØ©</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="products.html">
+                                <i class="fas fa-angle-left"></i> 
+                                <span data-ar="Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª" data-en="Products" data-fr="Produits">Ø§Ù„Ù…Ù†ØªØ¬Ø§Øª</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="about.html">
+                                <i class="fas fa-angle-left"></i> 
+                                <span data-ar="Ù…Ù† Ù†Ø­Ù†" data-en="About" data-fr="Ã€ propos">Ù…Ù† Ù†Ø­Ù†</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="contact.html">
+                                <i class="fas fa-angle-left"></i> 
+                                <span data-ar="ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§" data-en="Contact" data-fr="Contact">ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="Ø£Ù‚Ø³Ø§Ù… Ø§Ù„Ù…ØªØ¬Ø±" data-en="Categories" data-fr="CatÃ©gories">Ø£Ù‚Ø³Ø§Ù… Ø§Ù„Ù…ØªØ¬Ø±</h4>
+                    <ul>
+                        <li><a href="products.html?cat=books"><span class="emoji">ğŸ“š</span> <span data-ar="ÙƒØªØ¨" data-en="Books" data-fr="Livres">ÙƒØªØ¨</span></a></li>
+                        <li><a href="products.html?cat=software"><span class="emoji">ğŸ’»</span> <span data-ar="Ø¨Ø±Ø§Ù…Ø¬" data-en="Software" data-fr="Logiciels">Ø¨Ø±Ø§Ù…Ø¬</span></a></li>
+                        <li><a href="products.html?cat=formulas"><span class="emoji">ğŸ§ª</span> <span data-ar="ØªØ±ÙƒÙŠØ¨Ø§Øª" data-en="Formulas" data-fr="Formules">ØªØ±ÙƒÙŠØ¨Ø§Øª</span></a></li>
+                        <li><a href="products.html?cat=courses"><span class="emoji">ğŸ“</span> <span data-ar="ÙƒÙˆØ±Ø³Ø§Øª" data-en="Courses" data-fr="Cours">ÙƒÙˆØ±Ø³Ø§Øª</span></a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4 data-ar="ØªÙˆØ§ØµÙ„" data-en="Contact" data-fr="Contact">ØªÙˆØ§ØµÙ„</h4>
+                    <ul class="contact-info">
+                        <li><i class="fas fa-phone"></i> <span dir="ltr">+20 101 285 3829</span></li>
+                        <li><i class="fas fa-envelope"></i> info@bravo.com</li>
+                        <li><i class="fas fa-map-marker-alt"></i> <span data-ar="Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©ØŒ Ù…ØµØ±" data-en="Cairo, Egypt" data-fr="Le Caire, Ã‰gypte">Ø§Ù„Ù‚Ø§Ù‡Ø±Ø©ØŒ Ù…ØµØ±</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 BRAVO Store. <span data-ar="Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ‚ Ù…Ø­ÙÙˆØ¸Ø©" data-en="All rights reserved" data-fr="Tous droits rÃ©servÃ©s">Ø¬Ù…ÙŠØ¹ Ø§Ù„Ø­Ù‚ÙˆÙ‚ Ù…Ø­ÙÙˆØ¸Ø©</span>.</p>
+                <div class="payment-methods">
+                    <i class="fas fa-credit-card"></i>
+                    <i class="fab fa-cc-paypal"></i>
+                    <i class="fab fa-bitcoin"></i>
+                </div>
+            </div>
         </div>
-        <h1 id="errorTitle" data-ar="ÚĞÑÇğ!" data-en="Sorry!" data-fr="Désolé !">ÚĞÑÇğ!</h1>
-        <p class="message" id="errorMessage" data-ar="åĞÇ ÇáØáÈ ÛíÑ ãÊÇÍ ááÊÍãíá ÍÇáíÇğ." data-en="This order is unavailable for download." data-fr="Cette commande n'est pas disponible.">åĞÇ ÇáØáÈ ÛíÑ ãÊÇÍ ááÊÍãíá ÍÇáíÇğ.</p>
-        <div class="action-buttons">
-            <a href="orders.html" class="btn btn-primary">
-                <i class="fas fa-box"></i> <span data-ar="ØáÈÇÊí" data-en="My Orders" data-fr="Mes commandes">ØáÈÇÊí</span>
-            </a>
-            <a href="index.html" class="btn btn-secondary" style="display:inline-flex;align-items:center;gap:12px;padding:18px 40px;background:var(--card-bg);color:var(--text-primary);border-radius:16px;font-size:1.1em;font-weight:700;text-decoration:none;border:1px solid var(--border-color);margin-top:15px;">
-                <i class="fas fa-home"></i> <span data-ar="ÇáÚæÏÉ ááÑÆíÓíÉ" data-en="Back to Home" data-fr="Retour à l'accueil">ÇáÚæÏÉ ááÑÆíÓíÉ</span>
-            </a>
-        </div>
-    </div>
+    </footer>
 
-    <div class="success-container" id="loadingContainer">
-        <div style="text-align:center;padding:80px 20px;">
-            <i class="fas fa-spinner fa-spin" style="font-size:4em;color:var(--primary,#9333ea);margin-bottom:30px;"></i>
-            <h2 style="color:var(--text-primary);" data-ar="ÌÇÑí ÇáÊÍŞŞ ãä ÇáØáÈ..." data-en="Verifying order..." data-fr="Vérification...">ÌÇÑí ÇáÊÍŞŞ ãä ÇáØáÈ...</h2>
-        </div>
-    </div>
+    <!-- Scroll to Top -->
+    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 
-    <script src="js/include.js?v=20"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    <!-- WhatsApp Float -->
+    <a href="https://wa.me/201012853829?text=Ù…Ø±Ø­Ø¨Ø§Ù‹ØŒ Ø£Ø±ÙŠØ¯ Ø§Ù„Ø§Ø³ØªÙØ³Ø§Ø±" 
+       class="whatsapp-float" 
+       target="_blank" 
+       title="ØªÙˆØ§ØµÙ„ Ù…Ø¹Ù†Ø§ Ø¹Ø¨Ø± ÙˆØ§ØªØ³Ø§Ø¨">
+        <i class="fab fa-whatsapp"></i>
+    </a>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyARSfRX09EHrwwMvk7q0Y1VOQuvvtFuADc",
-            authDomain: "date-c74fc.firebaseapp.com",
-            databaseURL: "https://date-c74fc-default-rtdb.firebaseio.com",
-            projectId: "date-c74fc",
-            storageBucket: "date-c74fc.firebasestorage.app",
-            messagingSenderId: "149705983794",
-            appId: "1:149705983794:web:257085b8b55b3f31f1b92b"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        const _dlLang = document.documentElement.lang || 'ar';
-        const _dlI18n = {
-            orderDetails: _dlLang === 'ar' ? 'ÊİÇÕíá ÇáØáÈ' : _dlLang === 'en' ? 'Order Details' : 'Détails de la commande',
-            orderNum: _dlLang === 'ar' ? 'ÑŞã ÇáØáÈ:' : _dlLang === 'en' ? 'Order ID:' : 'N° de commande :',
-            product: _dlLang === 'ar' ? 'ÇáãäÊÌ:' : _dlLang === 'en' ? 'Product:' : 'Produit :',
-            digitalProduct: _dlLang === 'ar' ? 'ãäÊÌ ÑŞãí' : _dlLang === 'en' ? 'Digital Product' : 'Produit numérique',
-            amountPaid: _dlLang === 'ar' ? 'ÇáãÈáÛ ÇáãÏİæÚ:' : _dlLang === 'en' ? 'Amount Paid:' : 'Montant payé :',
-            paymentMethod: _dlLang === 'ar' ? 'ØÑíŞÉ ÇáÏİÚ:' : _dlLang === 'en' ? 'Payment:' : 'Paiement :',
-            name: _dlLang === 'ar' ? 'ÇáÇÓã:' : _dlLang === 'en' ? 'Name:' : 'Nom :',
-            email: _dlLang === 'ar' ? 'ÇáÈÑíÏ ÇáÅáßÊÑæäí:' : _dlLang === 'en' ? 'Email:' : 'Email :',
-            orderDate: _dlLang === 'ar' ? 'ÊÇÑíÎ ÇáØáÈ:' : _dlLang === 'en' ? 'Order Date:' : 'Date :',
-            status: _dlLang === 'ar' ? 'ÇáÍÇáÉ:' : _dlLang === 'en' ? 'Status:' : 'Statut :',
-            confirmed: _dlLang === 'ar' ? 'ãÄßÏ ?' : _dlLang === 'en' ? 'Confirmed ?' : 'Confirmée ?',
-            noOrder: _dlLang === 'ar' ? 'áÇ íæÌÏ ØáÈ' : _dlLang === 'en' ? 'No Order Found' : 'Aucune commande',
-            noOrderMsg: _dlLang === 'ar' ? 'áã íÊã ÇáÚËæÑ Úáì ÑŞã ÇáØáÈ. íÑÌì ÇáÊÍŞŞ ãä ÑÇÈØ ÇáÊÍãíá.' : _dlLang === 'en' ? 'Order ID not found. Please check the download link.' : 'Numéro introuvable. Vérifiez le lien.',
-            notFound: _dlLang === 'ar' ? 'áã íÊã ÇáÚËæÑ Úáì ÇáØáÈ' : _dlLang === 'en' ? 'Order Not Found' : 'Commande introuvable',
-            notFoundMsg: _dlLang === 'ar' ? 'ÚĞÑÇğ¡ áã äÊãßä ãä ÇáÚËæÑ Úáì åĞÇ ÇáØáÈ. ŞÏ íßæä ŞÏ Êã ÍĞİå Ãæ Ãä ÇáÑÇÈØ ÛíÑ ÕÍíÍ.' : _dlLang === 'en' ? 'Sorry, we could not find this order. It may have been deleted or the link is invalid.' : 'Désolé, commande introuvable. Elle a pu être supprimée.',
-            rejected: _dlLang === 'ar' ? 'Êã ÑİÖ ÇáØáÈ' : _dlLang === 'en' ? 'Order Rejected' : 'Commande rejetée',
-            rejectedMsg: _dlLang === 'ar' ? 'ÚĞÑÇğ¡ áã íÊã ÊÃßíÏ ØáÈß. íÑÌì ÇáÊæÇÕá ãÚ ÇáÏÚã Çáİäí ááãÒíÏ ãä ÇáãÚáæãÇÊ.' : _dlLang === 'en' ? 'Sorry, your order was not confirmed. Please contact support.' : 'Désolé, commande non confirmée. Contactez le support.',
-            pending: _dlLang === 'ar' ? 'ÇáØáÈ áã íÊã ÊÃßíÏå ÈÚÏ' : _dlLang === 'en' ? 'Order Not Yet Confirmed' : 'Commande non encore confirmée',
-            pendingMsg: _dlLang === 'ar' ? 'ØáÈß áÇ íÒÇá ŞíÏ ÇáãÑÇÌÚÉ. ÓíÊã ÅÚáÇãß İæÑ ÊÃßíÏ ÇáÏİÚ. íãßäß ãÊÇÈÚÉ ÍÇáÉ ØáÈß ãä ÕİÍÉ ÇáØáÈÇÊ.' : _dlLang === 'en' ? 'Your order is still under review. You will be notified once confirmed. Track your order from the orders page.' : 'Votre commande est en cours. Vous serez notifié. Suivez-la depuis la page commandes.',
-            downloadUnavailable: _dlLang === 'ar' ? 'ÑÇÈØ ÇáÊÍãíá ÛíÑ ãÊÇÍ ÍÇáíÇğ¡ íÑÌì ÇáÊæÇÕá ãÚ ÇáÏÚã Çáİäí.' : _dlLang === 'en' ? 'Download link unavailable. Please contact support.' : 'Lien indisponible. Contactez le support.',
-            dayNames: _dlLang === 'ar' ? ['ÇáÃÍÏ','ÇáÅËäíä','ÇáËáÇËÇÁ','ÇáÃÑÈÚÇÁ','ÇáÎãíÓ','ÇáÌãÚÉ','ÇáÓÈÊ'] : _dlLang === 'en' ? ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] : ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'],
-            dtLocale: _dlLang === 'ar' ? 'ar-EG' : _dlLang === 'en' ? 'en-US' : 'fr-FR',
-            atTime: _dlLang === 'ar' ? 'ÇáÓÇÚÉ' : _dlLang === 'en' ? 'at' : 'à',
-            currency: _dlLang === 'ar' ? 'Ìäíå' : 'EGP'
-        };
-
-        const loadingEl = document.getElementById('loadingContainer');
-        const mainEl = document.getElementById('mainContainer');
-        const errorEl = document.getElementById('errorContainer');
-
-        function showError(title, msg) {
-            loadingEl.style.display = 'none';
-            errorEl.style.display = 'block';
-            document.getElementById('errorTitle').textContent = title;
-            document.getElementById('errorMessage').textContent = msg;
+    <!-- Scripts -->
+    <script src="js/include.js?v=21"></script>
+    <script src="js/app.js?v=20260808b"></script>
+    <script>initPageHero();</script>
+    <script>
+    function revealElement(el) {
+        if (!el || el.classList.contains('revealed')) return;
+        var rect = el.getBoundingClientRect();
+        var isVisible = rect.top < window.innerHeight - 60 && rect.bottom > 0;
+        if (isVisible) {
+            el.classList.add('revealed');
         }
+    }
+    function checkReveals() {
+        document.querySelectorAll('.reveal:not(.revealed)').forEach(revealElement);
+        document.querySelectorAll('[data-reveal]:not(.revealed)').forEach(revealElement);
+    }
+    window.addEventListener('scroll', checkReveals, { passive: true });
+    setInterval(checkReveals, 500);
+    checkReveals();
+    setTimeout(checkReveals, 500);
+    setTimeout(checkReveals, 2000);
+    setTimeout(checkReveals, 5000);
+    </script>
 
-        async function loadOrderFromDB(orderId) {
-            try {
-                const snap = await get(ref(database, 'orders/' + orderId));
-                if (snap.exists()) {
-                    const order = snap.val();
-                    order.id = orderId;
-                    return order;
-                }
-            } catch(e) {}
-            try {
-                const allSnap = await get(ref(database, 'orders'));
-                if (allSnap.exists()) {
-                    const all = allSnap.val();
-                    for (const id in all) {
-                        if (id === orderId || (all[id].orderId === orderId)) {
-                            const order = all[id];
-                            order.id = id;
-                            return order;
-                        }
-                    }
-                }
-            } catch(e) {}
-            return null;
-        }
+    <!-- Quick View Modal Container -->
+    <div id="quickViewModal" class="quick-view-modal-overlay"></div>
 
-        function createConfetti() {
-            const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#10b981', '#fbbf24'];
-            for (let i = 0; i < 100; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.style.left = Math.random() * 100 + '%';
-                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                    confetti.style.animationDelay = Math.random() * 2 + 's';
-                    confetti.style.width = (Math.random() * 10 + 5) + 'px';
-                    confetti.style.height = confetti.style.width;
-                    document.body.appendChild(confetti);
-                    setTimeout(() => confetti.remove(), 3000);
-                }, i * 30);
+    <script>
+        // Contact Form Handler
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const inputs = this.querySelectorAll('input, textarea');
+            const name = inputs[0].value.trim();
+            const email = inputs[1].value.trim();
+            const subject = inputs[2].value.trim();
+            const message = inputs[3].value.trim();
+            
+            const lang = document.documentElement.lang || 'ar';
+            
+            const rawMsg = lang === 'ar'
+                ? `Ø§Ù„Ø§Ø³Ù…: ${name}\nØ§Ù„Ø¨Ø±ÙŠØ¯: ${email}\nØ§Ù„Ù…ÙˆØ¶ÙˆØ¹: ${subject}\nØ§Ù„Ø±Ø³Ø§Ù„Ø©: ${message}`
+                : `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage: ${message}`;
+            
+            const waUrl = `https://wa.me/201012853829?text=${encodeURIComponent(rawMsg)}`;
+            
+            const successMsg = lang === 'ar' 
+                ? 'ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ø±Ø³Ø§Ù„ØªÙƒ Ø¨Ù†Ø¬Ø§Ø­! Ø³Ù†Ø±Ø¯ Ø¹Ù„ÙŠÙƒ Ù‚Ø±ÙŠØ¨Ø§Ù‹.'
+                : 'Message sent successfully! We will reply soon.';
+            const successTitle = lang === 'ar' ? 'ØªÙ… Ø§Ù„Ø¥Ø±Ø³Ø§Ù„' : 'Sent';
+            
+            if (typeof window.showToast === 'function') {
+                window.showToast(successTitle, successMsg, 'success');
             }
-        }
-
-        function displayOrder(order) {
-            loadingEl.style.display = 'none';
-            mainEl.style.display = 'block';
-
-            const dt = new Date(order.createdAt || order.orderDate || Date.now());
-            const dayNames = _dlI18n.dayNames;
-            const fullDate = `${dayNames[dt.getDay()]} - ${dt.toLocaleDateString(_dlI18n.dtLocale)} - ${_dlI18n.atTime} ${dt.toLocaleTimeString(_dlI18n.dtLocale, {hour:'2-digit',minute:'2-digit'})}`;
-
-            document.getElementById('orderDetails').innerHTML = `
-                <h2>${_dlI18n.orderDetails}</h2>
-                <div class="detail-row">
-                    <span class="detail-label">${_dlI18n.orderNum}</span>
-                    <span class="detail-value">${order.id || order.orderId || ''}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">${_dlI18n.product}</span>
-                    <span class="detail-value">${order.productTitle || _dlI18n.digitalProduct}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">${_dlI18n.amountPaid}</span>
-                    <span class="detail-value">${order.price || 0} ${order.currency || _dlI18n.currency}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">${_dlI18n.paymentMethod}</span>
-                    <span class="detail-value">${order.paymentMethodName || order.paymentMethod || ''}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">${_dlI18n.name}</span>
-                    <span class="detail-value">${order.customerName || ''}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">${_dlI18n.email}</span>
-                    <span class="detail-value">${order.customerEmail || ''}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">${_dlI18n.orderDate}</span>
-                    <span class="detail-value">${fullDate}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">${_dlI18n.status}</span>
-                    <span class="detail-value" style="color: #10b981;">? ${_dlI18n.confirmed}</span>
-                </div>
-            `;
-
-            const downloadLink = order.downloadLink || '';
-            const btn = document.getElementById('downloadBtn');
-            if (downloadLink) {
-                btn.href = downloadLink;
-                btn.style.display = 'inline-flex';
-            } else {
-                btn.style.display = 'none';
-                document.querySelector('.download-section p').textContent = _dlI18n.downloadUnavailable;
-            }
-
-            createConfetti();
-        }
-
-        const params = new URLSearchParams(window.location.search);
-        let orderId = params.get('order');
-
-        if (!orderId) {
-            const stored = localStorage.getItem('currentOrder');
-            if (stored) {
-                try {
-                    const parsed = JSON.parse(stored);
-                    orderId = parsed.orderId || parsed.id;
-                } catch(e) {}
-            }
-        }
-
-        if (!orderId) {
-            showError(_dlI18n.noOrder, _dlI18n.noOrderMsg);
-        } else {
-            let order = await loadOrderFromDB(orderId);
-            if (!order) {
-                const stored = localStorage.getItem('currentOrder');
-                if (stored) {
-                    try { order = JSON.parse(stored); } catch(e) {}
-                }
-            }
-            if (!order) {
-                showError(_dlI18n.notFound, _dlI18n.notFoundMsg);
-            } else if (order.status === 'confirmed' && order.downloadGranted === true) {
-                displayOrder(order);
-            } else if (order.status === 'rejected') {
-                showError(_dlI18n.rejected, _dlI18n.rejectedMsg);
-            } else {
-                showError(_dlI18n.pending, _dlI18n.pendingMsg);
-            }
-        }
+            
+            this.reset();
+            setTimeout(() => window.open(waUrl, '_blank'), 1000);
+        });
     </script>
 </body>
 </html>
+
+
+

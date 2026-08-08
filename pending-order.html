@@ -497,6 +497,11 @@
             if (!oid) return;
             var db = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
             if (!db.orders) db.orders = {};
+            var existing = db.orders[oid];
+            if (existing && existing._isLocal) {
+                console.log('[Pending] keeping local order (locally modified), status:', existing.status);
+                return;
+            }
             var clean = JSON.parse(JSON.stringify(order));
             delete clean._isLocal;
             db.orders[oid] = clean;
@@ -512,7 +517,17 @@
             var snap = await window.firebaseGet(window.firebaseRef(window.database, 'orders/' + orderId));
             var exists = snap.exists();
             console.log('[Pending] Firebase snapshot exists:', exists);
-            if (exists) { var order = snap.val(); console.log('[Pending] Firebase order loaded, status:', order.status); window._pendingOrderData = order; _syncLocalOrderFromFirebase(order); displayOrderDetails(order); updateStatus(order); return true; }
+            if (exists) { var order = snap.val(); console.log('[Pending] Firebase order loaded, status:', order.status);
+                var _ldb = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+                var _localOrder = (_ldb.orders || {})[orderId];
+                if (_localOrder && _localOrder._isLocal) {
+                    console.log('[Pending] using local order (locally modified), status:', _localOrder.status);
+                    window._pendingOrderData = _localOrder;
+                    displayOrderDetails(_localOrder);
+                    updateStatus(_localOrder);
+                    return true;
+                }
+                window._pendingOrderData = order; _syncLocalOrderFromFirebase(order); displayOrderDetails(order); updateStatus(order); return true; }
         } catch(e) { console.warn('[Pending] Firebase read failed:', e); }
         return false;
     }
@@ -521,7 +536,19 @@
         console.log('[Pending] setting up realtime listener for', orderId);
         try {
             window.firebaseOnValue(window.firebaseRef(window.database, 'orders/' + orderId), function(snapshot) {
-                if (snapshot.exists()) { var order = snapshot.val(); console.log('[Pending] realtime update, status:', order.status); window._pendingOrderData = order; _syncLocalOrderFromFirebase(order); displayOrderDetails(order); updateStatus(order); }
+                if (snapshot.exists()) {
+                    var order = snapshot.val(); console.log('[Pending] realtime update, status:', order.status);
+                    var _rdb = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+                    var _rLocal = (_rdb.orders || {})[orderId];
+                    if (_rLocal && _rLocal._isLocal) {
+                        console.log('[Pending] realtime: keeping local order (locally modified), status:', _rLocal.status);
+                        window._pendingOrderData = _rLocal;
+                        displayOrderDetails(_rLocal);
+                        updateStatus(_rLocal);
+                        return;
+                    }
+                    window._pendingOrderData = order; _syncLocalOrderFromFirebase(order); displayOrderDetails(order); updateStatus(order);
+                }
             });
         } catch(e) { console.warn('[Pending] realtime setup error:', e); }
     }
@@ -781,7 +808,7 @@
         }
     </script>
     <script src="js/include.js?v=21"></script>
-    <script src="js/app.js?v=20260808a"></script>
+    <script src="js/app.js?v=20260808b"></script>
     <script>
         // JS spinner rotation (guaranteed — NEVER stops, even on confirmed)
         try {
