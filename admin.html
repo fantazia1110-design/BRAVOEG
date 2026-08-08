@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="shared/css/components.css?v=14">
     <link rel="stylesheet" href="shared/css/product-card.css?v=14">
     <link rel="stylesheet" href="shared/css/responsive.css?v=16">
-    <link rel="stylesheet" href="css/admin2.css?v=101">
+    <link rel="stylesheet" href="css/admin2.css?v=102">            
     <style>
         /* Sidebar brand animations - defined here for reliability */
         @keyframes logoFloatSidebar { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
@@ -340,6 +340,12 @@
                         <i class="fas fa-cogs" aria-hidden="true"></i>
                         <span data-ar="الإعدادات" data-en="Settings" data-fr="Paramètres">الإعدادات</span>
                     </a>
+                </li>
+                <li role="none" class="admin-nav-logout">
+                    <button type="button" onclick="logout();document.getElementById('navMenu')?.classList.remove('active');return false;" role="menuitem" aria-label="تسجيل خروج" data-ar-aria="تسجيل خروج" data-en-aria="Logout" data-fr-aria="Déconnexion">
+                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                        <span data-ar="تسجيل خروج" data-en="Logout" data-fr="Déconnexion">تسجيل خروج</span>
+                    </button>
                 </li>
             </ul>
 

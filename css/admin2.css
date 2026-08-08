@@ -253,6 +253,45 @@ body.login-state .login-section .remember-checkbox input:checked ~ .checkmark::a
     #paymentsTab .wp-grid { grid-template-columns: repeat(auto-fill,minmax(300px,1fr)) !important; }
 }
 
+/* زر تسجيل الخروج في القائمة الجانبية للهواتف (navMenu drawer) */
+@media (max-width: 1024px) {
+    .admin-nav-logout {
+        margin-top: auto !important;
+        margin-bottom: 8px !important;
+        width: 100%;
+    }
+    .admin-nav-logout button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        padding: 15px 20px;
+        border-radius: 14px;
+        border: 1.5px solid rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.08);
+        color: #ef4444;
+        font-weight: 800;
+        font-size: 1.1em;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .admin-nav-logout button i { color: #ef4444; font-size: 1.2em; }
+    .admin-nav-logout button:hover {
+        color: #fff;
+        border-color: transparent;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        box-shadow: 0 8px 20px -4px rgba(239, 68, 68, 0.45);
+        transform: translateY(-2px);
+    }
+    .admin-nav-logout button:hover i { color: #fff; }
+}
+
+@media (min-width: 1025px) {
+    .admin-nav-logout { display: none !important; }
+}
+
 @media (max-width: 1024px) {
     /* Layout */
     .admin-content-area { padding: 24px 4%; }
