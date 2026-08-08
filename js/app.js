@@ -8355,8 +8355,8 @@ function _cartLbEnsure() {
     if (document.getElementById('cartImageLightbox')) return;
     const el = document.createElement('div');
     el.id = 'cartImageLightbox';
-    el.className = 'cart-lightbox';
-    el.innerHTML = '<div class="cart-lightbox-backdrop" data-cartlb-close></div><div class="cart-lightbox-panel"><button type="button" class="cart-lightbox-close" data-cartlb-close aria-label="' + (document.documentElement.lang === 'ar' ? 'إغلاق' : document.documentElement.lang === 'en' ? 'Close' : 'Fermer') + '"><i class="fas fa-times"></i></button><div class="cart-lightbox-stage" id="cartLightboxStage"><img id="cartLightboxImg" src="" alt="" draggable="false"></div><div class="cart-lightbox-toolbar"><button type="button" class="cart-lightbox-btn" id="cartLightboxZoomOut" aria-label="Zoom out"><i class="fas fa-minus"></i></button><span class="cart-lightbox-pct" id="cartLightboxZoomPct">100%</span><button type="button" class="cart-lightbox-btn" id="cartLightboxZoomIn" aria-label="Zoom in"><i class="fas fa-plus"></i></button><button type="button" class="cart-lightbox-btn" id="cartLightboxReset" aria-label="Reset"><i class="fas fa-expand-arrows-alt"></i></button></div></div>';
+    el.className = 'lightbox';
+    el.innerHTML = '<div class="lightbox-backdrop" data-cartlb-close></div><div class="lightbox-panel"><button type="button" class="lightbox-close" data-cartlb-close aria-label="' + (document.documentElement.lang === 'ar' ? 'إغلاق' : document.documentElement.lang === 'en' ? 'Close' : 'Fermer') + '"><i class="fas fa-times"></i></button><div class="lightbox-stage" id="cartLightboxStage"><img id="cartLightboxImg" src="" alt="" draggable="false"></div><div class="lightbox-toolbar"><button type="button" class="lightbox-btn" id="cartLightboxZoomOut" aria-label="Zoom out"><i class="fas fa-minus"></i></button><span class="lightbox-pct" id="cartLightboxZoomPct">100%</span><button type="button" class="lightbox-btn" id="cartLightboxZoomIn" aria-label="Zoom in"><i class="fas fa-plus"></i></button><button type="button" class="lightbox-btn" id="cartLightboxReset" aria-label="Reset"><i class="fas fa-expand-arrows-alt"></i></button></div></div>';
     document.body.appendChild(el);
     const stage = document.getElementById('cartLightboxStage');
     const img = document.getElementById('cartLightboxImg');
@@ -8453,7 +8453,7 @@ function _cartLbEnsure() {
     stage.addEventListener('pointercancel', endPointer);
     stage.addEventListener('pointerleave', function(e) { if (e.pointerType === 'mouse') endPointer(e); });
     el.addEventListener('click', function(e) {
-        if (e.target === el.querySelector('.cart-lightbox-backdrop') || e.target.closest('.cart-lightbox-close')) {
+        if (e.target === el.querySelector('.lightbox-backdrop') || e.target.closest('.lightbox-close')) {
             window.closeCartImageLightbox();
         }
     });
@@ -8473,14 +8473,18 @@ function _cartLbEnsure() {
     }
 }
 window.openCartImageZoom = function(id) {
-    _cartLbEnsure();
-    const m = document.getElementById('cartImageLightbox');
-    const img = document.getElementById('cartLightboxImg');
     const item = userCart.find(function(i){ return String(i.id) === String(id); }) || allProducts.find(function(p){ return String(p.id) === String(id); });
     const src = (item && item.image) ? item.image : (allProducts.find(function(p){ return String(p.id) === String(id); }) || {}).image;
     if (!src) { window.location.href = 'product-details.html?id=' + id; return; }
+    window.openImageLightbox(src, item && item.title ? item.title : '');
+};
+window.openImageLightbox = function(src, alt) {
+    _cartLbEnsure();
+    const m = document.getElementById('cartImageLightbox');
+    const img = document.getElementById('cartLightboxImg');
+    if (!src) return;
     img.src = src;
-    img.alt = item && item.title ? item.title : '';
+    img.alt = alt || '';
     _cartLb.scale = 1; _cartLb.tx = 0; _cartLb.ty = 0;
     img.style.transform = '';
     document.getElementById('cartLightboxZoomPct').textContent = '100%';

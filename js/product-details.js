@@ -299,7 +299,7 @@ function displayProduct() {
             var badgesHtml = (typeof window.generateBadges === 'function') ? window.generateBadges(currentProduct, lang) : '';
             mainImageContainer.innerHTML = `
                 ${badgesHtml}
-                <img src="${mainSrc}" alt="${_pdText('title')}" class="main-image" id="mainImage">
+                <img src="${mainSrc}" alt="${_pdText('title')}" class="main-image" id="mainImage" style="cursor:zoom-in;" onclick="window.openCurrentImage(event)" title="${lang==='ar'?'اضغط للتكبير والتحريك':lang==='en'?'Click to zoom & pan':'Cliquez pour zoomer'}" role="button" tabindex="0" onkeydown="if(event.key==='Enter')this.click()">
                 <button class="image-nav-btn prev" onclick="window.prevImage()">
                     <i class="fas fa-chevron-right"></i>
                 </button>
@@ -673,6 +673,12 @@ window.prevImage = function() {
     if (currentImages.length === 0) return;
     currentImageIndex = (currentImageIndex - 1 + currentImages.length) % currentImages.length;
     window.selectImage(currentImageIndex);
+};
+
+window.openCurrentImage = function(event) {
+    if (event) { event.stopPropagation(); event.preventDefault(); }
+    var src = (currentImages && currentImages[currentImageIndex]) || (currentProduct && currentProduct.image);
+    if (src && window.openImageLightbox) window.openImageLightbox(src, (currentProduct && (currentProduct.title || currentProduct.name)) || '');
 };
 
 // ==================== LOAD RELATED PRODUCTS ====================
