@@ -769,6 +769,19 @@ function _filterHidden(type, data) {
     return result;
 }
 
+// إزالة العناصر المحذوفة (trashed) من نسخة الكاش المحلي فقط — القيمة المرجعة تبقى كما هي
+// لأنها ممكن تحتاجها سلة المحذوفات في لوحة الأدمن
+function _cacheCleanTrashed(type, data) {
+    if (!data || typeof data !== 'object' || Array.isArray(data)) return data;
+    const result = { ...data };
+    for (const id of Object.keys(result)) {
+        if (result[id] && typeof result[id] === 'object' && result[id].status === 'trashed') {
+            delete result[id];
+        }
+    }
+    return result;
+}
+
 // ==================== PRODUCT ICON HELPER ====================
 // حدد أيقونة المنتج حسب الفئة (مطلوبة في قاعدة Firebase .validate)
 function _productIcon(category) {
@@ -783,7 +796,7 @@ function _productIcon(category) {
 const DB = {
     ensureAdminAuth: async () => {
         if(!window.firebaseDB) return false;
-        if (window._adminAuthFailed) return false;
+        if (window._adminAuthFailed && Date.now() - (window._adminAuthFailedAt || 0) < 30000) return false;
         try {
             const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
             const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
@@ -817,6 +830,7 @@ const DB = {
                 window.adminDatabase = null;
                 window.adminFirebaseRef = null;
                 window._adminAuthFailed = true;
+                window._adminAuthFailedAt = Date.now();
                 console.warn('Admin auth failed, falling back to unauthenticated database');
                 return false;
             }
@@ -826,6 +840,7 @@ const DB = {
             window.adminDatabase = null;
             window.adminFirebaseRef = null;
             window._adminAuthFailed = true;
+            window._adminAuthFailedAt = Date.now();
             return false;
         }
     },
@@ -895,6 +910,9 @@ const DB = {
                 if (val && typeof val === 'object' && !Array.isArray(val)) {
                     val = _filterHidden(parts[0], val);
                     ptr[parts[parts.length-1]] = val;
+                }
+                if (current[parts[0]] && typeof current[parts[0]] === 'object') {
+                    current[parts[0]] = _cacheCleanTrashed(parts[0], current[parts[0]]);
                 }
                 localStorage.setItem('bravo_local_db', JSON.stringify(current));
                 return val;
@@ -1097,6 +1115,9 @@ const DB = {
                         if (val && typeof val === 'object' && !Array.isArray(val)) {
                             val = _filterHidden(parts[0], val);
                             ptr[parts[parts.length-1]] = val;
+                        }
+                        if (current[parts[0]] && typeof current[parts[0]] === 'object') {
+                            current[parts[0]] = _cacheCleanTrashed(parts[0], current[parts[0]]);
                         }
                         localStorage.setItem('bravo_local_db', JSON.stringify(current));
                         try { callback(val); } catch(err) { console.error('Firebase callback error:', err); }
@@ -8181,6 +8202,9 @@ async function initializeApp() {
         }
     } catch(e) {}
     listenToProducts();
+    // 🔄 Sync any local-only products/orders to Firebase (self-healing on every page)
+    if (typeof _syncLocalProductsToFirebase === 'function') _syncLocalProductsToFirebase();
+    if (typeof _syncLocalOrdersToFirebase === 'function') _syncLocalOrdersToFirebase();
     // Auth (with timeout to prevent hanging)
     try {
         await Promise.race([
@@ -8252,8 +8276,16 @@ async function initializeApp() {
             if (db.products && typeof db.products === 'object') {
                 Object.keys(db.products).forEach(pid => {
                     const p = db.products[pid];
-                    if (!p || typeof p !== 'object' || !p.title || (p.priceEGP === undefined && p.priceUSD === undefined)) {
+                    if (!p || typeof p !== 'object' || !p.title || (p.priceEGP === undefined && p.priceUSD === undefined) || p.status === 'trashed') {
                         delete db.products[pid];
+                    }
+                });
+            }
+            if (db.orders && typeof db.orders === 'object') {
+                Object.keys(db.orders).forEach(oid => {
+                    const o = db.orders[oid];
+                    if (!o || typeof o !== 'object' || o.status === 'trashed') {
+                        delete db.orders[oid];
                     }
                 });
             }
@@ -8324,11 +8356,12 @@ async function initializeApp() {
                             if (!(_s instanceof Error) && _s.exists && _s.exists()) {
                                 var _v = _s.val();
                                 if (_v && typeof _v === 'object') {
+                                    var _cleanV = Object.entries(_v).filter(function(_e){ var _p = _e[1]; return _p && typeof _p === 'object' && _p.title && (_p.priceEGP !== undefined || _p.priceUSD !== undefined) && _p.status !== 'trashed'; }).reduce(function(_acc, _e){ _acc[_e[0]] = _e[1]; return _acc; }, {});
                                     var _c = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
-                                    _c.products = _v;
+                                    _c.products = _cleanV;
                                     localStorage.setItem('bravo_local_db', JSON.stringify(_c));
-                                    console.log('✅ Firebase recovered', Object.keys(_v).length, 'products');
-                                    allProducts = Object.entries(_v).map(function(e){ return { ...e[1], id: e[0] }; }).filter(function(x){ return x && typeof x === 'object' && x.title && (x.priceEGP !== undefined || x.priceUSD !== undefined); });
+                                    console.log('✅ Firebase recovered', Object.keys(_cleanV).length, 'products');
+                                    allProducts = Object.entries(_cleanV).map(function(e){ return { ...e[1], id: e[0] }; });
                                     if (window.currentLang !== 'ar' && typeof autoTranslateProducts === 'function') {
                                         autoTranslateProducts(window.currentLang).catch(function() {});
                                     }
