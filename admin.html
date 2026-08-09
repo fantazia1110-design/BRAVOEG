@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="shared/css/components.css?v=16">
     <link rel="stylesheet" href="shared/css/product-card.css?v=14">
     <link rel="stylesheet" href="shared/css/responsive.css?v=16">
-    <link rel="stylesheet" href="css/admin2.css?v=103">            
+    <link rel="stylesheet" href="css/admin2.css?v=104">            
     <style>
         /* Sidebar brand animations - defined here for reliability */
         @keyframes logoFloatSidebar { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
@@ -303,18 +303,21 @@
                     <a href="#" onclick="switchTab('products');return false;" role="menuitem" class="tab-link" data-tab="products">
                         <i class="fas fa-box-open" aria-hidden="true"></i>
                         <span data-ar="المنتجات" data-en="Products" data-fr="Produits">المنتجات</span>
+                        <span class="tab-badge nav-tab-badge" id="navProductsCount">0</span>
                     </a>
                 </li>
                 <li role="none">
                     <a href="#" onclick="switchTab('orders');return false;" role="menuitem" class="tab-link" data-tab="orders">
                         <i class="fas fa-shopping-cart" aria-hidden="true"></i>
                         <span data-ar="الطلبات" data-en="Orders" data-fr="Commandes">الطلبات</span>
+                        <span class="tab-badge nav-tab-badge" id="navOrdersCount">0</span>
                     </a>
                 </li>
                 <li role="none">
                     <a href="#" onclick="switchTab('pages');return false;" role="menuitem" class="tab-link" data-tab="pages">
                         <i class="fas fa-file-alt" aria-hidden="true"></i>
                         <span data-ar="الصفحات" data-en="Pages" data-fr="Pages">الصفحات</span>
+                        <span class="tab-badge nav-tab-badge" id="navPagesCount">0</span>
                     </a>
                 </li>
                 <li role="none">
@@ -382,6 +385,14 @@
             document.getElementById('navMenu')?.classList.remove('active');
         });
     });
+    function syncNavBadges() {
+        var map = [['sidebarProductsCount','navProductsCount'],['ordersCount','navOrdersCount'],['sidebarPagesCount','navPagesCount']];
+        map.forEach(function(pair) {
+            var src = document.getElementById(pair[0]), dst = document.getElementById(pair[1]);
+            if (src && dst) dst.textContent = src.textContent;
+        });
+    }
+    document.addEventListener('DOMContentLoaded', function() { syncNavBadges(); setInterval(syncNavBadges, 1500); });
     </script>
 
     <!-- Particles Background -->
