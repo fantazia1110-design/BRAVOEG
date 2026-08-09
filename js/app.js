@@ -8015,18 +8015,54 @@ window.forceDeleteItem = async function(type, id, event) {
     }
 };
 
+// قراءة كل العناصر المحذوفة (trashed) من Firebase والمصادر المحلية بدون فلتر العناصر المخفية
+// — ضرورية حتى يُفرّغ إفراغ السلة قاعدة البيانات بالكامل وليس فقط العناصر الظاهرة فقط
+async function _readAllTrashed(type) {
+    const map = {};
+    const typeKey = type === 'page' ? 'pages' : type + 's';
+    const path = type === 'page' ? 'settings/pages' : typeKey;
+    try {
+        const local = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
+        const localMap = type === 'page' ? (local.settings && local.settings.pages) : local[typeKey];
+        if (localMap && typeof localMap === 'object') {
+            for (const k in localMap) { if (localMap[k] && localMap[k].status === 'trashed') map[k] = localMap[k]; }
+        }
+    } catch(e) {}
+    if (window.localTrashData && window.localTrashData[typeKey]) {
+        for (const k in window.localTrashData[typeKey]) map[k] = window.localTrashData[typeKey][k];
+    }
+    if (window.firebaseDB) {
+        try {
+            await DB.ensureAdminAuth();
+            const db = window.adminDatabase || database;
+            const rf = window.adminFirebaseRef || window.firebaseRef;
+            const s = await window.firebaseGet(rf(db, path));
+            if (s && !(s instanceof Error) && s.exists && s.exists()) {
+                const raw = s.val();
+                if (raw && typeof raw === 'object') {
+                    for (const k in raw) { if (raw[k] && raw[k].status === 'trashed') map[k] = raw[k]; }
+                }
+            }
+        } catch(e) { console.error('Read all trashed error:', e); }
+    }
+    return map;
+}
+
 window.emptyTrash = async function() {
     const ok = await showConfirmDialog('⚠️ إفراغ السلة', 'سيتم حذف جميع العناصر في السلة بشكل نهائي ولا يمكن استعادتها!', 'إفراغ نهائي', 'إلغاء');
     if(ok) {
         showToast('⏳', 'جاري إفراغ السلة...', 'info');
         
         try {
-            const pagesSettings = await DB.get('settings/pages') || {};
-            for (const id in pagesSettings) { if (pagesSettings[id].status === 'trashed') { _addHidden('pages', id); await DB.remove(`settings/pages/${id}`); } }
-            const productsData = await DB.get('products') || {};
-            for (const id in productsData) { if (productsData[id].status === 'trashed') { _addHidden('products', id); await DB.remove(`products/${id}`); } }
-            const ordersData = await DB.get('orders') || {};
-            for (const id in ordersData) { if (ordersData[id].status === 'trashed') { _addHidden('orders', id); await DB.remove(`orders/${id}`); } }
+            const types = ['page', 'product', 'order'];
+            for (const type of types) {
+                const trashedMap = await _readAllTrashed(type);
+                for (const id in trashedMap) {
+                    const path = type === 'page' ? `settings/pages/${id}` : `${type}s/${id}`;
+                    _addHidden(type === 'page' ? 'pages' : type + 's', id);
+                    try { await DB.remove(path); } catch(e) { console.warn('Empty trash remove error:', e); }
+                }
+            }
         } catch(e) { console.error('Empty trash error:', e); }
         
         window.localTrashData = { products: {}, orders: {}, pages: {} };
