@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+?<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -17,9 +17,9 @@
     
     <link rel="stylesheet" href="shared/css/global.css?v=15">
     <link rel="stylesheet" href="shared/css/toast.css?v=5">
-    <link rel="stylesheet" href="shared/css/header.css?v=29">
+    <link rel="stylesheet" href="shared/css/header.css?v=33">
     <link rel="stylesheet" href="shared/css/footer.css?v=15">
-    <link rel="stylesheet" href="shared/css/responsive.css?v=15">
+    <link rel="stylesheet" href="shared/css/responsive.css?v=16">
     <link rel="stylesheet" href="shared/css/components.css?v=15">
     <link rel="stylesheet" href="shared/css/reveal.css?v=1">
     <link rel="stylesheet" href="shared/css/quick-view.css?v=22">
@@ -81,7 +81,7 @@
     <!-- Dropdown Overlay -->
     <div class="dropdown-overlay" id="dropdownOverlay"></div>
 
-    <header role="banner">
+    <header role="banner" style="visibility:hidden;">
         <nav role="navigation" aria-label="Main Navigation">
             <!-- Logo -->
             <a href="index.html" class="logo" aria-label="BRAVO Home">
@@ -153,6 +153,7 @@
                 <a href="orders.html" role="menuitem">
                     <i class="fas fa-box"></i>
                     <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+                    <span class="action-badge" id="ordersBadge">0</span>
                 </a>
             </li>
 
@@ -585,9 +586,9 @@
     </a>
 
     <!-- Main JavaScript -->
-    <script src="js/include.js?v=21"></script>
-    <script src="js/app.js?v=20260727cbt"></script>
-    <script type="module" src="firebase-config.js"></script>
+    <script src="js/include.js?v=25"></script>
+    <script src="js/app.js?v=20260810r"></script>
+    <script type="module" src="firebase-config.js?v=20260810r"></script>
     <script>initPageHero();</script>
     <script>
     function revealElement(el) {

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+?<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -14,7 +14,7 @@
     <!-- Main CSS -->
     <link rel="stylesheet" href="shared/css/global.css">
     <link rel="stylesheet" href="shared/css/toast.css?v=5">
-    <link rel="stylesheet" href="shared/css/header.css?v=22">
+    <link rel="stylesheet" href="shared/css/header.css?v=33">
     <link rel="stylesheet" href="shared/css/footer.css">
     <link rel="stylesheet" href="shared/css/responsive.css?v=16">
     <link rel="stylesheet" href="shared/css/components.css">
@@ -49,7 +49,7 @@
     <div class="dropdown-overlay" id="dropdownOverlay"></div>
 
     <!-- Header -->
-    <header role="banner">
+    <header role="banner" style="visibility:hidden;">
         <nav role="navigation" aria-label="Main Navigation">
             <!-- Logo -->
             <a href="index.html" class="logo" aria-label="BRAVO Home">
@@ -85,7 +85,7 @@
                 </li>
                 <!-- Conditional -->
                 <li class="conditional-nav-item nav-item-wishlist" data-page="wishlist.html" style="display:none;">
-                    <a href="Wishlist.html" role="menuitem">
+                    <a href="wishlist.html" role="menuitem">
                         <i class="fas fa-heart"></i>
                         <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
                         <span class="action-badge" id="wishlistBadge">0</span>
@@ -114,6 +114,7 @@
                     <a href="orders.html" role="menuitem">
                         <i class="fas fa-box"></i>
                         <span data-ar="طلباتي" data-en="My Orders" data-fr="Mes commandes">طلباتي</span>
+                        <span class="action-badge" id="ordersBadge">0</span>
                     </a>
                 </li>
                 <!-- المنتجات -->
@@ -141,7 +142,7 @@
                 <li class="nav-menu-divider" role="separator"><span data-ar="التسوق" data-en="Shopping" data-fr="Achats">التسوق</span></li>
                 <!-- Mobile: wishlist -->
                 <li class="mobile-action-item" role="none">
-                    <a class="mobile-action-btn" href="Wishlist.html">
+                    <a class="mobile-action-btn" href="wishlist.html">
                         <i class="fas fa-heart"></i>
                         <span data-ar="المفضلة" data-en="Wishlist" data-fr="Favoris">المفضلة</span>
                         <span class="action-badge" id="wishlistBadgeMobile">0</span>
@@ -229,6 +230,16 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Orders -->
+                <div class="action-btn-wrapper">
+                    <a href="orders.html" class="action-btn" aria-label="طلباتي">
+                        <i class="fas fa-box" aria-hidden="true"></i>
+                        <span class="action-badge" id="ordersBadge" style="display: none;">0</span>
+                    </a>
+                    <span class="action-label" data-ar="طلباتي" data-en="Orders" data-fr="Commandes">طلباتي</span>
+                </div>
+
                 <!-- Cart -->
                 <div class="action-btn-wrapper dropdown" id="cartDropdown">
                     <button class="action-btn" onclick="toggleDropdown('cartDropdown')" aria-label="سلة التسوق" aria-haspopup="true" aria-expanded="false">
@@ -320,16 +331,16 @@
         <div class="wishlist-actions reveal" id="wishlistActions" style="display: none;">
             <div class="wishlist-count">
                 <i class="fas fa-heart"></i>
-                لديك <span id="wishlistCount">0</span> منتج في المفضلة
+                <span data-ar="لديك <span id=&quot;wishlistCount&quot;>0</span> منتج في المفضلة" data-en="You have <span id=&quot;wishlistCount&quot;>0</span> products in wishlist" data-fr="Vous avez <span id=&quot;wishlistCount&quot;>0</span> produit(s)">لديك <span id="wishlistCount">0</span> منتج في المفضلة</span>
             </div>
             <div class="action-buttons">
                 <button class="action-btn btn-primary" onclick="addAllToCart()">
                     <i class="fas fa-cart-plus"></i>
-                    إضافة الكل للسلة
+                    <span data-ar="إضافة الكل للسلة" data-en="Add All to Cart" data-fr="Tout ajouter au panier">إضافة الكل للسلة</span>
                 </button>
                 <button class="action-btn btn-danger" onclick="clearWishlistLocal()">
                     <i class="fas fa-trash-alt"></i>
-                    مسح الكل
+                    <span data-ar="مسح الكل" data-en="Clear All" data-fr="Tout effacer">مسح الكل</span>
                 </button>
             </div>
         </div>
@@ -338,13 +349,13 @@
 
         <div class="empty-state reveal" id="emptyState" style="display: none;">
             <div class="heart-icon"><i class="fas fa-heart-broken"></i></div>
-            <h3>المفضلة فارغة</h3>
-            <p>لم تقم بإضافة أي منتجات إلى قائمة المفضلة بعد.<br>ابدأ باستكشاف منتجاتنا الرائعة وأضف ما يعجبك!</p>
+            <h3><span data-ar="المفضلة فارغة" data-en="Wishlist is Empty" data-fr="Liste de favoris vide">المفضلة فارغة</span></h3>
+            <p><span data-ar="لم تقم بإضافة أي منتجات إلى قائمة المفضلة بعد.<br>ابدأ باستكشاف منتجاتنا الرائعة وأضف ما يعجبك!" data-en="You haven't added any products yet.<br>Explore our products and add your favorites!" data-fr="Vous n'avez encore rien ajouté.<br>Explorez nos produits et ajoutez vos favoris !">لم تقم بإضافة أي منتجات إلى قائمة المفضلة بعد.<br>ابدأ باستكشاف منتجاتنا الرائعة وأضف ما يعجبك!</span></p>
         </div>
 
         <div class="wishlist-footer reveal">
-            <a href="index.html" class="back-home-btn"><i class="fas fa-arrow-right"></i> العودة للرئيسية</a>
-            <a href="products.html" class="continue-shop-btn"><i class="fas fa-store"></i> متابعة التسوق</a>
+            <a href="index.html" class="back-home-btn"><i class="fas fa-arrow-right"></i> <span data-ar="العودة للرئيسية" data-en="Back to Home" data-fr="Retour à l'accueil">العودة للرئيسية</span></a>
+            <a href="products.html" class="continue-shop-btn"><i class="fas fa-store"></i> <span data-ar="متابعة التسوق" data-en="Continue Shopping" data-fr="Continuer les achats">متابعة التسوق</span></a>
         </div>
     </div>
 
@@ -404,8 +415,8 @@
     </footer>
 
     <!-- Main JavaScript -->
-    <script src="js/include.js?v=20"></script>
-    <script src="js/app.js?v=20260722t"></script>
+    <script src="js/include.js?v=25"></script>
+    <script src="js/app.js?v=20260810r"></script>
     <script>initPageHero();</script>
 
     <!-- Scroll Reveal (matches homepage) -->
