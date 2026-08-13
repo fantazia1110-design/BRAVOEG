@@ -1,7 +1,7 @@
 // ==================== FIREBASE CONFIGURATION ====================
 // File: firebase-config.js
 // Description: Firebase Realtime Database & ImgBB Integration
-// Version: 3.0 - Fixed & Ready to Use
+// Version: 3.1 - Fixed testConnection (onValue instead of get)
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
@@ -537,16 +537,30 @@ const firebaseDB = {
     },
 
     async testConnection() {
-        try {
-            const testRef = ref(database, '.info/connected');
-            const snapshot = await get(testRef);
-            const isConnected = snapshot.exists();
-            console.log(isConnected ? '✅ Firebase Connected' : '❌ Disconnected');
-            return isConnected;
-        } catch (error) {
-            console.error('❌ Connection test failed:', error);
-            return false;
-        }
+        return new Promise((resolve) => {
+            try {
+                const connectedRef = ref(database, '.info/connected');
+                let settled = false;
+                const done = (result) => {
+                    if (settled) return;
+                    settled = true;
+                    if (typeof unsub === 'function') unsub();
+                    console.log(result ? '✅ Firebase Connected' : '❌ Disconnected');
+                    resolve(result);
+                };
+                let unsub = null;
+                unsub = onValue(connectedRef, (snap) => {
+                    if (snap.val() === true) done(true);
+                }, (error) => {
+                    console.error('❌ Connection test failed:', error);
+                    done(false);
+                });
+                setTimeout(() => done(false), 8000);
+            } catch (error) {
+                console.error('❌ Connection test failed:', error);
+                resolve(false);
+            }
+        });
     }
 };
 

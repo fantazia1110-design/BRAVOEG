@@ -1502,7 +1502,7 @@ function updatePriceRange() { const min = document.getElementById('priceMin'); c
 window.updatePriceRange = updatePriceRange;
 window.updatePriceFromInput = function(el, type) { let v = Math.round(parseInt(el.value) / 10) * 10 || 0; if (v < 0) v = 0; const slider = document.getElementById(type === 'min' ? 'priceMin' : 'priceMax'); const otherSlider = document.getElementById(type === 'min' ? 'priceMax' : 'priceMin'); if (slider) { if (v > parseInt(slider.max)) v = parseInt(slider.max); el.value = v; slider.value = v; if (otherSlider) { let otherV = Math.round(parseInt(otherSlider.value) / 10) * 10 || 0; if (type === 'min' && v > otherV) { otherSlider.value = v; const otherInput = document.getElementById('priceInputMax'); if (otherInput) otherInput.value = v; } else if (type === 'max' && v < otherV) { otherSlider.value = v; const otherInput = document.getElementById('priceInputMin'); if (otherInput) otherInput.value = v; } } updatePriceRange(); } };
 
-function updateStats() { const s = document.getElementById('totalProductsStat'); if (s) { let c = 0; const t = allProducts.length; const timer = setInterval(() => { c += Math.ceil(t / 50); if (c >= t) { s.textContent = t; clearInterval(timer); } else s.textContent = Math.floor(c); }, 30); } }
+function updateStats() { const s = document.getElementById('totalProducts'); if (s) { let c = 0; const t = allProducts.length; const timer = setInterval(() => { c += Math.ceil(t / 50); if (c >= t) { s.textContent = t; clearInterval(timer); } else s.textContent = Math.floor(c); }, 30); } }
 
 // ╔══════════════════════════════════════════════════════════════════════════════════╗
 // ║   🛒 نظام السلة والمفضلة المطور (Enhanced Cart & Wishlist System)              ║
@@ -3004,43 +3004,43 @@ function showCheckoutLoading() { if (!window._checkoutLoadingStart) window._chec
 function updateNotificationsBadge() {
     const count = userNotifications.filter(n => !n.read).length;
     ['notificationsBadge', 'notificationsBadgeMobile'].forEach(id => {
-        const b = document.getElementById(id);
-        if (!b) return;
-        b.textContent = count > 99 ? '99+' : count;
-        b.style.display = count > 0 ? 'flex' : 'none';
-        if (count > 0) {
-            b.classList.remove('bump');
-            void b.offsetWidth;
-            b.classList.add('bump');
-        }
+        document.querySelectorAll('#' + CSS.escape(id)).forEach(b => {
+            b.textContent = count > 99 ? '99+' : count;
+            b.style.display = count > 0 ? 'flex' : 'none';
+            if (count > 0) {
+                b.classList.remove('bump');
+                void b.offsetWidth;
+                b.classList.add('bump');
+            }
+        });
     });
 }
 function updateWishlistBadge() {
     const count = userWishlist.length;
     ['wishlistBadge', 'wishlistBadgeMobile'].forEach(id => {
-        const b = document.getElementById(id);
-        if (!b) return;
-        b.textContent = count > 99 ? '99+' : count;
-        b.style.display = count > 0 ? 'flex' : 'none';
-        if (count > 0) {
-            b.classList.remove('bump');
-            void b.offsetWidth;
-            b.classList.add('bump');
-        }
+        document.querySelectorAll('#' + CSS.escape(id)).forEach(b => {
+            b.textContent = count > 99 ? '99+' : count;
+            b.style.display = count > 0 ? 'flex' : 'none';
+            if (count > 0) {
+                b.classList.remove('bump');
+                void b.offsetWidth;
+                b.classList.add('bump');
+            }
+        });
     });
 }
 function updateCartBadge() {
     const count = userCart.reduce((a,b) => a + ((b && b.quantity) || 1), 0);
     ['cartBadge', 'cartBadgeMobile'].forEach(id => {
-        const b = document.getElementById(id);
-        if (!b) return;
-        b.textContent = count > 99 ? '99+' : count;
-        b.style.display = count > 0 ? 'flex' : 'none';
-        if (count > 0) {
-            b.classList.remove('bump');
-            void b.offsetWidth;
-            b.classList.add('bump');
-        }
+        document.querySelectorAll('#' + CSS.escape(id)).forEach(b => {
+            b.textContent = count > 99 ? '99+' : count;
+            b.style.display = count > 0 ? 'flex' : 'none';
+            if (count > 0) {
+                b.classList.remove('bump');
+                void b.offsetWidth;
+                b.classList.add('bump');
+            }
+        });
     });
 }
 
@@ -3049,15 +3049,15 @@ function updateOrdersBadge() {
     try { localStorage.setItem(STORAGE_KEYS.ordersCount, String(count)); } catch(e) {}
     const prevCount = parseInt(localStorage.getItem(STORAGE_KEYS.ordersCount + '_prev') || '-1');
     ['ordersBadge', 'ordersBadgeMobile'].forEach(id => {
-        const b = document.getElementById(id);
-        if (!b) return;
-        b.textContent = count > 99 ? '99+' : count;
-        b.style.display = count > 0 ? 'flex' : 'none';
-        if (count > 0 && count !== prevCount) {
-            b.classList.remove('bump');
-            void b.offsetWidth;
-            b.classList.add('bump');
-        }
+        document.querySelectorAll('#' + CSS.escape(id)).forEach(b => {
+            b.textContent = count > 99 ? '99+' : count;
+            b.style.display = count > 0 ? 'flex' : 'none';
+            if (count > 0 && count !== prevCount) {
+                b.classList.remove('bump');
+                void b.offsetWidth;
+                b.classList.add('bump');
+            }
+        });
     });
     try { localStorage.setItem(STORAGE_KEYS.ordersCount + '_prev', String(count)); } catch(e) {}
 }
@@ -4172,7 +4172,6 @@ function initializeParticles() {
 
 function hideLoadingScreen() { const l = document.getElementById('loadingScreen'); if (!l) return; l.style.opacity = '0'; setTimeout(() => { l.classList.add('hidden'); l.style.display = 'none'; }, 800); }
 function animateCounters() { document.querySelectorAll('.stat-number[data-count]').forEach(c => { if (c.dataset.animated) return; c.dataset.animated = 'true'; const t = parseInt(c.getAttribute('data-count')), s = t / 125; let cur = 0; const update = () => { cur += s; if (cur < t) { c.textContent = Math.floor(cur); requestAnimationFrame(update); } else c.textContent = t; }; update(); }); }
-function animateCounters() { document.querySelectorAll('.stat-number[data-count]').forEach(c => { if (c.dataset.animated) return; c.dataset.animated = 'true'; const t = parseInt(c.getAttribute('data-count')), s = t / 125; let cur = 0; const update = () => { cur += s; if (cur < t) { c.textContent = Math.floor(cur); requestAnimationFrame(update); } else c.textContent = t; }; update(); }); }
 
 // ==================== ADMIN LOGIN SYSTEM ====================
 function isLockedOut() { if (lockoutTime > Date.now()) return true; if (lockoutTime > 0 && lockoutTime <= Date.now()) { loginAttempts = 0; lockoutTime = 0; sessionStorage.setItem('loginAttempts', '0'); sessionStorage.setItem('lockoutTime', '0'); } return false; }
@@ -4773,12 +4772,6 @@ function loadAdminOrders() {
         if (ac) ac.textContent = orders.length; if (pc) pc.textContent = pending; if (sc) sc.textContent = suspended; if (cc) cc.textContent = confirmed; if (rc) rc.textContent = rejected;
         window.allOrders = orders;
         
-        const adminNotifBadge = document.getElementById('adminNotifBadge');
-        if (adminNotifBadge) {
-            adminNotifBadge.textContent = pending > 99 ? '99+' : pending;
-            adminNotifBadge.style.display = pending > 0 ? 'flex' : 'none';
-        }
-
         applyAdminOrdersFilter();
         if(typeof initDashboardCharts === 'function') initDashboardCharts(orders);
 
@@ -8771,7 +8764,7 @@ window.mergeGuestWishlistToUser = async function(userId) {
         if (!Array.isArray(guestWishlist) || guestWishlist.length === 0) { console.log("✅ [Merge] مفضلة الضيف فارغة."); return; }
         console.log("❤️ [Merge] مفضلة الضيف:", guestWishlist);
 
-        const fbWishlistRaw = await DB.get(`wishlist/${userId}`);
+        const fbWishlistRaw = await DB.get(`wishlists/${userId}`);
         console.log("☁️ [Merge] مفضلة المستخدم الحالية:", fbWishlistRaw);
 
         let fbWishlist = [];
@@ -8785,8 +8778,11 @@ window.mergeGuestWishlistToUser = async function(userId) {
         const cleanMerged = merged.filter(item => item && item.id && item.id !== 'undefined' && item.title && item.title !== 'undefined');
         console.log("🔀 [Merge] المفضلة المدمجة (بعد التنظيف):", cleanMerged);
 
-        await DB.set(`wishlist/${userId}`, cleanMerged);
-        console.log("💾 [Merge] تم حفظ المفضلة.");
+        // تحويل المصفوفة إلى كائن keyed by productId للتوافق مع toggleWishlist/DB.on
+        const mergedObject = {};
+        cleanMerged.forEach(item => { if (item && item.id) mergedObject[item.id] = item; });
+        await DB.set(`wishlists/${userId}`, mergedObject);
+        console.log("💾 [Merge] تم حفظ المفضلة (ككائن).");
 
         localStorage.removeItem(STORAGE_KEYS.wishlist);
         userWishlist = cleanMerged;
@@ -9431,21 +9427,6 @@ window.updatePriceRange = function() {
         
         if (window.filterUserOrdersWithSearch) window.filterUserOrdersWithSearch();
     } catch(e) {}
-};
-
-window.updatePriceFromInput = function(input, type) {
-    const priceMinEl = document.getElementById('priceMin');
-    const priceMaxEl = document.getElementById('priceMax');
-    const inpMin = document.getElementById('priceInputMin');
-    const inpMax = document.getElementById('priceInputMax');
-    
-    if (type === 'min' && priceMinEl && inpMin) {
-        priceMinEl.value = inpMin.value;
-    }
-    if (type === 'max' && priceMaxEl && inpMax) {
-        priceMaxEl.value = inpMax.value;
-    }
-    window.updatePriceRange();
 };
 
 // Initialize price slider max based on orders
