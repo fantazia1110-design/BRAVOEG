@@ -62,9 +62,6 @@ if (window.database) {
 // ==================== ImgBB API KEY ====================
 const IMGBB_API_KEY = "533ce68054fa8f013b543214a219f800"; // ✅ Your API Key
 
-// ==================== ADMIN SECRET KEY ====================
-const ADMIN_SECRET_KEY = 'BRAVO_ali_hossam';
-
 // ==================== FIREBASE DATABASE MANAGER ====================
 const firebaseDB = {
     
@@ -570,8 +567,7 @@ const firebaseDB = {
 
 // ==================== GLOBAL EXPORTS ====================
 window.firebaseDB = firebaseDB;
-window.ADMIN_SECRET_KEY = ADMIN_SECRET_KEY;
 window.IMGBB_API_KEY = IMGBB_API_KEY;
 
-export { database, storage, IMGBB_API_KEY, ADMIN_SECRET_KEY };
+export { database, storage, IMGBB_API_KEY };
 export default firebaseDB;

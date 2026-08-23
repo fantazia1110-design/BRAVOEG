@@ -2,47 +2,59 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    // Products Images - صور المنتجات
-    match /products/{imageId} {
-      allow read: if true;
-      allow write: if request.resource.size < 5 * 1024 * 1024
-                   && request.resource.contentType.matches('image/(jpeg|jpg|png|gif|webp|bmp)');
-      allow delete: if true;
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'hossamsala711@gmail.com';
     }
 
-    // Product Videos - فيديو المنتجات
+    // Products Images - صور المنتجات (للأدمن فقط)
+    match /products/{imageId} {
+      allow read: if true;
+      allow write: if isAdmin() && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/(jpeg|jpg|png|gif|webp|bmp)');
+      allow delete: if isAdmin();
+    }
+
+    // Product Videos - فيديو المنتجات (للأدمن فقط)
     match /videos/{videoId} {
       allow read: if true;
-      allow write: if request.resource.size < 200 * 1024 * 1024
+      allow write: if isAdmin() && request.resource.size < 200 * 1024 * 1024
                    && request.resource.contentType.matches('video/.*');
-      allow delete: if true;
+      allow delete: if isAdmin();
     }
-    
-    // Orders/Transfer Proofs - إيصالات التحويل
+
+    // Orders/Transfer Proofs - إيصالات التحويل (للمسجلين فقط)
     match /orders/{imageId} {
       allow read: if true;
-      allow write: if request.resource.size < 5 * 1024 * 1024
+      allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024
                    && request.resource.contentType.matches('image/(jpeg|jpg|png|gif|webp|bmp)');
-      allow delete: if true;
+      allow delete: if isAdmin();
     }
-    
-    // Receipts - مجلد خاص بالإيصالات
+
+    // Receipts - مجلد خاص بالإيصالات (رفع مقيد بالحجم والنوع، بدون حذف)
     match /receipts/{receiptId} {
       allow read: if true;
       allow write: if request.resource.size < 5 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
       allow delete: if false;
     }
-    
-    // Temporary uploads - رفع مؤقت
+
+    // User Avatars - صور الملف الشخصي (للمسجلين فقط)
+    match /avatars/{avatarId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/(jpeg|jpg|png|gif|webp|bmp)');
+      allow delete: if isAdmin();
+    }
+
+    // Temporary uploads - رفع مؤقت (الحذف للأدمن فقط)
     match /temp/{imageId} {
       allow read: if true;
       allow write: if request.resource.size < 5 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
-      allow delete: if true;
+      allow delete: if isAdmin();
     }
-    
+
     // Default - القاعدة الافتراضية
     match /{allPaths=**} {
       allow read: if true;

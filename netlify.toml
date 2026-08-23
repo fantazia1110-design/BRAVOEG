@@ -56,22 +56,22 @@
 
 [[redirects]]
   from = "/wishlist"
-  to = "/Wishlist.html"
+  to = "/wishlist.html"
   status = 200
 
 [[redirects]]
   from = "/wishlist/*"
-  to = "/Wishlist.html"
+  to = "/wishlist.html"
   status = 200
 
 [[redirects]]
   from = "/profile"
-  to = "/Profile.html"
+  to = "/profile.html"
   status = 200
 
 [[redirects]]
   from = "/profile/*"
-  to = "/Profile.html"
+  to = "/profile.html"
   status = 200
 
 [[redirects]]
@@ -111,7 +111,7 @@
 
 [[redirects]]
   from = "/pending"
-  to = "/pending.html"
+  to = "/pending-order.html"
   status = 200
 
 [[redirects]]

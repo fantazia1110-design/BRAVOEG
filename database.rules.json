@@ -3,9 +3,17 @@
     ".read": false,
     ".write": false,
 
+    "admins": {
+      ".read": "auth != null && (auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true)",
+      ".write": "auth != null && (auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true)",
+      "$uid": {
+        ".validate": "newData.isBoolean()"
+      }
+    },
+
     "products": {
       ".read": true,
-      ".write": "auth != null && auth.token.email === 'admin@bravostore.com'",
+      ".write": "auth != null && (auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true)",
       ".indexOn": ["createdAt", "category", "title"],
       "$productId": {
         ".validate": "newData.hasChildren(['title', 'category', 'description', 'downloadLink', 'createdAt']) && (newData.hasChild('priceEGP') || newData.hasChild('priceUSD'))"
@@ -13,35 +21,75 @@
     },
 
     "orders": {
-      ".read": true,
-      ".write": "auth != null && auth.token.email === 'admin@bravostore.com'",
-      ".indexOn": ["status", "orderDate", "createdAt", "customerEmail"],
+      ".read": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || (query.orderByChild == 'userId' && query.equalTo == auth.uid))",
+      ".write": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || (!data.exists() && (newData.child('userId').val() === auth.uid || newData.child('userId').val() === 'guest')))",
+      ".indexOn": ["userId", "status", "orderDate", "createdAt", "customerEmail"],
       "$orderId": {
+        ".read": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || data.child('userId').val() === auth.uid)",
+        ".write": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || (!data.exists() && (newData.child('userId').val() === auth.uid || newData.child('userId').val() === 'guest')))",
         ".validate": "newData.hasChildren(['orderId', 'productTitle', 'price', 'currency', 'paymentMethod', 'customerName', 'customerEmail', 'customerPhone', 'status', 'orderDate']) && newData.child('productTitle').isString() && newData.child('productTitle').val() != ''"
+      }
+    },
+
+    "users": {
+      ".read": "auth != null && (auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true)",
+      ".write": "auth != null && (auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true)",
+      ".indexOn": ["createdAt", "email", "phone"],
+      "$uid": {
+        ".read": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || auth.uid === $uid)",
+        ".write": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || auth.uid === $uid)"
+      }
+    },
+
+    "carts": {
+      "$uid": {
+        ".read": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || auth.uid === $uid)",
+        ".write": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || auth.uid === $uid)"
+      }
+    },
+
+    "wishlists": {
+      "$uid": {
+        ".read": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || auth.uid === $uid)",
+        ".write": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || auth.uid === $uid)"
+      }
+    },
+
+    "notifications": {
+      "$uid": {
+        ".read": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || auth.uid === $uid)",
+        ".write": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || auth.uid === $uid)"
+      }
+    },
+
+    "profiles": {
+      "$profileId": {
+        ".read": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || auth.uid === $profileId)",
+        ".write": "auth != null && ((auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true) || auth.uid === $profileId)",
+        ".validate": "newData.hasChildren(['updatedAt'])"
       }
     },
 
     "stats": {
       ".read": true,
-      ".write": "auth != null && auth.token.email === 'admin@bravostore.com'"
+      ".write": "auth != null && (auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true)"
     },
 
     "pages_content": {
       ".read": true,
-      ".write": "auth != null && auth.token.email === 'admin@bravostore.com'"
+      ".write": "auth != null && (auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true)"
     },
 
     "settings": {
       ".read": true,
-      ".write": "auth != null && auth.token.email === 'admin@bravostore.com'"
+      ".write": "auth != null && (auth.token.email === 'hossamsala711@gmail.com' || root.child('admins/' + auth.uid).val() === true)"
     },
 
-    "profiles": {
+    "meta": {
       ".read": true,
-      ".write": true,
-      ".indexOn": ["phoneNumber", "email", "updatedAt"],
-      "$profileId": {
-        ".validate": "newData.hasChildren(['updatedAt'])"
+      "orderCounter": {
+        ".write": "true",
+        ".validate": "newData.hasChild('value') && newData.child('value').isNumber() && newData.child('value').val() >= 0 && newData.child('value').val() < 2000000"
       }
     }
   }

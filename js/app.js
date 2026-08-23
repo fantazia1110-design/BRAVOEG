@@ -19,7 +19,6 @@ let APP_CONFIG = {
     defaultLanguage: 'ar',
     defaultTheme: 'dark',
     defaultCountry: 'EG',
-    adminPasscode: 'BRAVO_ali_hossam',
     whatsappNumber: '201012853829',
     telegramBotToken: '8927788870:AAFWeMFWlycHgbDM_rlLsjzGzve1Zul6GhU',
     telegramChatId: '1468116938',
@@ -32,11 +31,6 @@ let APP_CONFIG = {
     }
 };
 window.APP_CONFIG = APP_CONFIG;
-
-let ADMIN_CREDENTIALS = {
-    username: 'energyalihossam',
-    password: 'ali01012853829ali'
-};
 
 const MAX_LOGIN_ATTEMPTS = 5;
 
@@ -562,7 +556,7 @@ const SYSTEM_PAGES = [
     { id: 'settings', title: 'الإعدادات', slug: 'settings.html', type: 'نظام' },
     { id: 'auth', title: 'المصادقة (تسجيل)', slug: 'auth.html', type: 'نظام' },
     { id: 'login', title: 'تسجيل الدخول', slug: 'login.html', type: 'نظام' },
-    { id: 'pending', title: 'قيد المراجعة', slug: 'pending.html', type: 'نظام' },
+    { id: 'pending', title: 'قيد المراجعة', slug: 'pending-order.html', type: 'نظام' },
     { id: 'confirmation', title: 'تأكيد الدفع', slug: 'confirmation.html', type: 'نظام' },
     { id: 'download', title: 'صفحة التحميل', slug: 'download.html', type: 'نظام' },
     { id: '404', title: 'الصفحة غير موجودة', slug: '404.html', type: 'نظام' },
@@ -688,8 +682,8 @@ async function initializeFirebase() {
             ]);
         };
         const { initializeApp } = await _impt("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
-        const { getDatabase, ref, get, set, update, remove, push, onValue, off } = await _impt("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
-        const { getAuth, onAuthStateChanged, signOut } = await _impt("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
+        const { getDatabase, ref, get, set, update, remove, push, onValue, off, query, orderByChild, equalTo } = await _impt("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
+        const { getAuth, onAuthStateChanged, signOut, updatePassword } = await _impt("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
         const { getStorage, ref: storageRef, uploadBytes, uploadBytesResumable, getDownloadURL } = await _impt("https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js");
         app = initializeApp(FIREBASE_CONFIG);
         database = getDatabase(app);
@@ -702,6 +696,8 @@ async function initializeFirebase() {
         window.firebaseRef = ref; window.firebaseGet = get; window.firebaseSet = set;
         window.firebaseUpdate = update; window.firebaseRemove = remove; window.firebasePush = push;
         window.firebaseOnValue = onValue; window.firebaseOff = off;
+        window.firebaseQuery = query; window.firebaseOrderByChild = orderByChild; window.firebaseEqualTo = equalTo;
+        window.firebaseUpdatePassword = updatePassword;
         window.firebaseSignOut = signOut; window.firebaseOnAuthStateChanged = onAuthStateChanged;
         window.firebaseStorageRef = storageRef; window.firebaseUploadBytes = uploadBytes;
         window.firebaseUploadBytesResumable = uploadBytesResumable;
@@ -795,54 +791,11 @@ function _productIcon(category) {
 
 const DB = {
     ensureAdminAuth: async () => {
+        // 🔒 الأمان: لم نعد نسجل الدخول تلقائياً بحساب أدمن مدمج في الواجهة.
+        // جميع عمليات DB تعمل بجلسة المستخدم الحالية (database) وقواعد Firebase
+        // هي التي تفرض الصلاحيات (قراءة/كتابة حسب المستخدم أو الأدمن).
         if(!window.firebaseDB) return false;
-        if (window._adminAuthFailed && Date.now() - (window._adminAuthFailedAt || 0) < 30000) return false;
-        try {
-            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
-            const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
-            const { getDatabase, ref } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
-            if (!window.adminApp) { window.adminApp = initializeApp(FIREBASE_CONFIG, 'admin'); }
-            if (!window.adminAuth) { window.adminAuth = getAuth(window.adminApp); }
-            if (!window.adminDatabase) {
-                window.adminDatabase = getDatabase(window.adminApp);
-                window.adminFirebaseRef = ref;
-            }
-            if (!window.adminAuth.currentUser) {
-                try {
-                    await Promise.race([
-                        signInWithEmailAndPassword(window.adminAuth, 'admin@bravostore.com', 'Bravo@2025'),
-                        new Promise((_, rej) => setTimeout(() => rej(new Error('AUTH_TIMEOUT')), 5000))
-                    ]);
-                } catch(e) {
-                    if (e.message === 'AUTH_TIMEOUT') { console.warn('Admin auth timed out'); }
-                    else {
-                        try {
-                            await Promise.race([
-                                createUserWithEmailAndPassword(window.adminAuth, 'admin@bravostore.com', 'Bravo@2025'),
-                                new Promise((_, rej) => setTimeout(() => rej(new Error('AUTH_TIMEOUT')), 5000))
-                            ]);
-                        } catch(err) { if (err.message !== 'AUTH_TIMEOUT') console.warn('Admin create user error:', err); }
-                    }
-                }
-                await new Promise(r => setTimeout(r, 800));
-            }
-            if (!window.adminAuth?.currentUser) {
-                window.adminDatabase = null;
-                window.adminFirebaseRef = null;
-                window._adminAuthFailed = true;
-                window._adminAuthFailedAt = Date.now();
-                console.warn('Admin auth failed, falling back to unauthenticated database');
-                return false;
-            }
-            return true;
-        } catch(err) { 
-            console.warn('Admin Auth check warning:', err);
-            window.adminDatabase = null;
-            window.adminFirebaseRef = null;
-            window._adminAuthFailed = true;
-            window._adminAuthFailedAt = Date.now();
-            return false;
-        }
+        return true;
     },
     get: async (path) => { 
         const localData = JSON.parse(localStorage.getItem('bravo_local_db') || '{}');
@@ -1145,19 +1098,70 @@ const DB = {
             const _rf = window.adminFirebaseRef || window.firebaseRef;
             try { window.firebaseOff(_rf(_db, path)); } catch(e) {}
         }
+    },
+    // 🔒 اشتراك مباشر باستعلام Firebase (يستخدم جلسة المستخدم الحالية)
+    onQuery: (fbQuery, callback) => {
+        if (!fbQuery || !window.firebaseOnValue) return;
+        try {
+            window.firebaseOnValue(fbQuery, (s) => {
+                let val = s.exists ? s.exists() : false;
+                val = val ? s.val() : null;
+                try { callback(val); } catch (err) { console.error('onQuery callback error:', err); }
+            });
+        } catch (e) { console.error('onQuery error:', e); }
+    },
+    // 🔒 قراءة مباشرة باستعلام Firebase
+    getRef: async (fbRef) => {
+        if (!fbRef || !window.firebaseGet) return null;
+        try {
+            const s = await window.firebaseGet(fbRef);
+            if (s instanceof Error) return null;
+            if (s.exists && s.exists()) return s.val();
+            return null;
+        } catch (e) { console.error('getRef error:', e); return null; }
     }
 };
+
+// ==================== SECURITY HELPERS ====================
+// 🔒 تحديد ما إذا كانت الجلسة الحالية جلسة أدمن (البريد المعتمد أو عقدة admins/{uid})
+async function isAdminSession() {
+    const user = (window.auth && window.auth.currentUser) ? window.auth.currentUser : null;
+    if (!user) return false;
+    if (user.email === 'hossamsala711@gmail.com') return true;
+    if (!window.firebaseGet || !window.firebaseRef || !window.database) return false;
+    try {
+        const s = await window.firebaseGet(window.firebaseRef(window.database, 'admins/' + user.uid));
+        return !!(s && !(s instanceof Error) && s.exists && s.exists() && s.val() === true);
+    } catch (e) { return false; }
+}
+
+// 🔒 استعلام طلبات المستخدم فقط (بدلاً من قراءة كل الطلبات)
+function _ordersQuery(userId) {
+    if (!window.firebaseQuery || !window.firebaseRef || !window.database) return null;
+    return window.firebaseQuery(
+        window.firebaseRef(window.database, 'orders'),
+        window.firebaseOrderByChild('userId'),
+        window.firebaseEqualTo(userId)
+    );
+}
+
+// دمج الطلبات المحلية (المخزنة محلياً فقط) مع بيانات الاستعلام للحفاظ على ظهورها
+function _mergeLocalOrders(snapshotData, userId) {
+    let data = snapshotData || {};
+    try {
+        const local = JSON.parse(localStorage.getItem('bravo_local_db') || '{}').orders || {};
+        Object.entries(local).forEach(([id, o]) => {
+            if (o && o._isLocal && o.userId === userId && o.status !== 'trashed' && data[id] === undefined) {
+                data[id] = o;
+            }
+        });
+    } catch (e) {}
+    return data;
+}
 
 // ==================== SYSTEM SETTINGS (CMS) ====================
 async function loadSystemSettings() {
     try {
-        try {
-            const saved = JSON.parse(localStorage.getItem('bravoAdminCreds') || 'null');
-            if (saved && saved.username && saved.password) {
-                ADMIN_CREDENTIALS.username = saved.username;
-                ADMIN_CREDENTIALS.password = saved.password;
-            }
-        } catch (e) {}
         const settings = await DB.get('settings');
         if (settings) {
             if (settings.payments) {
@@ -1196,8 +1200,6 @@ function populateAdminSettingsUI() {
         bankIban.value = PAYMENT_ACCOUNTS.bank.iban || '';
         PAYMENT_ACCOUNTS.bank.active !== false ? bankToggle.classList.add('active') : bankToggle.classList.remove('active');
     }
-    const adUser = document.getElementById('newAdminUsername');
-    if (adUser) adUser.value = ADMIN_CREDENTIALS.username;
     loadStoreSettings();
 }
 
@@ -1246,18 +1248,20 @@ window.savePayment = async function(provider) {
 window.saveAdminCredentials = async function() {
     var _sacLang = document.documentElement.lang || 'ar';
     var _sacI18n = {
-        enterCredentials: _sacLang === 'ar' ? 'يرجى إدخال اسم المستخدم وكلمة المرور' : _sacLang === 'en' ? 'Please enter username and password' : 'Veuillez entrer le nom d\'utilisateur et le mot de passe',
+        noSession: _sacLang === 'ar' ? 'سجل الدخول بحساب الأدمن أولاً' : _sacLang === 'en' ? 'Log in as admin first' : 'Connectez-vous en tant qu\'administrateur d\'abord',
         minPassword: _sacLang === 'ar' ? 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' : _sacLang === 'en' ? 'Password must be at least 6 characters' : 'Le mot de passe doit contenir au moins 6 caractères',
-        updated: _sacLang === 'ar' ? 'تم تحديث بيانات الدخول بنجاح' : _sacLang === 'en' ? 'Login credentials updated' : 'Identifiants mis à jour'
+        updated: _sacLang === 'ar' ? 'تم تحديث كلمة مرور حساب الأدمن بنجاح' : _sacLang === 'en' ? 'Admin password updated' : 'Mot de passe administrateur mis à jour',
+        failed: _sacLang === 'ar' ? 'فشل التحديث: ' : _sacLang === 'en' ? 'Update failed: ' : 'Échec de la mise à jour : '
     };
-    const u = document.getElementById('newAdminUsername').value.trim(), p = document.getElementById('newAdminPassword').value.trim();
-    if (!u || !p) return showToast('❌', _sacI18n.enterCredentials, 'error');
-    if (p.length < 6) return showToast('❌', _sacI18n.minPassword, 'error');
-    if (await DB.update('settings/admin', { username: u, password: p })) {
-        ADMIN_CREDENTIALS.username = u; ADMIN_CREDENTIALS.password = p;
-        try { localStorage.setItem('bravoAdminCreds', JSON.stringify({ username: u, password: p })); } catch(e) {}
+    const p = document.getElementById('newAdminPassword').value.trim();
+    if (!p || p.length < 6) return showToast('❌', _sacI18n.minPassword, 'error');
+    if (!auth || !auth.currentUser) return showToast('❌', _sacI18n.noSession, 'error');
+    try {
+        await window.firebaseUpdatePassword(auth.currentUser, p);
         document.getElementById('newAdminPassword').value = '';
         showToast('✅', _sacI18n.updated, 'success');
+    } catch (e) {
+        showToast('❌', _sacI18n.failed + (e.message || ''), 'error');
     }
 };
 
@@ -1346,10 +1350,12 @@ async function loadUserData(userId) {
         localStorage.setItem(STORAGE_KEYS.cart, JSON.stringify(userCart)); updateCartBadge(); 
         if(window.renderCartPage) window.renderCartPage(); 
     });
-    DB.on('orders', (data) => {
+    const _ordersQ = _ordersQuery(userId);
+    if (_ordersQ) DB.onQuery(_ordersQ, (data) => {
+        const merged = _mergeLocalOrders(data, userId);
         let count = 0;
-        if (data) {
-            count = Object.values(data).filter(o => o.userId === userId && o.status !== 'trashed').length;
+        if (merged) {
+            count = Object.values(merged).filter(o => o.userId === userId && o.status !== 'trashed').length;
         }
         if (count > 0 || !window.myOrders || window.myOrders.length === 0) {
             window._ordersCount = count;
@@ -3001,11 +3007,18 @@ function openWhatsAppOptional() { const m = sessionStorage.getItem('whatsappMess
 function showCheckoutLoading() { if (!window._checkoutLoadingStart) window._checkoutLoadingStart = Date.now(); var card = document.querySelector('.order-summary'); if (!card) return; var lt = currentLang === 'ar' ? 'جاري تحميل الطلب...' : currentLang === 'en' ? 'Loading order...' : 'Chargement...'; var wt = currentLang === 'ar' ? 'يرجى الانتظار' : currentLang === 'en' ? 'Please wait' : 'Veuillez patienter'; if (!document.getElementById('ckAnims')) { var s = document.createElement('style'); s.id = 'ckAnims'; s.textContent = '@keyframes ckShimmer2{0%{background-position:200% 0}100%{background-position:-200% 0}}@keyframes ckSpin2{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes ckPulse2{0%,100%{opacity:1}50%{opacity:.35}}.ck-skel,.ck-skel *,.ck-skel *::before,.ck-skel *::after{animation-duration:1.4s!important;animation-iteration-count:infinite!important;animation-timing-function:ease-in-out!important;animation-play-state:running!important}.ck-skel{background:linear-gradient(90deg,rgba(147,51,234,.08) 25%,rgba(147,51,234,.22) 50%,rgba(147,51,234,.08) 75%);background-size:200% 100%;animation-name:ckShimmer2!important;border-radius:8px}.ck-spinner,.ck-spinner *{animation-duration:.7s!important;animation-iteration-count:infinite!important;animation-timing-function:linear!important;animation-play-state:running!important}.ck-spinner{animation-name:ckSpin2!important}.ck-spinner.ck-pulse{animation-name:ckSpin2,ckPulse2!important;animation-duration:.7s,1.8s!important;animation-iteration-count:infinite,infinite!important;animation-timing-function:linear,ease-in-out!important}.ck-pulse{animation-name:ckPulse2!important;animation-duration:1.8s!important;animation-iteration-count:infinite!important;animation-timing-function:ease-in-out!important;animation-play-state:running!important}'; document.head.appendChild(s); } card.innerHTML = '<div style="text-align:center;padding:28px 15px 20px"><div class="ck-spinner ck-pulse" style="width:48px;height:48px;margin:0 auto 14px;border:3px solid rgba(147,51,234,0.15);border-top-color:rgba(147,51,234,0.9);border-right-color:rgba(236,72,153,0.7);border-radius:50%"></div><div style="color:#fff;font-weight:800;font-size:1.1em;text-shadow:0 1px 4px rgba(0,0,0,0.5)">' + lt + '</div><div style="color:rgba(255,255,255,0.85);font-size:0.85em;margin-top:6px;font-weight:600">' + wt + '</div></div><div style="padding:0 15px 20px"><div class="ck-skel" style="height:14px;width:65%;margin:0 auto 16px"></div><div style="background:rgba(147,51,234,0.05);border:1px solid rgba(147,51,234,0.08);border-radius:14px;padding:14px;margin-bottom:10px"><div class="ck-skel" style="height:13px;width:70%;margin-bottom:12px"></div><div style="display:flex;gap:12px;align-items:center"><div class="ck-skel" style="width:54px;height:54px;border-radius:12px;flex-shrink:0"></div><div style="flex:1"><div class="ck-skel" style="height:11px;width:85%;margin-bottom:7px"></div><div class="ck-skel" style="height:11px;width:50%;margin-bottom:7px"></div><div class="ck-skel" style="height:11px;width:35%"></div></div></div></div><div style="background:rgba(147,51,234,0.05);border:1px solid rgba(147,51,234,0.08);border-radius:14px;padding:14px;margin-bottom:14px"><div style="display:flex;gap:12px;align-items:center"><div class="ck-skel" style="width:54px;height:54px;border-radius:12px;flex-shrink:0"></div><div style="flex:1"><div class="ck-skel" style="height:11px;width:75%;margin-bottom:7px"></div><div class="ck-skel" style="height:11px;width:45%"></div></div></div></div><div style="height:1px;background:rgba(147,51,234,0.1);margin-bottom:14px"></div><div style="display:flex;justify-content:space-between;align-items:center"><div class="ck-skel" style="height:15px;width:35%"></div><div class="ck-skel" style="height:20px;width:28%;border-radius:8px"></div></div></div>'; } function initializeCheckoutPage() { const f = document.getElementById('checkoutForm'); if (!f) return; showCheckoutLoading(); getCheckoutOrderData(); if (window.loadPaymentMethods && (!window.paymentMethods || !Object.keys(window.paymentMethods).length)) { window.loadPaymentMethods().then(function(){ displayPaymentMethods(); }); } else { displayPaymentMethods(); } const fi = document.getElementById('fileInput'); if (fi) fi.addEventListener('change', handleCheckoutFileUpload); ['customerName', 'customerEmail', 'customerPhone'].forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', checkCheckoutFormValidity); }); f.addEventListener('submit', handleCheckoutSubmit); requireCheckoutLogin(); } function requireCheckoutLogin() { const g = document.querySelector('.checkout-grid'); const p = document.querySelector('.page-hero-wrapper .steps-indicator'); const a = document.getElementById('checkoutAuthPrompt'); if (!g) return; if (currentUser) { if (a) a.style.display = 'none'; g.style.display = ''; if (p) p.style.display = ''; return; }     if (!a) { const d = document.createElement('div'); d.id = 'checkoutAuthPrompt'; d.style.cssText = 'text-align:center;padding:60px 20px 80px'; d.innerHTML = `<div style="font-size:5em;margin-bottom:25px">🔒</div><h2 style="font-size:2em;margin-bottom:15px;color:var(--text-primary)">${currentLang === 'ar' ? 'يجب تسجيل الدخول أولاً' : currentLang === 'en' ? 'Login Required' : 'Connexion requise'}</h2><p style="color:var(--text-secondary);font-size:1.2em;margin-bottom:30px">${currentLang === 'ar' ? 'يرجى تسجيل الدخول إلى حسابك لإتمام عملية الشراء' : currentLang === 'en' ? 'Please log in to your account to complete the purchase' : 'Veuillez vous connecter pour finaliser l\u2019achat'}</p><a href="auth.html?redirect=${encodeURIComponent(window.location.href)}" style="display:inline-flex;align-items:center;gap:12px;padding:18px 40px;background:var(--gradient-primary);color:white;border-radius:16px;font-size:1.2em;font-weight:900;text-decoration:none;transition:transform 0.3s,box-shadow 0.3s"><i class="fas fa-sign-in-alt"></i> ${currentLang === 'ar' ? 'تسجيل الدخول' : currentLang === 'en' ? 'Login' : 'Connexion'}</a></div>`; g.parentNode.insertBefore(d, g); } var authEl = document.getElementById('checkoutAuthPrompt'); if (authEl) authEl.style.display = ''; g.style.display = 'none'; if (p) p.style.display = 'none'; }
 
 // ==================== UI BADGES ====================
+function _badgeNodes(ids) {
+    const nodes = [];
+    ids.forEach(id => {
+        let sel;
+        try { sel = '#' + (window.CSS && CSS.escape ? CSS.escape(id) : id); } catch(e) { sel = '#' + id; }
+        nodes.push(...document.querySelectorAll(sel));
+    });
+    return nodes;
+}
 function updateNotificationsBadge() {
     const count = userNotifications.filter(n => !n.read).length;
-    ['notificationsBadge', 'notificationsBadgeMobile'].forEach(id => {
-        const b = document.getElementById(id);
-        if (!b) return;
+    _badgeNodes(['notificationsBadge', 'notificationsBadgeMobile']).forEach(b => {
         b.textContent = count > 99 ? '99+' : count;
         b.style.display = count > 0 ? 'flex' : 'none';
         if (count > 0) {
@@ -3017,9 +3030,7 @@ function updateNotificationsBadge() {
 }
 function updateWishlistBadge() {
     const count = userWishlist.length;
-    ['wishlistBadge', 'wishlistBadgeMobile'].forEach(id => {
-        const b = document.getElementById(id);
-        if (!b) return;
+    _badgeNodes(['wishlistBadge', 'wishlistBadgeMobile']).forEach(b => {
         b.textContent = count > 99 ? '99+' : count;
         b.style.display = count > 0 ? 'flex' : 'none';
         if (count > 0) {
@@ -3031,9 +3042,7 @@ function updateWishlistBadge() {
 }
 function updateCartBadge() {
     const count = userCart.reduce((a,b) => a + ((b && b.quantity) || 1), 0);
-    ['cartBadge', 'cartBadgeMobile'].forEach(id => {
-        const b = document.getElementById(id);
-        if (!b) return;
+    _badgeNodes(['cartBadge', 'cartBadgeMobile']).forEach(b => {
         b.textContent = count > 99 ? '99+' : count;
         b.style.display = count > 0 ? 'flex' : 'none';
         if (count > 0) {
@@ -3048,9 +3057,7 @@ function updateOrdersBadge() {
     let count = window.myOrders ? window.myOrders.length : parseInt(localStorage.getItem(STORAGE_KEYS.ordersCount) || '0');
     try { localStorage.setItem(STORAGE_KEYS.ordersCount, String(count)); } catch(e) {}
     const prevCount = parseInt(localStorage.getItem(STORAGE_KEYS.ordersCount + '_prev') || '-1');
-    ['ordersBadge', 'ordersBadgeMobile'].forEach(id => {
-        const b = document.getElementById(id);
-        if (!b) return;
+    _badgeNodes(['ordersBadge', 'ordersBadgeMobile']).forEach(b => {
         b.textContent = count > 99 ? '99+' : count;
         b.style.display = count > 0 ? 'flex' : 'none';
         if (count > 0 && count !== prevCount) {
@@ -4157,7 +4164,38 @@ document.addEventListener('click', e => { if (e.target.matches('a[href^="#"]')) 
 
 function setActiveMenuItem() { var rawPath = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase(); var p = rawPath.replace(/\.html$/, ''); if (!p) p = 'index.html'; document.querySelectorAll('.nav-menu a:not(.tab-link)').forEach(function(l) { var h = l.getAttribute('href'); if (!h && l.hasAttribute('aria-current')) return; l.classList.remove('active'); if (!h) return; var hClean = h.replace(/\.html$/, '').toLowerCase(); if (hClean === p || h.toLowerCase() === rawPath || (hClean === 'index' && (p === 'index.html' || p === '' || p === '/'))) l.classList.add('active'); }); }
 
-function checkAdmin() { const p = new URLSearchParams(window.location.search); if (p.get('admin') === APP_CONFIG.adminPasscode) { sessionStorage.setItem(STORAGE_KEYS.adminSession, 'active'); window.history.replaceState({}, '', window.location.pathname); } if (sessionStorage.getItem(STORAGE_KEYS.adminSession) === 'active') { const b = document.getElementById('adminBtn'); if (b) b.style.display = 'flex'; } }
+function _ensureMobileAdminBtn() {
+    if (/admin\.html/.test(window.location.pathname)) return null;
+    var existing = document.getElementById('adminBtnMobile');
+    if (existing) return existing;
+    var nav = document.querySelector('.nav-actions');
+    if (!nav) return null;
+    var langWrap = document.getElementById('languageSection');
+    if (!langWrap) {
+        var ls = nav.querySelector('.action-btn.lang-switch');
+        if (ls) langWrap = ls.closest('.action-btn-wrapper');
+    }
+    var a = document.createElement('a');
+    a.id = 'adminBtnMobile';
+    a.className = 'admin-btn-mobile';
+    a.href = 'admin.html';
+    a.setAttribute('aria-label', 'لوحة التحكم');
+    a.style.display = 'none';
+    a.innerHTML = '<i class="fas fa-user-shield" aria-hidden="true"></i><span data-ar="لوحة التحكم" data-en="Admin" data-fr="Admin">لوحة التحكم</span>';
+    if (langWrap && langWrap.parentNode) langWrap.parentNode.insertBefore(a, langWrap.nextSibling);
+    else nav.appendChild(a);
+    return a;
+}
+
+async function checkAdmin() {
+    const b = document.getElementById('adminBtn');
+    const mb = _ensureMobileAdminBtn();
+    if (!b && !mb) return;
+    if (await isAdminSession()) {
+        if (b) b.style.display = 'flex';
+        if (mb) mb.style.display = 'flex';
+    }
+}
 
 // ==================== PARTICLES ====================
 function initializeParticles() {
@@ -4195,14 +4233,16 @@ function showCustomModal(type, title, message, buttons) {
 function closeCustomModal() { const o = document.getElementById('customModalOverlay'); if (o) o.classList.remove('active'); }
 window.closeCustomModal = closeCustomModal;
 
-function checkAdminLoginStatus() {
+async function checkAdminLoginStatus() {
     const login = document.getElementById('loginSection'), panel = document.getElementById('adminPanel');
     if (!login || !panel) return;
-    if (sessionStorage.getItem('bravoAdminLoggedIn') === 'true' || localStorage.getItem('bravoAdminLoggedIn') === 'true') { 
+    const isAdmin = await isAdminSession();
+    if (isAdmin) {
         sessionStorage.setItem('bravoAdminLoggedIn', 'true');
         document.body.classList.remove('login-state');
         loadAdminData();
-    } else { 
+    } else {
+        sessionStorage.removeItem('bravoAdminLoggedIn');
         document.body.classList.add('login-state');
     }
 }
@@ -4294,8 +4334,20 @@ function initAdminLogin() {
             return;
         }
 
-        // ✅ تحقق من البيانات المحلية أولاً
-        if (username !== ADMIN_CREDENTIALS.username || password !== ADMIN_CREDENTIALS.password) {
+        // 🔒 تسجيل الدخول عبر Firebase Auth — لا توجد بيانات اعتماد مدمجة في الواجهة
+        const btn = form.querySelector('.login-btn');
+        let _ok = false;
+        try {
+            const _authM = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
+            if (btn) { btn.disabled = true; btn.style.opacity = '0.6'; }
+            const _cred = await _authM.signInWithEmailAndPassword(auth, username, password);
+            if (!(await isAdminSession())) {
+                try { await _authM.signOut(auth); } catch (e2) {}
+                throw new Error('NOT_ADMIN');
+            }
+            adminLoginSuccess(btn, username);
+            _ok = true;
+        } catch (err) {
             loginAttempts++;
             sessionStorage.setItem('loginAttempts', loginAttempts.toString());
             const rem = MAX_LOGIN_ATTEMPTS - loginAttempts;
@@ -4303,7 +4355,6 @@ function initAdminLogin() {
             ui.style.borderColor = '#ef4444';
             pi.style.borderColor = '#ef4444';
             setTimeout(() => { ui.style.borderColor = ''; pi.style.borderColor = ''; }, 3000);
-
             if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
                 lockoutTime = Date.now() + (15 * 60 * 1000);
                 sessionStorage.setItem('lockoutTime', lockoutTime.toString());
@@ -4311,23 +4362,17 @@ function initAdminLogin() {
                     currentLang === 'ar' ? 'تم القفل 15 دقيقة' : currentLang === 'en' ? 'Locked 15 min' : 'Verrouillé 15 min',
                     [{ text: 'OK', class: 'primary' }]);
                 checkLockout();
-            } else if (rem <= 2) {
-                showCustomModal('error', '⚠️ ' + (currentLang === 'ar' ? 'تحذير!' : currentLang === 'en' ? 'Warning!' : 'Avertissement !'),
-                    currentLang === 'ar' ? `بيانات خاطئة!\nمتبقي ${rem} محاولة` : currentLang === 'en' ? `Wrong!\n${rem} left` : `Erreur !\n${rem} restante`,
-                    [{ text: 'OK', class: 'primary' }]);
-            } else {
-                showToast(currentLang === 'ar' ? 'خطأ' : currentLang === 'en' ? 'Error' : 'Erreur',
-                    currentLang === 'ar' ? `بيانات خاطئة! (${rem} محاولات)` : currentLang === 'en' ? `Wrong! (${rem} left)` : `Erreur ! (${rem} restantes)`, 'error');
             }
+            const _isNotAdmin = err && err.message === 'NOT_ADMIN';
+            const _msg = _isNotAdmin
+                ? (currentLang === 'ar' ? 'هذا الحساب ليس حساب أدمن' : currentLang === 'en' ? 'This account is not an admin' : 'Ce compte n\'est pas un administrateur')
+                : (currentLang === 'ar' ? 'بيانات الدخول خاطئة' : currentLang === 'en' ? 'Wrong credentials' : 'Identifiants incorrects');
+            showToast('❌', _msg, 'error');
             pi.value = '';
             pi.focus();
-            window._adminLoginSubmitting = false;
-            return;
         }
-
-        // ✅ البيانات صح - دخول ناجح
-        const btn = form.querySelector('.login-btn');
-        adminLoginSuccess(btn, username);
+        if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+        if (_ok) { loginAttempts = 0; sessionStorage.setItem('loginAttempts', '0'); sessionStorage.setItem('lockoutTime', '0'); }
         window._adminLoginSubmitting = false;
     });
 }
@@ -4378,10 +4423,10 @@ function adminLoginSuccess(btn, username) {
 
 // ==================== ADMIN LOGOUT ====================
 async function signOutAdminFirebase() {
-    if (window.adminAuth && window.adminAuth.currentUser) {
+    if (auth && auth.currentUser) {
         try {
             const { signOut } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
-            await signOut(window.adminAuth);
+            await signOut(auth);
         } catch(e) { console.warn('Admin sign-out warning:', e); }
     }
 }
@@ -8771,25 +8816,29 @@ window.mergeGuestWishlistToUser = async function(userId) {
         if (!Array.isArray(guestWishlist) || guestWishlist.length === 0) { console.log("✅ [Merge] مفضلة الضيف فارغة."); return; }
         console.log("❤️ [Merge] مفضلة الضيف:", guestWishlist);
 
-        const fbWishlistRaw = await DB.get(`wishlist/${userId}`);
+        const fbWishlistRaw = await DB.get(`wishlists/${userId}`);
         console.log("☁️ [Merge] مفضلة المستخدم الحالية:", fbWishlistRaw);
 
-        let fbWishlist = [];
-        if (Array.isArray(fbWishlistRaw)) fbWishlist = fbWishlistRaw;
-        else if (fbWishlistRaw && typeof fbWishlistRaw === 'object') fbWishlist = Object.values(fbWishlistRaw);
+        let fbWishlist = {};
+        if (Array.isArray(fbWishlistRaw)) fbWishlistRaw.forEach(i => { if(i?.id) fbWishlist[i.id] = i; });
+        else if (fbWishlistRaw && typeof fbWishlistRaw === 'object') fbWishlist = fbWishlistRaw;
 
-        const merged = [...fbWishlist];
-        guestWishlist.forEach(item => { if (item?.id && !merged.find(i => i.id === item.id)) merged.push(item); });
+        const merged = { ...fbWishlist };
+        guestWishlist.forEach(item => { if (item?.id) merged[item.id] = item; });
         
-        // تنظيف المفضلة
-        const cleanMerged = merged.filter(item => item && item.id && item.id !== 'undefined' && item.title && item.title !== 'undefined');
-        console.log("🔀 [Merge] المفضلة المدمجة (بعد التنظيف):", cleanMerged);
+        // تنظيف المفضلة: إزالة العناصر التالفة (null, undefined, أو ناقصة id/title)
+        const mergedArray = Object.values(merged).filter(item => item && item.id && item.id !== 'undefined' && item.title && item.title !== 'undefined');
+        console.log("🔀 [Merge] المفضلة المدمجة (بعد التنظيف):", mergedArray);
 
-        await DB.set(`wishlist/${userId}`, cleanMerged);
-        console.log("💾 [Merge] تم حفظ المفضلة.");
+        // تحويل المصفوفة إلى كائن keyed by productId للتوافق مع toggleWishlist/DB.on
+        const mergedObject = {};
+        mergedArray.forEach(item => { if (item && item.id) mergedObject[item.id] = item; });
+        await DB.set(`wishlists/${userId}`, mergedObject);
+        console.log("💾 [Merge] تم حفظ المفضلة في قاعدة البيانات (ككائن).");
 
         localStorage.removeItem(STORAGE_KEYS.wishlist);
-        userWishlist = cleanMerged;
+        userWishlist = mergedArray;
+        if (window.updateWishlistBadge) window.updateWishlistBadge();
         if (window.renderWishlistPage) window.renderWishlistPage();
         console.log("🎉 [Merge] === تم دمج المفضلة بنجاح ===");
     } catch (e) { console.error('❌ [Merge Wishlist] خطأ:', e); }
@@ -8894,7 +8943,9 @@ window.initOrdersPage = async function() {
         if (!currentUser) return window.location.href = 'auth.html?redirect=orders.html';
     }
     window._lastOrdersDataHash = '';
-    DB.on(`orders`, async (data) => {
+    const _oQuery = _ordersQuery(currentUser.uid);
+    const _ordersListener = async (rawData) => {
+        const data = _mergeLocalOrders(rawData, currentUser.uid);
         const ls2 = document.getElementById('loadingState'); if(ls2) ls2.style.display = 'none';
         if (!data) { 
             window.renderOrdersList([]); 
@@ -9018,7 +9069,8 @@ window.initOrdersPage = async function() {
             window.initOrdersPriceSlider();
             _execOrdersSearch();
         }
-    });
+    };
+    if (_oQuery) DB.onQuery(_oQuery, _ordersListener);
 };
 
 window.renderOrdersList = function(orders) {
@@ -9412,6 +9464,8 @@ window.setOrdersSort = function(sort) {
     if (window.filterUserOrdersWithSearch) window.filterUserOrdersWithSearch();
 };
 
+// Orders-page-only versions (products page uses the shared definition above)
+if (document.body.classList.contains('orders-page')) {
 window.updatePriceRange = function() {
     try {
         const priceMinEl = document.getElementById('priceMin');
@@ -9447,6 +9501,7 @@ window.updatePriceFromInput = function(input, type) {
     }
     window.updatePriceRange();
 };
+}
 
 // Initialize price slider max based on orders
 window.initOrdersPriceSlider = function() {
@@ -9502,8 +9557,8 @@ window.initProfilePage = async function() {
         (async function(){
             try {
                 if (window.firebaseDB) {
-                    const snap = await window.firebaseGet(window.firebaseRef(database, 'orders'));
-                    if (snap.exists()) {
+                    const snap = await window.firebaseGet(_ordersQuery(currentUser.uid));
+                    if (snap && !(snap instanceof Error) && snap.exists()) {
                         var od = snap.val();
                         var mo = Object.entries(od).map(function(e){ var o=e[1]; o.id=e[0]; return o; }).filter(function(o){ return o.userId === currentUser.uid && o.status !== 'trashed'; });
                         if (document.getElementById('totalOrders')) document.getElementById('totalOrders').textContent = mo.length;

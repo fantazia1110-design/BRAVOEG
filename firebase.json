@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "public",
+    "public": ".",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -18,12 +18,104 @@
         "destination": "/admin.html"
       },
       {
+        "source": "/admin/:path*",
+        "destination": "/admin.html"
+      },
+      {
         "source": "/checkout",
         "destination": "/checkout.html"
       },
       {
-        "source": "/checkout/:productId",
+        "source": "/checkout/:path*",
         "destination": "/checkout.html"
+      },
+      {
+        "source": "/auth",
+        "destination": "/auth.html"
+      },
+      {
+        "source": "/auth/:path*",
+        "destination": "/auth.html"
+      },
+      {
+        "source": "/orders",
+        "destination": "/orders.html"
+      },
+      {
+        "source": "/orders/:path*",
+        "destination": "/orders.html"
+      },
+      {
+        "source": "/cart",
+        "destination": "/cart.html"
+      },
+      {
+        "source": "/cart/:path*",
+        "destination": "/cart.html"
+      },
+      {
+        "source": "/wishlist",
+        "destination": "/wishlist.html"
+      },
+      {
+        "source": "/wishlist/:path*",
+        "destination": "/wishlist.html"
+      },
+      {
+        "source": "/profile",
+        "destination": "/profile.html"
+      },
+      {
+        "source": "/profile/:path*",
+        "destination": "/profile.html"
+      },
+      {
+        "source": "/pending",
+        "destination": "/pending-order.html"
+      },
+      {
+        "source": "/pending/:path*",
+        "destination": "/pending-order.html"
+      },
+      {
+        "source": "/pending-order",
+        "destination": "/pending-order.html"
+      },
+      {
+        "source": "/pending-order/:path*",
+        "destination": "/pending-order.html"
+      },
+      {
+        "source": "/products",
+        "destination": "/products.html"
+      },
+      {
+        "source": "/products/:path*",
+        "destination": "/products.html"
+      },
+      {
+        "source": "/product-details",
+        "destination": "/product-details.html"
+      },
+      {
+        "source": "/product-details/:path*",
+        "destination": "/product-details.html"
+      },
+      {
+        "source": "/about",
+        "destination": "/about.html"
+      },
+      {
+        "source": "/contact",
+        "destination": "/contact.html"
+      },
+      {
+        "source": "/download",
+        "destination": "/download.html"
+      },
+      {
+        "source": "/404",
+        "destination": "/404.html"
       },
       {
         "source": "**",
